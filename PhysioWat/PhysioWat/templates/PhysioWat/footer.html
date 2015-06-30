@@ -1,9 +1,10 @@
 {% block footer %}
     Hello World!
     This was just a trial script to see whether <br> the thing worked. Probably it will not, but let it here ç:
-    <script>
-    var variabile =  {{ a }}
-    {%if typeof(variabile)=="Number"%}{% batman!! %}{% robin %}
-    </script>
-   
+    {# the next condition has to be fixed #}
+    {% if typeof(variabile)=="Number" %}
+        batman
+    {% else %}
+        bla
+    {% endif %}
 {% endblock %}
