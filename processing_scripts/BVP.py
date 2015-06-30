@@ -68,17 +68,18 @@ def iir_filter(SIGNAL, B, A):
     sig=filtfilt(B, A, SIGNAL)
     return(sig)
 
-path = #add the path
-fileName = #add the filename
+if __name__ == '__main__':
+    path = #add the path
+    fileName = #add the filename
 
-SAMPLING_FREQ = #add the sampling frequency
+    SAMPLING_FREQ = #add the sampling frequency
 
-data = pd.DataFrame.from_csv(path+fileName, sep=';')
-plt.plot(data.index, data.BVP)
-datanp= data.as_matrix().reshape(data.shape[0])
+    data = pd.DataFrame.from_csv(path+fileName, sep=';')
+    plt.plot(data.index, data.BVP)
+    datanp= data.as_matrix().reshape(data.shape[0])
 
-bPar, aPar = getFilterParam(SAMPLING_FREQ)
-filtered_signal = iir_filter(datanp, bPar, aPar)
+    bPar, aPar = getFilterParam(SAMPLING_FREQ)
+    filtered_signal = iir_filter(datanp, bPar, aPar)
 
-plt.plot(data.index, filtered_signal)
-plt.show()
+    plt.plot(data.index, filtered_signal)
+    plt.show()
