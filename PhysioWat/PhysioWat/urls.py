@@ -15,9 +15,12 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+import django.contrib.auth
 from PhysioWat import views
 
 urlpatterns = [
+    #all the urls to manage users
+    url('^', include('django.contrib.auth.urls')),
     #adminpage
     url(r'^admin/', include(admin.site.urls)),
     #homepage
