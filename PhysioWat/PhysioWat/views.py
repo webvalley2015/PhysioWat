@@ -1,5 +1,4 @@
 __author__ = 'federico'
-from django.http import HttpResponse
 from django.shortcuts import render
 
 def index(request):
