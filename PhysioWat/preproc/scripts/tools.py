@@ -1,8 +1,6 @@
 from __future__ import division
 import numpy as np
 import matplotlib.pyplot as plt
-import json
-import pandas as pd
 from pandas import DataFrame
 
 def peakdet(v, delta, x = None, startMax = True):
@@ -94,13 +92,13 @@ def plotter(filename):
     plt.ylabel("GSR (nS)")
     plt.show()
 
-def load_file(filename, header=1, sep=";"):
+def load_file(filename):
     '''
     Load data from file
     :param filename: name of the file where data is stored
     :return: data as np.array
     '''
-    data = np.genfromtxt(filename, delimiter=sep, skip_header=header)
+    data = np.genfromtxt(filename, delimiter=";", skip_header=1)
     data[:,0]-=data[0,0]
     return data
 
@@ -150,35 +148,6 @@ def getIBI (signal, SAMP_F, peakDelta):
     SAMP_F: the sampling frequency of the data
     peakDelta: the minimum height of a peak to be recognised
     '''
-    if len(series)==len(labels):
-        li=[]
-        for i in range(len(series)):
-            li.append({ "name" : labels[i],
-                    "data" : series[i].tolist()
-                    })
-        json_string=json.dumps({"series":li})
-        file=open("graph.json", "w")
-        file.write(json_string)
-        file.close()
-
-def load_file_pd(filename):
-    '''
-    Load data from file
-    :param filename: name of the file where data is stored
-    :return: data as pandas.DataFrame
-    '''
-    data = pd.read_csv(filename, sep=";")
-    return data
-
-def downsampling(data, FSAMP, FS_NEW):
-    N_SAMP = FSAMP/FS_NEW
-
-    indexes = np.arange(len(data))
-    keep = (indexes%N_SAMP == 0)
-
-    data = np.array(data[keep,:])
-    return data
-
     # estimating peaks and IBI
     t = np.arange(0, len(signal)/float(SAMP_F), 1.0/SAMP_F)
     maxp, minp = peakdet(signal, peakDelta, t)

@@ -1,0 +1,19 @@
+{% extends 'PhysioWat/base.html' %}
+{% block container %}
+    <div style="padding:40px;margin:40px;border:1px solid #ccc">
+        <h1>CSV File Uploader</h1>
+
+        <form action="#" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form }}
+            {% if l %}
+                <select>
+                    {% for i in l %}
+                        <option value="{{ i }}">{{ i }}</option>
+                    {% endfor %}
+                </select>
+            {% endif %}
+            <input type="submit" value="Upload"/>
+        </form>
+    </div>
+{% endblock %}

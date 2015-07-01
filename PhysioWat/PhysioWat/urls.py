@@ -17,15 +17,15 @@ from django.conf.urls import include, url
 from django.contrib import admin
 import django.contrib.auth
 from PhysioWat import views
+from django.conf.urls.static import static
 
 urlpatterns = [
-    #all the urls to manage users
+    # all the urls to manage users
     url('^', include('django.contrib.auth.urls')),
-    #adminpage
+    # adminpage
     url(r'^admin/', include(admin.site.urls)),
-    #homepage
+    # homepage
     url(r'^$', views.index, name='index'),
-    #human upload page
-    url(r'^upload/$', 'uploader.views.home', name='fileupload'),
-] #+ static[settings.MEDIA_URL, document_root=settings.MEDIA_ROOT]
-
+    # human upload page
+    url(r'^uploader/', include('uploader.urls')),
+]
