@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import json
+import pandas as pd
 
 def peakdet(v, delta, x = None, startMax = True):
     '''
@@ -87,13 +88,13 @@ def plotter(filename):
     plt.ylabel("GSR (nS)")
     plt.show()
 
-def load_file(filename):
+def load_file(filename, header=1, sep=";"):
     '''
     Load data from file
     :param filename: name of the file where data is stored
     :return: data as np.array
     '''
-    data = np.genfromtxt(filename, delimiter=";", skip_header=1)
+    data = np.genfromtxt(filename, delimiter=sep, skip_header=header)
     data[:,0]-=data[0,0]
     return data
 
@@ -114,3 +115,22 @@ def prepare_json_to_plot(series, labels):
         file=open("graph.json", "w")
         file.write(json_string)
         file.close()
+
+def load_file_pd(filename):
+    '''
+    Load data from file
+    :param filename: name of the file where data is stored
+    :return: data as pandas.DataFrame
+    '''
+    data = pd.read_csv(filename, sep=";")
+    return data
+
+def downsampling(data, FSAMP, FS_NEW):
+    N_SAMP = FSAMP/FS_NEW
+
+    indexes = np.arange(len(data))
+    keep = (indexes%N_SAMP == 0)
+
+    data = np.array(data[keep,:])
+    return data
+
