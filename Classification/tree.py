@@ -17,14 +17,13 @@ for i in range(nClass): # for the number of features
 	nFeatures.append(len(data_mean[i])) # add the length of the feature data to the nFeatures
 
 N = min(nFeatures) # N is the minimum length of the feature data
-
 nTrain = N / 5 # divide the minimum length of the feature data by five, BUT WHY
 
 #initialize training and testing data arrays
 data_rnd = []
-dataTrain = [0,0,0]
+dataTrain = [0,0,0,0,0,0]
 labelsTrain = [0]
-dataTest = [0,0,0]
+dataTest = [0,0,0,0,0,0]
 labelsTest = [0]
 
 for i in range(nClass):
@@ -64,19 +63,12 @@ ax1.plot(dataTest)
 ax2 = fig.add_subplot(2,1,2)
 ax2.plot(labelsTest)
 
-
-
 # Train
 clf = tree.DecisionTreeClassifier()
-
 clf = clf.fit(dataTrain, labelsTrain) # fit the data using training data & labels
-
 labelsPredict = clf.predict(dataTest) # try to predict the labels
-
 score = clf.score(dataTest, labelsTest) # find the accuracy score
-
 print 'Classification Accuracy %f' % score # print out the accuracy score
-
 
 # Displaying the data, will be deleted later
 plt.figure()

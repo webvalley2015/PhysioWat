@@ -1,0 +1,229 @@
+@import url('http://fonts.googleapis.com/css?family=PT+Sans');
+@charset "utf-8";
+/* CSS Document */
+
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/* END CSS RESET */
+
+
+body {
+	background-color: #bdc3c7;
+	font-family: Segoe, 'PT Sans';
+	font-size: 16px;
+}
+
+.container {
+	width: 90%;
+	margin: 0 auto;
+}
+
+.column-left {
+	float: left;
+	width: 33%;
+}
+.column-right {
+	float: right;
+	width: 33%;
+}
+
+.column-center {
+	display: inline-block;
+	width: 34%;
+}
+
+.square {
+	position: relative;
+	text-align: center;
+	margin: 0 auto;
+	width: 90%;
+}
+
+p {
+	padding: 10px;
+	font-size: 1.2em;
+}
+
+h1 {
+	text-align: center;
+	font-size: 1.8em;
+	font-weight: 800;
+}
+
+.square p {
+	padding-top: 5px;
+	text-align: left;
+	text-indent: 45px;
+}
+
+button {
+	display: inline-block;
+	margin: 10px 0 0 0;
+	padding: 0 30px;
+	font-size: 1.3em;
+	font-family: "Verdana",sans-serif;
+	line-height: 1.8;
+	appearance: none;
+	box-shadow: none;
+	border-radius: 0;
+}
+
+button:focus {
+	outline: none
+}
+
+section.border button {
+	color: #6496c8;
+	background: rgba(0,0,0,0);
+	border: solid 3px #6496c8;
+}
+section.border button:hover,
+section.border button.hover {
+	border-color: #346392;
+	color: #346392;
+}
+section.border button:active,
+section.border button.active {
+	border-color: #27496d;
+	color: #27496d;
+}
+
+
+/*about page */
+/*  SECTIONS  ============================================================================= */
+
+.section {
+	clear: both;
+	padding: 0px;
+	margin: 0px;
+}
+
+/*  GROUPING  ============================================================================= */
+
+
+.group:before,
+.group:after {
+    content:"";
+    display:table;
+}
+.group:after {
+    clear:both;
+}
+.group {
+    zoom:1; /* For IE 6/7 (trigger hasLayout) */
+}
+
+/*  GRID COLUMN SETUP   ==================================================================== */
+
+.col {
+	display: block;
+	float:left;
+	margin: 1% 0 1% 1.6%;
+}
+
+.col:first-child { margin-left: 0; } /* all browsers except IE6 and lower */
+
+
+/*  REMOVE MARGINS AS ALL GO FULL WIDTH AT 480 PIXELS */
+
+@media only screen and (max-width: 480px) {
+	.col { 
+		margin: 1% 0 1% 0%;
+	}
+}
+/*  GRID OF THREE   ============================================================================= */
+
+	
+.span_3_of_3 {
+	width: 100%; 
+}
+
+.span_2_of_3 {
+	width: 66.13%; 
+}
+
+.span_1_of_3 {
+	width: 32.26%; 
+}
+
+
+/*  GO FULL WIDTH AT LESS THAN 480 PIXELS */
+
+@media only screen and (max-width: 480px) {
+	.span_3_of_3 {
+		width: 100%; 
+	}
+	.span_2_of_3 {
+		width: 100%; 
+	}
+	.span_1_of_3 {
+		width: 100%;
+	}
+}
+
+.card {
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: all 1s ease-in-out;
+  width: 100%;
+}
+.card:hover {
+  transform: rotateY(180deg);
+}
+.card .side {
+  backface-visibility: hidden;
+  height: 100%;
+  position: absolute;
+  width: 100%;
+}
+.card .back {
+  transform: rotateY(180deg);
+}
+/*end about page*/

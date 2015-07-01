@@ -40,6 +40,8 @@ INSTALLED_APPS = (
     #4 auth purposes
     'django.contrib.admindocs',
     'PhysioWat',
+    'uploader',
+    'extfeat',
     'preproc',
 )
 
@@ -80,8 +82,12 @@ WSGI_APPLICATION = 'PhysioWat.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'physiowat',
+        'USER': 'dbmanager',
+        'PASSWORD': 'webvalley',
+        'HOST': '192.168.210.175',
+        'PORT': '5432',
     }
 }
 
@@ -113,4 +119,9 @@ TEMPLATE_DIRS = (
     'PhysioWat/templates'
 )
 
+
+#after login where to go?
 LOGIN_REDIRECT_URL = '/'
+
+#where to store uploaded csv before deleting them all
+MEDIA_URL = '/media/'

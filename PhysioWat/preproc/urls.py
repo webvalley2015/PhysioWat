@@ -11,3 +11,4 @@ urlpatterns = patterns('preproc.views',
 
 
 #the method as_view(), from the library, will  call get_data(), written, and mabye other things.
+
