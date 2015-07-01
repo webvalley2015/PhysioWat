@@ -11,15 +11,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, old_way=False):
+def estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, FS=None):
     """
     TIME_DRV, DRV, PH_DRV, TN_DRV = estimate_drivers(TIME_GSR, GSR, T1, T2, MX, DELTA_PEAK):
 
     Estimates the various driving components of a GSR signal.
     The IRF is a bateman function defined by the gen_bateman function.
     """
-
-    FS = 1/( t_gsr[1] - t_gsr[0])
+    if FS==None:
+        FS = 1/( t_gsr[1] - t_gsr[0])
 
     #======================
     # step 1: DECONVOLUTION
@@ -120,7 +120,7 @@ def estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, old_way=False):
 
 def processPSR(pha, t, DELTA):
     """
-    vector_max, vector_min, vector_peaks = processPSR(pha, t, DELTA)
+    pha, maxmin, peaks = processPSR(pha, t, DELTA)
 
     Process the entire phasic signal iSn order to extract the informations for the subsequently index extraction.
     """
@@ -132,7 +132,7 @@ def processPSR(pha, t, DELTA):
     # TODO: select max > DELTA
 
     if len(max_pha)==0 or len(min_pha)==0 :
-        print('no peaks found')
+        print('no peaks found processPSR')
         return pd.DataFrame()
 
     vector_maxmin = np.zeros(len(pha))
@@ -155,8 +155,8 @@ def PSRindexes(pha_processed, plot = False):
 
     Returns a dict of labeled features.
     """
-    if len(pha_processed) == 0: # no peaks
-        print('no peaks found')
+    if len(pha_processed.peaks) == 0: # no peaks
+        print('no peaks found PSR indexes')
         return dict()
 
     pha = np.array(pha_processed.pha)
@@ -252,7 +252,6 @@ def PSRindexes(pha_processed, plot = False):
         #compute latency
         latency = t_max[0] - t[0]
         features.update({'latency' : latency})
-
     return features
 
 def get_interpolation_indexes(maxs, driver, n=3):
@@ -276,3 +275,20 @@ def get_interpolation_indexes(maxs, driver, n=3):
             result=np.r_[result,np.arange(prev, start)]
         prev=end
     return result
+
+def extract_features(pha, WINSTEP=10, WINLEN=80):
+    '''
+    STEP e LEN in secondi
+    :param pha:
+    :param WINSTEP:
+    :param WINLEN:
+    :return:
+    '''
+    feats_all=pd.DataFrame()
+    for start in range(0,len(pha.index)-WINLEN, WINSTEP):
+        t_start=pha.index[start]
+        t_end=t_start+WINLEN/4
+        window=pha[t_start:t_end]
+        winfeat=pd.DataFrame(PSRindexes(window), index=[t_start])
+        feats_all=feats_all.append(winfeat)
+    return feats_all
