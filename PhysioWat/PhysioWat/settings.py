@@ -39,7 +39,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     #4 auth purposes
     'django.contrib.admindocs',
-    'PhysioWat'
+    'PhysioWat',
+    'uploader',
+    'extfeat',
+    'preproc',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -109,4 +112,8 @@ TEMPLATE_DIRS = (
     'PhysioWat/templates'
 )
 
+#after login where to go?
 LOGIN_REDIRECT_URL = '/'
+
+#where to store uploaded csv before deleting them all
+MEDIA_URL = '/media/'

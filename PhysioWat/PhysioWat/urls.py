@@ -25,5 +25,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     #homepage
     url(r'^$', views.index, name='index'),
-]
+    #human upload page
+    url(r'^upload/$', 'uploader.views.home', name='fileupload'),
+] #+ static[settings.MEDIA_URL, document_root=settings.MEDIA_ROOT]
 
