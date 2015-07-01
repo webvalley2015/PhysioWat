@@ -141,6 +141,7 @@ def max2interval(timesMax, minrate=40, maxrate=180):
             tprev=tact #aggiorno tprev
     return np.array(RR),  np.array(timeRR)
 
+
 def prepare_json_to_plot(series, labels):
     '''
     Saves a json file in order to pass it to the layout team
