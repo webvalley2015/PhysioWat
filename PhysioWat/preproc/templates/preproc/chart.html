@@ -8,11 +8,27 @@
 
 {% block container %}
 
-<div id="chart" style="min-width: 310px; height: 400px; margin: 0 auto">
+<div class="content row">
 
-</div>
-<div class="descriptor">
-qui sopra(o a fianco o sotto) dovrebbe comparire il grafico
+    <div class="graphs col-md-6">
+        <div class="processed-signal row">
+            <a href="#" class="thumbnail">
+                <img src="http://cdn-2.animalidalmondo.it/o/j/come-educare-un-gattino-in-casa_f71cb11c28667b31fea5f507adc7b629.jpg">
+            </a>
+        </div>
+        <div class="temporary-processing row">
+            <a href="#" class="thumbnail">
+                <img src="http://cdn.modalizer.com/wp-content/uploads/2012/08/Stonefly_adv_gatto.jpg">
+            </a>
+        </div>
+    </div>
+
+    <div class="algorithms col-md-6">
+        <a href="#" class="thumbnail">
+            <img src="http://sfondi.worldshot.net/resolution-720-1280/Sfondi:-Gattino-Sfondi-fotografici-37.jpg">
+        </a>
+    </div>
+
 </div>
 
 {% endblock %}
@@ -20,6 +36,6 @@ qui sopra(o a fianco o sotto) dovrebbe comparire il grafico
 
 {% block app_specific_js %}
 <script src="{% static 'preproc/highcharts/js/highcharts.js' %}" ></script>
+<script src="{% static 'preproc/js/chart.js' %}" ></script>
 {% endblock %}
-
 
