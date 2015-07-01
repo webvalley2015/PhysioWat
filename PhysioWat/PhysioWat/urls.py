@@ -26,3 +26,4 @@ urlpatterns = [
     #homepage
     url(r'^$', views.index, name='index'),
 ]
+
