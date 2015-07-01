@@ -6,8 +6,6 @@ import tools
 import GSR
 import matplotlib.pyplot as plt
 import numpy as np
-import json
-import pandas as pd
 
 filename="./data/GSR.csv"
 
