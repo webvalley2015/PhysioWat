@@ -14,8 +14,6 @@ T2=2
 MX=1
 DELTA=0.02
 
-#tools.plotter(filename)
-
 gsr_data = tools.load_file(filename)
 
 t_driver, driver, phasic_d, tonic_d = GSR.estimate_drivers(gsr_data[:,0], gsr_data[:,1], T1, T2, MX, DELTA)
@@ -31,5 +29,3 @@ plt.show()
 
 pha_processed = GSR.processPSR(phasic_d, t_driver, DELTA)
 features = GSR.PSRindexes(pha_processed)
-
-tools.prepare_json_to_plot([driver, tonic_d, phasic_d],["Driver", "Tonic", "Phasic"])

@@ -7,8 +7,6 @@ Created on Tue Jun 30 17:56:22 2015
 '''
 function for BVP only
 '''
-
-#from __future__ import division
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt

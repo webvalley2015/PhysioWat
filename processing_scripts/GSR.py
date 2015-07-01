@@ -1,6 +1,7 @@
 '''
 Functions for GSR only
 '''
+from __future__ import division
 import numpy as np
 import scipy.signal as spy
 from tools import peakdet, gen_bateman
