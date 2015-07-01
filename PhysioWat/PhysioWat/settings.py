@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'uploader',
     'extfeat',
     'preproc',
+    'designer',
 )
 
 MIDDLEWARE_CLASSES = (
