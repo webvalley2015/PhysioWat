@@ -83,15 +83,10 @@ WSGI_APPLICATION = 'PhysioWat.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'physiowat',
-        'USER': 'developer',
-        'PASSWORD': 'webvalley',
-        'HOST': '192.168.210.175',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'dev.db',
     }
 }
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -122,3 +117,10 @@ LOGIN_REDIRECT_URL = '/'
 
 #where to store uploaded csv before deleting them all
 MEDIA_URL = '/media/'
+
+
+try:
+    from local_settings import *
+except ImportError:
+    pass
+

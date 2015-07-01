@@ -7,7 +7,7 @@ import GSR
 import matplotlib.pyplot as plt
 import numpy as np
 
-filename="./data/GSR_F01_M.txt"
+filename="./data/GSR.csv"
 
 T1=0.75
 T2=2
@@ -16,7 +16,7 @@ DELTA=0.02
 FS=4
 nFS=16
 
-gsr_data = tools.load_file(filename, header=8, sep=",") # 8 ";"
+gsr_data = tools.load_file(filename, header=1, sep=";") # 8 ","
 gsr_data=tools.downsampling(gsr_data, FS, nFS)
 plt.figure(1)
 plt.plot(gsr_data[:,0], gsr_data[:,1])
