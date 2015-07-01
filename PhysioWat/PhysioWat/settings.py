@@ -37,6 +37,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #4 auth purposes
+    'django.contrib.admindocs',
     'PhysioWat'
 )
 
@@ -104,4 +106,5 @@ STATIC_URL = '/static/'
 
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR,  'templates'),
+    'PhysioWat/templates'
 )
