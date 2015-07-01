@@ -32,7 +32,4 @@ urlpatterns = [
     url(r'^uploader/', include('uploader.urls')),
     # redirect to extfeat
     #url(r'^extfeat/', include('exfeat.urls')),
-
-    #Redirect to designer
-    url(r'^designer/', include('designer.urls')),
 ]
