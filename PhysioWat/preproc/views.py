@@ -1,3 +1,8 @@
 from django.shortcuts import render
-from django.core.urlresolvers import reverse
-# Create your views here.
+
+
+def show_chart(request):
+	#context
+	template = "preproc/chart.html"
+	return render(request, template)
+

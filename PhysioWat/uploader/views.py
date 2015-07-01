@@ -1,8 +1,8 @@
 from django.shortcuts import render
-from .models import Upload
-from .forms import UploadForm
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from .forms import UploadForm
+from PhysioWat.models import Sensordevices
 
 # Create your views here.
 
@@ -19,4 +19,7 @@ def upload(request):
     return render(request, 'uploader/home.html', context)
 
 def fun():
-    return Sensordevices.objects.distinct('device')
+    devicestring = []
+    for de in Sensordevices.objects.distinct('device'):
+        devicestring += [de.device]
+    return devicestring
