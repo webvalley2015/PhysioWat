@@ -107,10 +107,10 @@ def prepare_json_to_plot(series, labels):
     if len(series)==len(labels):
         li=[]
         for i in range(len(series)):
-            li.append({ "Name" : labels[i],
-                    "Data" : series[i].tolist()
+            li.append({ "name" : labels[i],
+                    "data" : series[i].tolist()
                     })
-        json_string=json.dumps(li)
+        json_string=json.dumps({"series":li})
         file=open("graph.json", "w")
         file.write(json_string)
         file.close()
