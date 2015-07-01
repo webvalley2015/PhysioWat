@@ -12,4 +12,4 @@ def home(request):
     else:
         img=UploadForm()
     images=Upload.objects.all()
-    return render(request,'home.html',{'form':img,'images':images})
+    return render(request, 'uploader/home.html',{'form':img,'images':images})
