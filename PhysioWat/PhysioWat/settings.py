@@ -39,7 +39,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     #4 auth purposes
     'django.contrib.admindocs',
-    'PhysioWat'
+    'PhysioWat',
+    'preproc',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -101,6 +102,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
+
+STATIC_FILEFINDER = ("django.contrib.staticfiles.finders.FileSystemFinder",
+ 		     "django.contrib.staticfiles.finders.AppDirectoriesFinder")
 
 STATIC_URL = '/static/'
 
