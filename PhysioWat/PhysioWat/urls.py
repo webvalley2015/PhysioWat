@@ -10,7 +10,7 @@ Class-based views
     1. Add an import:  from other_app.views import Home
     2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
 Including another URLconf
-    1. Add an import:  from blog import urls as blog_urlsu
+    1. Add an import:  from blog import urls as blog_urls
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf.urls import include, url
@@ -25,5 +25,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     #homepage
     url(r'^$', views.index, name='index'),
-]
+    #human upload page
+    url(r'^upload/$', 'uploader.views.home', name='fileupload'),
+] #+ static[settings.MEDIA_URL, document_root=settings.MEDIA_ROOT]
 
