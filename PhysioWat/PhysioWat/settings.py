@@ -84,7 +84,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'physiowat',
-        'USER': 'dbmanager',
+        'USER': 'developer',
         'PASSWORD': 'webvalley',
         'HOST': '192.168.210.175',
         'PORT': '5432',
@@ -109,9 +109,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-STATIC_FILEFINDER = ("django.contrib.staticfiles.finders.FileSystemFinder",
- 		     "django.contrib.staticfiles.finders.AppDirectoriesFinder")
-
 STATIC_URL = '/static/'
 
 TEMPLATE_DIRS = (
@@ -119,9 +116,14 @@ TEMPLATE_DIRS = (
     'PhysioWat/templates'
 )
 
-
 #after login where to go?
 LOGIN_REDIRECT_URL = '/'
 
 #where to store uploaded csv before deleting them all
 MEDIA_URL = '/media/'
+
+
+try:
+    from local_settings import *
+except:
+    pass

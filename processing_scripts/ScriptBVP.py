@@ -13,30 +13,38 @@ import matplotlib.pyplot as plt
 import filters as ourFilters
 import tools as ourTools
 
-
-def analyzeBVP(filename, SAMP_F, filterType = 'butter'):
+def loadBVP(filename):
     '''
-    this function get the BVP from a file and returns a IBI. The filters paramateres are passed
-    return: the IBI (in s) extracted from the BVP in filename
-    filename: the full name of the file that contains the BVP
-    SAMP_F: the sapling frequency of the data
-    filterType: (default 'butter') the type of the filter to use
+    DEBUG ONLY. This will be done by the server
+    reads the data of a BVP from a file (full path and name in filename) like Emaptica_E4 ones
     '''
-    #load data from the file
-    rawdata = np.genfromtxt(filename, delimiter=';', skip_header = 1)[:,1]
-    #filter the signal
-    #filterSignal (SIGNAL ,smp_fr, passFr = 2, stopFr = 6, filterType = 'butter'):
-    filtered_signal = ourFilters.filterSignal(rawdata, SAMPLING_FREQ, filterType = filterType)
-    return ourTools.getIBI(filtered_signal, SAMP_F, 1)
+    return np.genfromtxt(filename, delimiter=';', skip_header = 1)[:,1]
 
-
-#Simulate server
+#Simulate users app
 if __name__ == '__main__':
+    #user insertion, the path is substituted with database source
     path = '/home/flavio/Work/PhysioWat/robaNoGit/data/SUB100/SUB100/Empatica_E4/'
     fileName = 'BVP.csv'
-    SAMPLING_FREQ = 64
+    SAMP_F = 64
 
-    ibi = analyzeBVP(path+fileName, SAMPLING_FREQ)
+    #load data from the file
+    rawdata = loadBVP(path + fileName)
+    
+    #filter the signal
+    #the user selects the parameters, with default suggested
+    filterType = 'butter'
+    F_PASS = 2
+    F_STOP = 6
+    ILOSS = 0.1
+    IATT = 40
+    filtered_signal = ourFilters.filterSignal(rawdata, SAMP_F, passFr = F_PASS, stopFr = F_STOP, LOSS = ILOSS, ATTENUATION = IATT, filterType = filterType)
+    
+    #get the IBI from the filtered signal
+    #the user selects the parameters, with default suggested
+    delta = 1
+    ibi = ourTools.getIBI(filtered_signal, SAMP_F, delta)
+    
+    #DEBUG output
     print ibi
     plt.plot(ibi.index, ibi.IBI)
     plt.show()
