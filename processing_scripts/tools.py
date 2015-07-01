@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import json
 
 def peakdet(v, delta, x = None, startMax = True):
     '''
@@ -95,3 +96,21 @@ def load_file(filename):
     data = np.genfromtxt(filename, delimiter=";", skip_header=1)
     data[:,0]-=data[0,0]
     return data
+
+def prepare_json_to_plot(series, labels):
+    '''
+    Saves a json file in order to pass it to the layout team
+    :param series: list of series
+    :param labels: list of labels
+    :return: nothing
+    '''
+    if len(series)==len(labels):
+        li=[]
+        for i in range(len(series)):
+            li.append({ "Name" : labels[i],
+                    "Data" : series[i].tolist()
+                    })
+        json_string=json.dumps(li)
+        file=open("graph.json", "w")
+        file.write(json_string)
+        file.close()

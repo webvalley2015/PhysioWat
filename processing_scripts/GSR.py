@@ -7,6 +7,7 @@ from tools import peakdet, gen_bateman
 from filters import smoothGaussian
 from scipy.interpolate import interp1d
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, old_way=False):
@@ -129,9 +130,7 @@ def processPSR(pha, t, DELTA):
 
     # TODO: select max > DELTA
 
-
-    # TODO: if no peaks!!!
-    if (len(max_pha)==0) | (len(min_pha)==0):
+    if len(max_pha)==0 or len(min_pha)==0 :
         print('no peaks found')
         return pd.DataFrame()
 
@@ -175,7 +174,6 @@ def PSRindexes(pha_processed, plot = False):
 #    t_end = np.r_[t_end, t[-1]]
 
     if plot:
-        import matplotlib.pyplot as plt
         # plotting
         t_min = t[maxmin == -1]
         #  pha_min = pha[maxmin == -1]
@@ -209,10 +207,10 @@ def PSRindexes(pha_processed, plot = False):
         # durations
         i, j = 0, 0
         durations = []
-        while (i<len(t_start)) & (j<len(t_end)):
+        while i<len(t_start) and j<len(t_end):
             curr_t_start = t_start[i]
             curr_t_end = t_end[j]
-            while (curr_t_end < curr_t_start) & (j<len(t_end) - 1):
+            while curr_t_end < curr_t_start and j<len(t_end) - 1:
                 j = j + 1
                 curr_t_end = t_end[j]
 
@@ -229,10 +227,10 @@ def PSRindexes(pha_processed, plot = False):
         # slopes
         i, j = 0, 0
         slopes = []
-        while (i<len(t_start)) & (j<len(t_max)):
+        while i<len(t_start) and j<len(t_max):
             curr_t_start = t_start[i]
             curr_t_max = t_max[j]
-            while (curr_t_max < curr_t_start) & (j<len(t_max) - 1):
+            while curr_t_max < curr_t_start and j<len(t_max) - 1:
                 j = j + 1
                 curr_t_max = t_max[j]
 
@@ -267,8 +265,6 @@ def get_interpolation_indexes(maxs, driver, n=3):
             start=0
         if end>L:
             end=L
-        print start,
-        print end
         if idx!= start and idx!=end:
             indexes.append((start+np.argmin(driver[start:idx]), idx+np.argmin(driver[idx:end])))
 
