@@ -6,4 +6,5 @@
 *.json
 PhysioWat/User Interface/images/circ.png
 PhysioWat/User Interface/images/default.gif
+local_settings.py
 

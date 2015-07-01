@@ -125,3 +125,9 @@ LOGIN_REDIRECT_URL = '/'
 
 #where to store uploaded csv before deleting them all
 MEDIA_URL = '/media/'
+
+
+try:
+    from local_settings import *
+except:
+    pass
