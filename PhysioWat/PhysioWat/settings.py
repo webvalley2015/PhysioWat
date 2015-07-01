@@ -108,3 +108,5 @@ TEMPLATE_DIRS = (
     os.path.join(BASE_DIR,  'templates'),
     'PhysioWat/templates'
 )
+
+LOGIN_REDIRECT_URL = '/'
