@@ -16,7 +16,7 @@ def smoothGaussian(X,sigma=5):
     return smoothed
 
 
-def ButterworthFilter (SIGNAL, F_PASS, F_STOP, F_SAMP, LOSS=0.1, ATTENUATION=40):
+def ButterworthFilter (SIGNAL, F_PASS, F_STOP, F_SAMP, LOSS, ATTENUATION):
     '''
     Applies the ButterWorth filter to a signal
     return: the signal filtered
@@ -35,19 +35,21 @@ def ButterworthFilter (SIGNAL, F_PASS, F_STOP, F_SAMP, LOSS=0.1, ATTENUATION=40)
     return filtered_signal
 
 
-def filterSignal (SIGNAL ,smp_fr, passFr = 2, stopFr = 6, filterType = 'butter'):
+def filterSignal (SIGNAL ,smp_fr, passFr, stopFr, LOSS, ATTENUATION, filterType = None):
     '''
     return a filtered signal with the algorithm 'butter' and the frequencies passed
     SIGNAL: the signal you want to filter
     smp_fr: the sampling frequency of the signal
-    passFr: (default 2) the pass frequency of the filter
-    stopFr: (default 6) the stop frequency of the filter
-    filterType: (default 'butter') type of the filter
+    passFr: the pass frequency of the filter
+    stopFr: the stop frequency of the filter
+    LOSS: the maximum LOSS for the filter
+    ATTENUATION: the minimum 'movement' for the filter
+    filterType: (default 'butter') type of the filter. None or invalid value implies no filtering
     '''
     if filterType == 'butter':
-        filtered_signal = ButterworthFilter(SIGNAL, passFr, stopFr, smp_fr)
+        filtered_signal = ButterworthFilter(SIGNAL, passFr, stopFr, smp_fr, LOSS = LOSS, ATTENUATION = ATTENUATION)
     #Add here the other filters
     else:
-        #Default filter
-        filtered_signal = ButterworthFilter(SIGNAL, passFr, stopFr, smp_fr)
+        #if None or unknown filter, no filter is aplied
+        filtered_signal = SIGNAL
     return filtered_signal

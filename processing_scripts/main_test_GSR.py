@@ -13,17 +13,16 @@ T1=0.75
 T2=2
 MX=1
 DELTA=0.02
-FS=2048
+FS=4
 nFS=16
 
-gsr_data = tools.load_file(filename, header=8, sep=",")
+gsr_data = tools.load_file(filename, header=8, sep=",") # 8 ";"
 gsr_data=tools.downsampling(gsr_data, FS, nFS)
 plt.figure(1)
 plt.plot(gsr_data[:,0], gsr_data[:,1])
 plt.xlabel("Time (s)")
 plt.ylabel("GSR (uS)")
 plt.title("Raw GSR")
-plt.show()
 
 t_driver, driver, phasic_d, tonic_d = GSR.estimate_drivers(gsr_data[:,0], gsr_data[:,1], T1, T2, MX, DELTA)
 

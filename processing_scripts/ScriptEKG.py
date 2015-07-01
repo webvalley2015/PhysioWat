@@ -10,32 +10,51 @@ function for extract IBI from EKG
 
 import numpy as np
 import matplotlib.pyplot as plt
-#import filters as ourFilters
+import filters as ourFilters
 import tools as ourTools
 
-
-def analyzeEKG(filename, SAMP_F):
+def loadEKG(filename):
     '''
-    this function get the EKG from a file and returns a IBI
-    return: the IBI (in s) extracted from the EKG in filename
-    filename: the full name of the file that contains the EKG
-    SAMP_F: the sapling frequency of the data
+    DEBUG ONLY. This will be done by the server
+    reads the data of a EKG from a file (full path and name in filename) like Nicola's ones
     '''
-    #load data from the file
-    rawdata = np.genfromtxt(filename, delimiter=',', skip_header = 8)[:,1]
-    #downsampling
-        #funzione per il downsampling
-    return ourTools.getIBI(rawdata, SAMP_F, 0.2)
+    return np.genfromtxt(filename, delimiter=',', skip_header = 8)[:,1]
 
 
-#Simulate server
+#Simulate user app
 if __name__ == '__main__':
+    #user insertion, the path is substituted with database source
     path = "/home/flavio/Work/PhysioWat/robaNoGit/data/Nicola's_data/"
     fileName = "EKG_F01_F.txt"
-
-    SAMPLING_FREQ = 256
+    SAMP_F = 256
     
-    ibi = analyzeEKG(path+fileName, SAMPLING_FREQ)
+    #load data from the file
+    rawdata = loadEKG(path + fileName)
+    
+    #downsampling
+    #the user selects the parameters, with default suggested
+    downsampling_ratio = 1
+    '''if downsampling_ratio != 1:
+        new_f = SAMP_F / downsampling_ratio
+        downsampled_data = ourTools.downsampling(rawdata, SAMP_F, new_f)
+    else:'''
+    downsampled_data = rawdata
+    
+    #filter
+    #the user selects the parameters, with default suggested
+    filterType = None
+    F_PASS = 0
+    F_STOP = 0
+    ILOSS = 0
+    IATT = 0
+    filtered_signal = ourFilters.filterSignal(downsampled_data, SAMP_F, passFr = F_PASS, stopFr = F_STOP, LOSS = ILOSS, ATTENUATION = IATT, filterType = filterType)
+    
+    #extraction of IBI from preprocessed signal
+    #the user selects the parameters, with default suggested
+    delta = 0.2
+    ibi = ourTools.getIBI(rawdata, SAMP_F, delta)
+    
+    #DEBUG output
     print ibi
     plt.plot(ibi.index, ibi.IBI)
     plt.show()

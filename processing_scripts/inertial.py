@@ -130,7 +130,7 @@ def extract_features_mag(data, WINLEN = 30, WINSTEP = 15, fsamp=100, col_mag=['m
     return samples2
 
 
-def get_differences(data, col_all, n=[1,2,3,5,10]):
+def get_differences(data, col_all, n=[1,2,5,10]):
     #===================================
     # calculate the difference of vectors
     for n_diff in n:
