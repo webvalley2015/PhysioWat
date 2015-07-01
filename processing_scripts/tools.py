@@ -178,6 +178,14 @@ def downsampling(data, FSAMP, FS_NEW):
     data = np.array(data[keep,:])
     return data
 
+def getIBI (signal, SAMP_F, peakDelta):
+    '''
+    this function calculates the IBI on a BVP or EKG filtered graph, considering only peaks higher than peakDelta
+    return: a pd DataFrame containing the inter-beat interval (in s) indexed with time
+    signal: the filtered BVP or EKG signal
+    SAMP_F: the sampling frequency of the data
+    peakDelta: the minimum height of a peak to be recognised
+    '''
     # estimating peaks and IBI
     t = np.arange(0, len(signal)/float(SAMP_F), 1.0/SAMP_F)
     maxp, minp = peakdet(signal, peakDelta, t)
