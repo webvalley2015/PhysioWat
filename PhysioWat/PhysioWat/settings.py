@@ -85,7 +85,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'physiowat',
         'USER': 'dbmanager',
-        'PASSWORD': 'webvalley',
+        'PASSWORD': 'valleyadmin',
         'HOST': '192.168.210.175',
         'PORT': '5432',
     }

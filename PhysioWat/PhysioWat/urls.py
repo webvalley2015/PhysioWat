@@ -26,12 +26,10 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     # homepage
     url(r'^$', views.index, name='index'),
-    # preproc app
-    url(r'^preproc/', include('preproc.urls') )
+    # redirect to preproc
+    #url(r'^preproc/', include('preproc.urls') ),
     # redirect to uploader
     url(r'^uploader/', include('uploader.urls')),
     # redirect to extfeat
     #url(r'^extfeat/', include('exfeat.urls')),
-    # redirect to preproc
-    #url(r'^preproc/', include('preproc.urls')),
 ]
