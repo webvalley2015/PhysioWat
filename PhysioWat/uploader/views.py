@@ -19,4 +19,4 @@ def upload(request):
     return render(request, 'uploader/home.html', context)
 
 def fun():
-    return [1,2,3,4]
+    return Sensordevices.objects.raw('SELECT DISTINCT device FROM sensordevices')
