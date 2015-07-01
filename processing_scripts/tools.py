@@ -160,23 +160,25 @@ def prepare_json_to_plot(series, labels):
         file.write(json_string)
         file.close()
 
-def load_file_pd(filename, sep=";", names=None):
+def load_file_pd(filename):
     '''
     Load data from file
     :param filename: name of the file where data is stored
     :return: data as pandas.DataFrame
     '''
-    data = pd.read_csv(filename, sep=sep, names=names)
+    data = pd.read_csv(filename, sep=";")
     return data
 
 def downsampling(data, FSAMP, FS_NEW):
+    if FSAMP >= FS_NEW:
+        return data
     N_SAMP = FSAMP/FS_NEW
 
     indexes = np.arange(len(data))
     keep = (indexes%N_SAMP == 0)
 
-    data = np.array(data[keep,:])
-    return data
+    result = np.array(data[keep,:])
+    return result
 
 def getIBI (signal, SAMP_F, peakDelta):
     '''
