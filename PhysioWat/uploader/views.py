@@ -25,5 +25,5 @@ def upload(request):
 def fun():
     devicestring = []
     for de in Sensordevices.objects.distinct('device'):
-        devicestring += [devicestring.device]
+        devicestring += [de.device]
     return devicestring
