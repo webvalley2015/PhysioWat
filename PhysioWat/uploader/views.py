@@ -14,7 +14,7 @@ def upload(request):
             return HttpResponseRedirect(reverse('imageupload'))
     else:
         form = UploadForm()
-    context = {'form': form, 'manufacturer': fun()}
+    context = {'form': form,l 'manufacturer': fun()}
     return render(request, 'uploader/home.html', context)
 
 def fun():
