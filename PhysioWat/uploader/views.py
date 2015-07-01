@@ -18,7 +18,4 @@ def upload(request):
     return render(request, 'uploader/home.html', context)
 
 def fun():
-    devicestring = []
-    for de in Sensordevices.objects.distinct('device'):
-        devicestring += [de.device]
-    return devicestring
+    return Sensordevices.objects.values_list('device', flat=True).distinct()
