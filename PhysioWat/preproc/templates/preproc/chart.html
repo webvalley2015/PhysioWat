@@ -1,0 +1,25 @@
+{% extends "PhysioWat/base.html" %}
+{% load static %}
+{% block app_specific_css %}
+
+{% endblock %}
+
+
+
+{% block container %}
+
+<div id="chart" style="min-width: 310px; height: 400px; margin: 0 auto">
+
+</div>
+<div class="descriptor">
+qui sopra(o a fianco o sotto) dovrebbe comparire il grafico
+</div>
+
+{% endblock %}
+
+
+{% block app_specific_js %}
+<script src="{% static 'preproc/highcharts/js/highcharts.js' %}" ></script>
+{% endblock %}
+
+

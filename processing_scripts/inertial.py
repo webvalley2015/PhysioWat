@@ -2,9 +2,9 @@
 Manage data from inertial sensors
 Accelerometer, Gyroscope, Magnetometer
 '''
+from __future__ import division
 import numpy as np
 import pandas as pd
-from __future__ import division
 
 def fix_missing(data):  #TODO ask Andrea!
 
@@ -68,7 +68,7 @@ def fix_missing(data):  #TODO ask Andrea!
         return(data)
 
 
-def convert_units(data,coeff = 1):
+def convert_units(data, lables, coeff = 1):
     '''
     :param data: accelerometer, gyroscope OR magnetometer data as a pandas.DataFrame with x, y, z indexes. Do not
                  pass more than 1 sensor data at a time!!
@@ -76,25 +76,36 @@ def convert_units(data,coeff = 1):
     :param prefix: "acc", "gyr" or "mag" (accelerometer, gyroscope or magnetoscope
     :return: the converted data
     '''
-    data*=coeff
+    data[lables]*=coeff
     return data
 
 def power_fmax(spec,freq,fmin,fmax):
     #returns power in band
-    psd_band=spec[np.where(freq > fmin and freq<=fmax)]
-    freq_band=freq[np.where(freq > fmin and freq<=fmax)]
+    psd_band=spec[np.where((freq > fmin) & (freq<=fmax))]
+    freq_band=freq[np.where((freq > fmin) & (freq<=fmax))]
     powerinband = np.sum(psd_band)/len(psd_band)
     fmax=freq_band[np.argmax(psd_band)]
     return powerinband, fmax
 
-def extract_features_acc(data, WINLEN = 30, WINSTEP = 15, fsamp=100):
-    col_acc=['accx','accy','accz']
+def extract_features_acc(data, WINLEN = 30, WINSTEP = 15, fsamp=100, col_acc=['accx','accy','accz']):
+    '''
+    PASS COL_ACC IN ORDER X, Y, Z
+    :param data: data where to extract feats
+    :param WINLEN: window length
+    :param WINSTEP: window step
+    :param fsamp: sampling rate (Hz)
+    :param col_acc: labels (x, y, z in order!)
+    :return: feats
+    '''
     col_mod=['acc_mod','acc_mod_plan']
-
     col_all=col_acc+col_mod
 
-    data['acc_mod'] = np.sqrt(data['accx']**2+data['accy']**2+data['accz']**2)
-    data['acc_mod_plan']= np.sqrt(data['accx']**2+data['accz']**2)
+    x=col_acc[0]
+    y=col_acc[1]
+    z=col_acc[2]
+
+    data['acc_mod'] = np.sqrt(data[x]**2+data[y]**2+data[z]**2)
+    data['acc_mod_plan']= np.sqrt(data[x]**2+data[z]**2)
 
     data=get_differences(data, col_all)
 
@@ -103,19 +114,14 @@ def extract_features_acc(data, WINLEN = 30, WINSTEP = 15, fsamp=100):
     samples2=pd.DataFrame(samples, columns=labels)
     return samples2
 
-def extract_features_gyr(data, WINLEN = 30, WINSTEP = 15, fsamp=100):
-    col_gyr=['gyrx','gyry','gyrz']
-
+def extract_features_gyr(data, WINLEN = 30, WINSTEP = 15, fsamp=100, col_gyr=['gyrx','gyry','gyrz']):
     data=get_differences(data, col_gyr)
-
     #===================================
     samples, labels=windowing_and_extraction(data, fsamp, WINLEN, WINSTEP)
     samples2=pd.DataFrame(samples, columns=labels)
     return samples2
 
-def extract_features_mag(data, WINLEN = 30, WINSTEP = 15, fsamp=100):
-    col_mag=['magx','magy','magz']
-
+def extract_features_mag(data, WINLEN = 30, WINSTEP = 15, fsamp=100, col_mag=['magx','magy','magz']):
     data=get_differences(data, col_mag)
 
     #===================================
@@ -124,7 +130,7 @@ def extract_features_mag(data, WINLEN = 30, WINSTEP = 15, fsamp=100):
     return samples2
 
 
-def get_differences(data, col_all, n=[1,2,3,5,10]):
+def get_differences(data, col_all, n=[1,2,5,10]):
     #===================================
     # calculate the difference of vectors
     for n_diff in n:

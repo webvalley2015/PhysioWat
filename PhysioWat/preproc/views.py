@@ -1,3 +1,8 @@
 from django.shortcuts import render
 
-# Create your views here.
+
+def show_chart(request):
+	#context
+	template = "preproc/chart.html"
+	return render(request, template)
+

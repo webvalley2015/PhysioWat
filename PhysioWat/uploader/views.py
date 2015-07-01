@@ -1,15 +1,25 @@
 from django.shortcuts import render
-from uploader.models import UploadForm,Upload
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from .forms import UploadForm
+from PhysioWat.models import Sensordevices
+
 # Create your views here.
-def home(request):
-    if request.method=="POST":
-        img = UploadForm(request.POST, request.FILES)
-        if img.is_valid():
-            img.save()
+
+def upload(request):
+    if request.method == "POST":
+        form = UploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
             return HttpResponseRedirect(reverse('imageupload'))
     else:
-        img=UploadForm()
-    images=Upload.objects.all()
-    return render(request, 'uploader/home.html',{'form':img,'images':images})
+        form = UploadForm()
+    images = Upload.objects.all()
+    context = {'form': form, 'images': images, 'manufacturer': fun()}
+    return render(request, 'uploader/home.html', context)
+
+def fun():
+    devicestring = []
+    for de in Sensordevices.objects.distinct('device'):
+        devicestring += [de.device]
+    return devicestring
