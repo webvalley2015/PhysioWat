@@ -5,15 +5,17 @@
 
         <form action="#" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form }}
-            {% if l %}
+            {% if manufacturer %}
+                {{ form }}
                 <select>
-                    {% for i in l %}
-                        <option value="{{ i }}">{{ i }}</option>
+                    {% for c in manufacturer %}
+                        <option value="{{ c }}">{{ c }}</option>
                     {% endfor %}
                 </select>
+                <input type="submit" value="Upload"/>
+            {% else %}
+                Error while loading sensors manufacters database.
             {% endif %}
-            <input type="submit" value="Upload"/>
         </form>
     </div>
 {% endblock %}
