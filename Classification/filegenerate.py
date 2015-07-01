@@ -1,10 +1,12 @@
+# implementation for single txt file containing Exel sensor data
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
  
-filenames = ['claire1.txt']
+filenames = ['claire1.txt'] # first trial from Claire's wrist
 
-#var definition 
+# init arrays for data storage
 data_all = []
 data_mean = []          
 data_var = []
@@ -14,14 +16,15 @@ data_var_combined = np.zeroes(9)
 
 WINDOW_SIZE = 50
 STEP = 25
- 
-N = len(filenames)
+
+# N = len(filenames)
 
 data_all.append(np.loadtxt(filenames(i))
 data_combined = np.vstack((data_combined, data_all[i]))
 [row, col] = data_all[i].shape
 _mean = np.zeros(( len(range(0, row, STEP)) , col ))
 _var = np.zeros(( len(range(0, row, STEP)) , col ))
+
 for i_col in range(col):
 	idx = 0
 	for i_row in range(0, row, STEP):
