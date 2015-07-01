@@ -17,6 +17,7 @@ def estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, FS=None):
 
     Estimates the various driving components of a GSR signal.
     The IRF is a bateman function defined by the gen_bateman function.
+    T1, T2, MX and DELTA_PEAK are modificable parameters (optimal 0.75, 2, 1, 0.02)
     """
     if FS==None:
         FS = 1/( t_gsr[1] - t_gsr[0])
@@ -80,7 +81,7 @@ def estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, FS=None):
         inter_impulse_indexes = np.r_[inter_impulse_indexes, range(start[i], end[i]+1)]
     inter_impulse_indexes = np.r_[inter_impulse_indexes, len(markers)-1]
     '''
-    inter_impulse_indexes=get_interpolation_indexes(max_driv, driver)
+    inter_impulse_indexes, min_idx=get_interpolation_indexes(max_driv, driver, n=5)
 
     inter_impulse = driver[inter_impulse_indexes.astype(np.uint16)]
     t_inter_impulse = t_driver[inter_impulse_indexes.astype(np.uint16)]
@@ -255,6 +256,12 @@ def PSRindexes(pha_processed, plot = False):
     return features
 
 def get_interpolation_indexes(maxs, driver, n=3):
+    '''
+    :param maxs: List of local maximums (peaks)
+    :param driver: the function
+    :param n: The number of steps (forward or backward)
+    :return:The indexes for the interpolation
+    '''
     indexes=[]
     L=driver.shape[0]
     for i in range(maxs.shape[0]):
@@ -272,17 +279,17 @@ def get_interpolation_indexes(maxs, driver, n=3):
     result=np.array([0])
     for start, end in indexes:
         if prev!=start:
-            result=np.r_[result,np.arange(prev, start)]
+            result=np.r_[result,np.arange(prev, start+1)]
         prev=end
-    return result
+    return result, indexes
 
 def extract_features(pha, WINSTEP=10, WINLEN=80):
     '''
-    STEP e LEN in secondi
-    :param pha:
-    :param WINSTEP:
-    :param WINLEN:
-    :return:
+    STEP e LEN in seconds
+    :param pha: the phasic dataset
+    :param WINSTEP: window step
+    :param WINLEN: window length
+    :return: features as pandas dataframe
     '''
     feats_all=pd.DataFrame()
     for start in range(0,len(pha.index)-WINLEN, WINSTEP):
@@ -292,3 +299,23 @@ def extract_features(pha, WINSTEP=10, WINLEN=80):
         winfeat=pd.DataFrame(PSRindexes(window), index=[t_start])
         feats_all=feats_all.append(winfeat)
     return feats_all
+
+def remove_spikes(data, FSAMP, TH=0.1):
+    '''
+    Removes annoying spikes
+    :param data: data set (no t)
+    :param FSAMP: sampling frequency
+    :param TH: Threshold
+    :return: data, timestamps
+    '''
+    t = np.arange(len(data)) * 1/FSAMP
+    spikes = abs(np.diff(data, FSAMP))
+    spikes = smoothGaussian(spikes, round(FSAMP/2))
+    indexes_spikes = np.array(np.where(spikes<=TH))[0]
+    data_in = data[indexes_spikes]
+    t_in = t[indexes_spikes]
+    f = interp1d(t_in, data_in)
+    t_out = np.arange(t_in[0], t_in[-1], 1/FSAMP)
+    data_out = f(t_out)
+
+    return t_out, data_out
