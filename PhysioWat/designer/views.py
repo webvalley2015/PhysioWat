@@ -13,7 +13,7 @@ def createsensor(request):
         form = SensorDesignerForm(request.POST, request.FILES)
         if form.is_valid():
             b2 = Sensors(sensornames=form.cleaned_data['Name'])
-            print b2
+            #print b2
             #b2.save()
             #return HttpResponse(form.cleaned_data['Name'] + str(form.cleaned_data['Sensors']))#request.POST.get('Name')     #form.cleaned_data['Name']
     else:
