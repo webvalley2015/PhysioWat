@@ -12,11 +12,6 @@ def preproc_settings(request):
             return HttpResponseRedirect(reverse('humanupload'))
     else:
         if (True):
-            formPick = remove_spike()
-            formDown = downsampling(initial={'switch':False})
-            formFilt = filter(initial={'filterType':'none'})
-            formSpec = GSR()
-        if (True):
             formDown = downsampling(initial={'switch':False})
             formFilt = filter(initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType':'cheby2'})
             formSpec = BVP()
@@ -27,7 +22,13 @@ def preproc_settings(request):
         if (True):
             formDown = downsampling(initial={'switch':False})
             formFilt = filter(initial={'filterType':'none'})
-            formSpec = inertial()
+            formSpec = inertial()    
+        formPick = None
+        if (True):
+            formPick = remove_spike()
+            formDown = downsampling(initial={'switch':False})
+            formFilt = filter(initial={'filterType':'none'})
+            formSpec = GSR()
 
 
     context = {'formFilt': formFilt, 'formDown': formDown, 'formPick':formPick, 'formSpec':formSpec}
