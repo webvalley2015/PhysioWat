@@ -11,7 +11,7 @@ class ACCX(models.Model):
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
-        db_table = accx
+        db_table = 'accx'
         unique_together = (('experimenterid', 'experimentid', 'timestamp', 'subjectid'),)
 
 class ACCY(models.Model):
@@ -22,7 +22,7 @@ class ACCY(models.Model):
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
-        db_table = accy
+        db_table = 'accy'
         unique_together = (('experimenterid', 'experimentid', 'timestamp', 'subjectid'),)
 
 class ACCZ(models.Model):
@@ -33,7 +33,7 @@ class ACCZ(models.Model):
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
-        db_table = accz
+        db_table = 'accz'
         unique_together = (('experimenterid', 'experimentid', 'timestamp', 'subjectid'),)
 
 class GYROX(models.Model):
@@ -44,7 +44,7 @@ class GYROX(models.Model):
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
-        db_table = gyrox
+        db_table = 'gyrox'
         unique_together = (('experimenterid', 'experimentid', 'timestamp', 'subjectid'),)
 
 class GYROY(models.Model):
@@ -55,7 +55,7 @@ class GYROY(models.Model):
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
-        db_table = gyroy
+        db_table = 'gyroy'
         unique_together = (('experimenterid', 'experimentid', 'timestamp', 'subjectid'),)
 
 class GYROZ(models.Model):
@@ -66,7 +66,7 @@ class GYROZ(models.Model):
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
-        db_table = gyroz
+        db_table = 'gyroz'
         unique_together = (('experimenterid', 'experimentid', 'timestamp', 'subjectid'),)
 
 class MAGX(models.Model):
@@ -77,7 +77,7 @@ class MAGX(models.Model):
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
-        db_table = magx
+        db_table = 'magx'
         unique_together = (('experimenterid', 'experimentid', 'timestamp', 'subjectid'),)
 
 class MAGY(models.Model):
@@ -88,7 +88,7 @@ class MAGY(models.Model):
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
-        db_table = magy
+        db_table = 'magy'
         unique_together = (('experimenterid', 'experimentid', 'timestamp', 'subjectid'),)
 
 class MAGZ(models.Model):
@@ -99,5 +99,5 @@ class MAGZ(models.Model):
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
-        db_table = magz
+        db_table = 'magz'
         unique_together = (('experimenterid', 'experimentid', 'timestamp', 'subjectid'),)

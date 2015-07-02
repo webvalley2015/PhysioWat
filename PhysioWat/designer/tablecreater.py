@@ -45,5 +45,5 @@ def newmodelnamed(tablenm):
     f.write('    paramatervalue = models.CharField(max_length=50)\n')
     f.write('    class Meta:\n')
     f.write('        managed = False\n')
-    f.write('        db_table = ' + tablenm.lower() + '\n')
+    f.write('        db_table = \'' + tablenm.lower() + '\'\n')
     f.write('        unique_together = ((\'experimenterid\', \'experimentid\', \'timestamp\', \'subjectid\'),)\n')
