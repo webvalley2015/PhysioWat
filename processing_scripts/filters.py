@@ -1,7 +1,7 @@
 '''
 Filters
 '''
-from scipy.signal import gaussian, convolve, filtfilt, filter_design, freqz, filtfilt
+from scipy.signal import gaussian, convolve, filtfilt, filter_design, freqz
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import filter_design as fd

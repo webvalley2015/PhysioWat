@@ -171,15 +171,16 @@ def load_file_pd(filename, sep=";", names=None):
     data = pd.read_csv(filename, sep=sep, names=names)
     return data
 
-def downsampling(data, FSAMP, FS_NEW):
+def downsampling(data, FSAMP, FS_NEW, switch=True):
     '''
     Downsamples the signals (too much data is long to extract!)
     :param data: The data to downsample
     :param FSAMP: The strating frequency
     :param FS_NEW: The new frequency
+    :param off: Do not downsample
     :return: The downsampled data
     '''
-    if FSAMP <= FS_NEW:
+    if FSAMP <= FS_NEW or FSAMP%FS_NEW!=0 or not switch:
         return data
     N_SAMP = FSAMP/FS_NEW
 

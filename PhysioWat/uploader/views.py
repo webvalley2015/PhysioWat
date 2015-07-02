@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+
 from .forms import UploadForm
 import csvtodb
 from PhysioWat.models import Sensordevices
+
 
 # Create your views here.
 

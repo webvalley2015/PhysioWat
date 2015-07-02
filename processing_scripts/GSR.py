@@ -11,13 +11,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, FS=None):
+def estimate_drivers(t_gsr, gsr, T1=0.75, T2=2, MX=1, DELTA_PEAK=0.02, FS=None, k_near=5, grid_size=5, s=0.2):
     """
     TIME_DRV, DRV, PH_DRV, TN_DRV = estimate_drivers(TIME_GSR, GSR, T1, T2, MX, DELTA_PEAK):
 
     Estimates the various driving components of a GSR signal.
     The IRF is a bateman function defined by the gen_bateman function.
     T1, T2, MX and DELTA_PEAK are modificable parameters (optimal 0.75, 2, 1, 0.02)
+    k_near and grid_size are optional parameters, relative to the process
+    s= t in seconds of gaussian smoothing
     """
     if FS==None:
         FS = 1/( t_gsr[1] - t_gsr[0])
@@ -33,7 +35,7 @@ def estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, FS=None):
     driver, residuals=spy.deconvolve(gsr_in, bateman)
     driver = driver * FS
     # gaussian smoothing (s=200 ms)
-    degree = int(np.ceil(0.2*FS))
+    degree = int(np.ceil(s*FS))
     driver=smoothGaussian(driver, degree)
 
     # generating times
@@ -81,7 +83,7 @@ def estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, FS=None):
         inter_impulse_indexes = np.r_[inter_impulse_indexes, range(start[i], end[i]+1)]
     inter_impulse_indexes = np.r_[inter_impulse_indexes, len(markers)-1]
     '''
-    inter_impulse_indexes, min_idx=get_interpolation_indexes(max_driv, driver, n=5)
+    inter_impulse_indexes, min_idx=get_interpolation_indexes(max_driv, driver, n=k_near)
 
     inter_impulse = driver[inter_impulse_indexes.astype(np.uint16)]
     t_inter_impulse = t_driver[inter_impulse_indexes.astype(np.uint16)]
@@ -90,14 +92,14 @@ def estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, FS=None):
     # ESTIMATION OF THE TONIC DRIVER
     #======================
     # interpolation with time grid 10s
-    t_inter_impulse_10 = np.arange(t_driver[0], t_driver[-1], 5)
+    t_inter_impulse_grid = np.arange(t_driver[0], t_driver[-1], grid_size)
 
     # estimating values on the time-grid
     inter_impulse_10=np.array([driver[0]])
 
-    for index in range(1, len(t_inter_impulse_10)-1):
-        ind_start = np.argmin(abs(t_inter_impulse - t_inter_impulse_10[index-1]))
-        ind_end = np.argmin(abs(t_inter_impulse - t_inter_impulse_10[index+1]))
+    for index in range(1, len(t_inter_impulse_grid)-1):
+        ind_start = np.argmin(abs(t_inter_impulse - t_inter_impulse_grid[index-1]))
+        ind_end = np.argmin(abs(t_inter_impulse - t_inter_impulse_grid[index+1]))
 
         if ind_end>ind_start:
             value=np.mean(inter_impulse[ind_start:ind_end])
@@ -107,11 +109,11 @@ def estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, FS=None):
 
     inter_impulse_10 = np.r_[inter_impulse_10, np.mean(inter_impulse[ind_end:])]
 
-    t_inter_impulse_10  = np.r_[t_inter_impulse_10 , t_driver[-1]]
+    t_inter_impulse_grid  = np.r_[t_inter_impulse_grid , t_driver[-1]]
     inter_impulse_10 = np.r_[inter_impulse_10, driver[-1]]
 
 
-    f = interp1d(t_inter_impulse_10, inter_impulse_10, kind='cubic')
+    f = interp1d(t_inter_impulse_grid, inter_impulse_10, kind='cubic')
 
     tonic_driver = f(t_driver)
 
@@ -283,19 +285,20 @@ def get_interpolation_indexes(maxs, driver, n=3):
         prev=end
     return result, indexes
 
-def extract_features(pha, WINSTEP=10, WINLEN=80):
+def extract_features(pha, t, DELTA, fs, WINSTEP=10, WINLEN=80):
     '''
     STEP e LEN in seconds
-    :param pha: the phasic dataset
+    :param pha_processed: the phasic dataset
     :param WINSTEP: window step
     :param WINLEN: window length
     :return: features as pandas dataframe
     '''
+    pha_processed=processPSR(pha, t, DELTA)
     feats_all=pd.DataFrame()
-    for start in range(0,len(pha.index)-WINLEN, WINSTEP):
-        t_start=pha.index[start]
-        t_end=t_start+WINLEN/4
-        window=pha[t_start:t_end]
+    for start in range(0,len(pha_processed.index)-WINLEN, WINSTEP):
+        t_start=pha_processed.index[start]
+        t_end=t_start+WINLEN/fs
+        window=pha_processed[t_start:t_end]
         winfeat=pd.DataFrame(PSRindexes(window), index=[t_start])
         feats_all=feats_all.append(winfeat)
     return feats_all
