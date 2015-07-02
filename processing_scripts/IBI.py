@@ -1,8 +1,6 @@
 from __future__ import division
-import pandas as pd
 import numpy as np
 from scipy import interpolate
-import matplotlib.pyplot as plt
 import spectrum as spct
 
 #####################################
@@ -24,6 +22,21 @@ def calculateHRVindexes(RR, Finterp=4):
     
     Indexes=np.hstack((TDindexes, FDindexes))#, NLindexes, POINindexes, Hindex, PFDindex,  DFAindex)) # remove not calculated indexes
     return Indexes
+
+
+def extract_IBI_features(data, windows):
+    '''
+    exetract the features  from an IBI with passed windows
+    return: numpy array containing the features of each window
+    data: the data from which extract the features, passed as a numpy array (N,)
+    windows: numpy array containing the start and the end point of every windows
+    '''
+    result = []
+    for win_lim in windows:
+        this_win = data[win_lim[0]:win_lim[1]]
+        result.append(calculateHRVindexes(this_win))
+    return np.array(result)
+
 
 def calculateTDindexes(RR):
     #calculates Time domain indexes

@@ -45,6 +45,9 @@ def get_windows_no_mix(labels, WINLEN, WINSTEP):
     return windows, np.array(windows_labels)
 
 def get_windows_full_label(labels):
+    '''
+    returns the windows created by putting in the same windows all the near points with same label
+    '''
     wl= [[0,0]]
     rl= [labels[0]]
     for i in range(1, len(labels)):
