@@ -8,6 +8,10 @@ class downsampling(forms.Form):
     FS_NEW = forms.IntegerField()
     switch = forms.BooleanField()
 
+class smoothGaussian(forms.Form):
+    sigma = forms.FloatField(min_value=0)
+    switch = forms.BooleanField()
+
 CHOICES=[("butter", "Butterworth"),
         ("cheby1", "Chebyshev I"),
         ("cheby2", "Chebyshev II"),
@@ -15,7 +19,7 @@ CHOICES=[("butter", "Butterworth"),
         ("none", "Filter OFF")]
 
 
-class filter(forms.Form):
+class filterAlg(forms.Form):
     passFr = forms.FloatField(min_value=0)
     stopFr = forms.FloatField(min_value=0)
     LOSS = forms.FloatField(min_value=0)
@@ -51,7 +55,7 @@ class BVP(forms.Form):  #Uguale a quello sopra ma cambia un default
 
 
 class inertial(forms.Form):
-    coeff = forms.FloatField()
+    coeff = forms.FloatField(min_value=0)
 
 
 

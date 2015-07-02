@@ -128,8 +128,3 @@ LOGIN_REDIRECT_URL = '/'
 MEDIA_URL = '/media/'
 
 
-try:
-    from local_settings import *
-except ImportError:
-    pass
-

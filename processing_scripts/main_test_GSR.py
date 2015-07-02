@@ -6,6 +6,7 @@ import tools
 import GSR
 import matplotlib.pyplot as plt
 import numpy as np
+import windowing as win
 
 filename="./data/GSR.csv"
 
@@ -17,6 +18,8 @@ FS=4
 nFS=4
 
 gsr_data = tools.load_file(filename, header=1, sep=";") # 8 ","
+#TODO GAUSSIANA
+
 # gsr_data=tools.downsampling(gsr_data, FS, nFS)
 plt.figure(1)
 plt.plot(gsr_data[:,0], gsr_data[:,1])
@@ -28,8 +31,8 @@ t_gsr = gsr_data[:,0]
 gsr   = gsr_data[:,1]
 # print t_gsr.shape, gsr.shape, gsr_data.shape
 t_driver, driver, phasic_d, tonic_d= GSR.estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA, FS=FS)
-
-features = GSR.extract_features(phasic_d, t_driver, DELTA, nFS)
+windows=win.generate_dummy_windows(len(phasic_d), 80, 10)
+features = GSR.extract_features(phasic_d, t_driver, DELTA, windows)
 # features.to_csv("./output/feat_"+filename[7:-4]+".csv")
 tools.prepare_json_to_plot_time(t_driver, [driver, phasic_d, tonic_d], ["Driver", "Phasic", "Tonic"])
 # plt.figure(2)

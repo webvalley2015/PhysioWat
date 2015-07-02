@@ -27,26 +27,28 @@ def get_windows_contiguos(labels, WINLEN, WINSTEP):
 
 def get_windows_no_mix(labels, WINLEN, WINSTEP):
     '''
-    calculates the windows avoiding unlabeled windows
+    calculates the windows, restarting from beginning for every new label
     return: (windows, labels). windows is a list of [start, end], label is a list of int
     labels: array of labels (int)
     '''
-    windows = []
-    windows_labels = []
-    length = len(labels)
-    i = 0
-    while i < length:
-        set_win_labels = labels[i:i+WINLEN]
-        if np.unique(set_win_labels).shape[0] == 1:
-            win_label = set_win_labels[0]
-            windows.append([i,i+WINLEN])
-            windows_labels.append(win_label)
-        i += WINSTEP
-    return windows, np.array(windows_labels)
+    windows=[]
+    labs=np.array([])
+    parts, mini_labels = get_windows_full_label(labels)
+    for start, end in parts:
+        partial=labels[start:end]
+        starts=np.arange(0, len(partial)-WINLEN, WINSTEP)
+        ends=starts+WINLEN
+        for i in range(len(starts)):
+            windows.append([start+starts[i], start+ends[i]])
+            labs=np.r_[labs, partial[0]]
+    return windows, labs
+
 
 def get_windows_full_label(labels):
     '''
-    returns the windows created by putting in the same windows all the near points with same label
+    Window = Label length
+    :param labels: np.array of labels
+    :return: windows as list of [start, end]
     '''
     wl= [[0,0]]
     rl= [labels[0]]
@@ -57,3 +59,16 @@ def get_windows_full_label(labels):
             rl.append(labels[i])
     wl[-1][1]= len(labels)
     return wl, np.array(rl)
+
+def generate_dummy_windows(L, WINLEN, WINSTEP):
+    '''
+    Dummy windows for debugging
+    :param L: length
+    :param WINLEN: window length
+    :param WINSTEP: window step
+    :return: list of couples [start, end]
+    '''
+    ws=[]
+    for start in range(0,L-WINLEN, WINSTEP):
+        ws.append([start, start+WINLEN])
+    return ws
