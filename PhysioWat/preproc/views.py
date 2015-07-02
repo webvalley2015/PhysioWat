@@ -13,21 +13,21 @@ def preproc_settings(request):
     else:
         if (True):
             formDown = downsampling(initial={'switch':False})
-            formFilt = filter(initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType':'cheby2'})
+            formFilt = filterAlg(initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType':'cheby2'})
             formSpec = BVP()
         if (True):
             formDown = downsampling(initial={'switch':False})
-            formFilt = filter(initial={'filterType':'none'})
+            formFilt = filterAlg(initial={'filterType':'none'})
             formSpec = EKG()
         if (True):
             formDown = downsampling(initial={'switch':False})
-            formFilt = filter(initial={'filterType':'none'})
+            formFilt = filterAlg(initial={'filterType':'none'})
             formSpec = inertial()    
         formPick = None
         if (True):
             formPick = remove_spike()
             formDown = downsampling(initial={'switch':False})
-            formFilt = filter(initial={'filterType':'none'})
+            formFilt = filterAlg(initial={'filterType':'none'})
             formSpec = GSR()
 
 

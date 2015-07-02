@@ -15,7 +15,7 @@ CHOICES=[("butter", "Butterworth"),
         ("none", "Filter OFF")]
 
 
-class filter(forms.Form):
+class filterAlg(forms.Form):
     passFr = forms.FloatField(min_value=0)
     stopFr = forms.FloatField(min_value=0)
     LOSS = forms.FloatField(min_value=0)
