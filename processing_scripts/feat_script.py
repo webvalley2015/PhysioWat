@@ -20,6 +20,7 @@ from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.lda import LDA
 from sklearn.qda import QDA
+from sklearn.metrics import *
 
 WINLEN = 100
 WINSTEP = 50
@@ -199,7 +200,8 @@ def tryjustone(in_data, te_data, which):
     in_data = in_data[in_data.columns[:-1]]
 
     # cv_scores = cross_validation.cross_val_score(RandomForestClassifier(), in_data, in_tar)
-    print predict(get_selected_clf(in_data, in_tar, which), te_data, te_tar )
+    y_pred = predict(get_selected_clf(in_data, in_tar, which), te_data, te_tar )
+    return te_tar.values , y_pred
     
 def get_selected_clf(X, Y, which):
     names = ["Nearest Neighbors", "Linear SVM", "RBF SVM", "Decision Tree",
@@ -216,14 +218,14 @@ def get_selected_clf(X, Y, which):
     QDA()]
     
     clf = classifiers[which]
-    #clf= svm.LinearSVC(C=50)
     clf=clf.fit(X, Y)
     return  clf
 
 def predict(clf, testX, testY):
-	labels_predict = clf.predict(testX)
-	score = clf.score(testX, testY)
-	print "Accuracy %.5f" % (score)
+    labels_predict = clf.predict(testX)
+    score = clf.score(testX, testY)
+    print "Accuracy %.5f" % (score)
+    return labels_predict
 
 def trythemall(in_data, te_data):
     te_tar = te_data.label
@@ -231,8 +233,8 @@ def trythemall(in_data, te_data):
     te_data = te_data[te_data.columns[:-1]]
     in_data = in_data[in_data.columns[:-1]]
 
-    names = ["Nearest Neighbors", "Linear SVM", "RBF SVM", "Decision Tree",
-             "Random Forest", "AdaBoost", "Naive Bayes", "LDA", "QDA"]
+    names = ["Nearest Neighbors", "Linear SVM\t", "RBF SVM\t", "Decision Tree",
+             "Random Forest", "AdaBoost\t", "Naive Bayes", "LDA\t", "QDA\t"]
 #    classifiersDef = [
 #        KNeighborsClassifier(3),
 #        SVC(kernel="linear", C=0.025),
@@ -259,5 +261,25 @@ def trythemall(in_data, te_data):
     for name, clf in zip(names, classifiers):
         #ax = plt.subplot(len(datasets), len(classifiers) + 1, i)
         clf.fit(in_data, in_tar)
+        #labels_predict = clf.predict(te_data)
         score = clf.score(te_data, te_tar)
         print "Accuracy for\t " + name +"\t  %.5f" %(score)
+        
+def get_report(y_true, y_pred):
+    report = {
+        #'Accuracy (n)': accuracy_score(y_true, y_pred, normalize=False),
+        'Accuracy (%)': accuracy_score(y_true, y_pred),
+        #what is y_score?!? to compute average_precision_score
+        'F-measure (macro)': f1_score(y_true, y_pred, average='macro'),
+        'F-measure (micro)': f1_score(y_true, y_pred, average='micro'),
+        'F-measure (weighted)': f1_score(y_true, y_pred, average='weighted'),
+        #the beta-value is unknown!!! fix it
+        'WeHarmMean prec&recall': fbeta_score(y_true, y_pred, average='weighted', beta=0.5),
+        'Hamming loss': hamming_loss(y_true, y_pred),
+        
+
+
+        
+    }
+    conf_mat = confusion_matrix(y_true, y_pred)
+    return report, conf_mat
