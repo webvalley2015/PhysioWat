@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.core.urlresolvers import reverse
+
 from .forms import SensorDesignerForm
 from PhysioWat.models import Sensordevices
 from PhysioWat.models import Sensors
-import tablecreater
+
 
 # Create your views here.
 
