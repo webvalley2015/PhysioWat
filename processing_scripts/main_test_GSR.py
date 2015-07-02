@@ -29,8 +29,7 @@ gsr   = gsr_data[:,1]
 # print t_gsr.shape, gsr.shape, gsr_data.shape
 t_driver, driver, phasic_d, tonic_d= GSR.estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA, FS=FS)
 
-pha_processed = GSR.processPSR(phasic_d, t_driver, DELTA)
-features = GSR.extract_features(pha_processed, nFS)
+features = GSR.extract_features(phasic_d, t_driver, DELTA, nFS)
 # features.to_csv("./output/feat_"+filename[7:-4]+".csv")
 tools.prepare_json_to_plot_time(t_driver, [driver, phasic_d, tonic_d], ["Driver", "Phasic", "Tonic"])
 # plt.figure(2)

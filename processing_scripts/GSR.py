@@ -285,19 +285,20 @@ def get_interpolation_indexes(maxs, driver, n=3):
         prev=end
     return result, indexes
 
-def extract_features(pha, fs, WINSTEP=10, WINLEN=80):
+def extract_features(pha, t, DELTA, fs, WINSTEP=10, WINLEN=80):
     '''
     STEP e LEN in seconds
-    :param pha: the phasic dataset
+    :param pha_processed: the phasic dataset
     :param WINSTEP: window step
     :param WINLEN: window length
     :return: features as pandas dataframe
     '''
+    pha_processed=processPSR(pha, t, DELTA)
     feats_all=pd.DataFrame()
-    for start in range(0,len(pha.index)-WINLEN, WINSTEP):
-        t_start=pha.index[start]
+    for start in range(0,len(pha_processed.index)-WINLEN, WINSTEP):
+        t_start=pha_processed.index[start]
         t_end=t_start+WINLEN/fs
-        window=pha[t_start:t_end]
+        window=pha_processed[t_start:t_end]
         winfeat=pd.DataFrame(PSRindexes(window), index=[t_start])
         feats_all=feats_all.append(winfeat)
     return feats_all
