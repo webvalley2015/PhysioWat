@@ -18,7 +18,7 @@ def createsensor(request):
     else:
         form = SensorDesignerForm()
 
-    context = {'form': form, 'sensType':"ss"}
+    context = {'form': form, 'sensType': getAvaliableSensors()}
     return render(request, 'designer/home.html', context)
 
 def getSensordevices():
