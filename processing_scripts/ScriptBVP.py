@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Created on Tue Jun 30 17:56:22 2015
 
@@ -42,7 +41,9 @@ if __name__ == '__main__':
     #get the IBI from the filtered signal
     #the user selects the parameters, with default suggested
     delta = 1
-    ibi = ourTools.getIBI(filtered_signal, SAMP_F, delta)
+    minFr = 40
+    maxFr = 200
+    ibi = ourTools.getIBI(filtered_signal, SAMP_F, delta, minFr, maxFr)
     
     #DEBUG output
     print ibi
