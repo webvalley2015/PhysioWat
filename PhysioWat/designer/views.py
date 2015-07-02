@@ -26,6 +26,6 @@ def createsensor(request):
 #    return Sensordevices.objects.values_list('device', flat=True).distinct()
 
 def getAvaliableSensors():
-    return Sensordevices.objects.values_list('sensortype', flat=True).distinct()
+    return Sensordevices.objects.values_list('sensortype', flat=True).distinct().order_by('sensortype')
 
 

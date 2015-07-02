@@ -1,4 +1,4 @@
-from  django.conf.urls import patterns, url
+from django.conf.urls import patterns, url
 from .graphs import linegraph
 from .views import show_chart
 
