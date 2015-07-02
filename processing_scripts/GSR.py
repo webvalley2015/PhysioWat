@@ -11,13 +11,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, FS=None):
+def estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, FS=None, k_near=5, grid_size=5):
     """
     TIME_DRV, DRV, PH_DRV, TN_DRV = estimate_drivers(TIME_GSR, GSR, T1, T2, MX, DELTA_PEAK):
 
     Estimates the various driving components of a GSR signal.
     The IRF is a bateman function defined by the gen_bateman function.
     T1, T2, MX and DELTA_PEAK are modificable parameters (optimal 0.75, 2, 1, 0.02)
+    k_near and grid_size are optional parameters, relative to the process
     """
     if FS==None:
         FS = 1/( t_gsr[1] - t_gsr[0])
@@ -81,7 +82,7 @@ def estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, FS=None):
         inter_impulse_indexes = np.r_[inter_impulse_indexes, range(start[i], end[i]+1)]
     inter_impulse_indexes = np.r_[inter_impulse_indexes, len(markers)-1]
     '''
-    inter_impulse_indexes, min_idx=get_interpolation_indexes(max_driv, driver, n=5)
+    inter_impulse_indexes, min_idx=get_interpolation_indexes(max_driv, driver, n=k_near)
 
     inter_impulse = driver[inter_impulse_indexes.astype(np.uint16)]
     t_inter_impulse = t_driver[inter_impulse_indexes.astype(np.uint16)]
@@ -90,14 +91,14 @@ def estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, FS=None):
     # ESTIMATION OF THE TONIC DRIVER
     #======================
     # interpolation with time grid 10s
-    t_inter_impulse_10 = np.arange(t_driver[0], t_driver[-1], 5)
+    t_inter_impulse_grid = np.arange(t_driver[0], t_driver[-1], grid_size)
 
     # estimating values on the time-grid
     inter_impulse_10=np.array([driver[0]])
 
-    for index in range(1, len(t_inter_impulse_10)-1):
-        ind_start = np.argmin(abs(t_inter_impulse - t_inter_impulse_10[index-1]))
-        ind_end = np.argmin(abs(t_inter_impulse - t_inter_impulse_10[index+1]))
+    for index in range(1, len(t_inter_impulse_grid)-1):
+        ind_start = np.argmin(abs(t_inter_impulse - t_inter_impulse_grid[index-1]))
+        ind_end = np.argmin(abs(t_inter_impulse - t_inter_impulse_grid[index+1]))
 
         if ind_end>ind_start:
             value=np.mean(inter_impulse[ind_start:ind_end])
@@ -107,11 +108,11 @@ def estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, FS=None):
 
     inter_impulse_10 = np.r_[inter_impulse_10, np.mean(inter_impulse[ind_end:])]
 
-    t_inter_impulse_10  = np.r_[t_inter_impulse_10 , t_driver[-1]]
+    t_inter_impulse_grid  = np.r_[t_inter_impulse_grid , t_driver[-1]]
     inter_impulse_10 = np.r_[inter_impulse_10, driver[-1]]
 
 
-    f = interp1d(t_inter_impulse_10, inter_impulse_10, kind='cubic')
+    f = interp1d(t_inter_impulse_grid, inter_impulse_10, kind='cubic')
 
     tonic_driver = f(t_driver)
 

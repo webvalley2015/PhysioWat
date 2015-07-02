@@ -70,7 +70,7 @@ Inertial data:
     -None
 -Windowing and features extraction:
     -extract_features_TYPE(data, wlen, wstep, fsamp, col)
-    for every type
+    
 
 FUNCTIONS:
 
