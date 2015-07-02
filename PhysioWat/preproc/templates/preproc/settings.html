@@ -7,20 +7,13 @@
 		{% csrf_token %}
 		{% bootstrap_form formSpec %}
 		
-		{{ formFilt }}
-		{{ formDown }}
-		{{ formPick }}
+		{% bootstrap_form formFilt %}
+		{% bootstrap_form formDown %}
+		{% bootstrap_form formPick %}
 		
         {% buttons %}
-            <button type="submit" class="btn btn-success">
-                Submit
-            </button>
-        {% endbuttons %}
-
-        {% buttons %}
-            <button type="reset" class="btn btn-danger">
-                Reset
-            </button>
+            <button type="submit" class="btn btn-success">Submit</button>
+            <button type="reset" class="btn btn-danger">Reset</button>
         {% endbuttons %}
 
 	</form>
