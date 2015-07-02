@@ -17,29 +17,18 @@ class linegraph(HighChartsLineView):
 			data['title'] = {}
 			data['title']['text'] = self.kwargs['title']
 			
-		print "EHY, LOOK AT ME!!!!"
-		print type(data)	
-		
 		how_many_series = len(data['series'])
 		
-		print "how", how_many_series
-		for i in range(len(data['series'])):
-			print len(data['series'][i]['data'])
+		if 'end' in self.kwargs:
+			end = int(self.kwargs['end'])
+			for i in range(how_many_series):
+				data['series'][i]['data'] = data['series'][i]['data'][:end]
 
 		if 'begin' in self.kwargs:
 			begin = int(self.kwargs['begin'])
 			for i in range(how_many_series):
 				data['series'][i]['data'] = data['series'][i]['data'][begin:]
 		
-		if 'end' in self.kwargs:
-			end = int(self.kwargs['end'])
-			for i in range(how_many_series):
-				data['series'][i]['data'] = data['series'][i]['data'][:end]
-	
-
-		for i in range(len(data['series'])):
-			print len(data['series'][i]['data'])
-
-
+		print len(data['series'][0]['data'])
 		return data
 

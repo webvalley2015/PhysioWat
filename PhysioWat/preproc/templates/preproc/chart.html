@@ -19,7 +19,7 @@
     </div>
 
     <div class="algorithms col-md-4">
-        <form action=".">
+        <form id="data-slice" action=".">
             <div class="checkbox">
                 <label>
                     <input type="checkbox" value="">
@@ -30,23 +30,20 @@
                     Algorithm 2
                 </label>
             </div>
-            <button type="submit" class="btn btn-default" id="apply_button">Apply</button>
+            <!-- <label for="inputBegin">Begin</label> -->
+            <input type="text" class="form-control" id="begin" placeholder="begin">
+
+            <!-- <label for="inputEnd">End</label> -->
+            <input type="text" class="form-control" id="end" placeholder="end">
+
+            <!-- <label for="inputTitle">Name</label> -->
+            <input type="text" class="form-control" id="title" placeholder="graph title">
+
+            <button type="submit" class="btn btn-primary" id="apply_button">Apply</button>
             <button type="reset" class="btn btn-danger">Reset</button>
             
-           <label for="inputBegin">Begin</label>
-		   <input type="text" class="form-control" id="inputBegin" placeholder="begin">
-		   
-		     <label for="inputEnd">Begin</label>
-		   <input type="text" class="form-control" id="inputEnd" placeholder="end">
-		   
-		   <label for="inputTitle">Begin</label>
-		   <input type="text" class="form-control" id="inputTitle" placeholder="title for the graph">
-		   
-            
-           <!-- <button type="post" class="btn btn-default"><input type="textbox" value=""</button>
-            <button type="post" class="btn btn-default"></button>  -->
-        </form>
-    </div>
+            </form>
+   </div>
 
 </div>
 {% endblock %}
@@ -56,20 +53,20 @@
 
 {% highcharts_js 1 0 0 0 %}
 
-<script>/**
-$('#apply_button').click(function(){
-	var beg = $('#inputBegin').val();
-	var end = $('#inputEnd').val();
-	//var 
-	
-	});
-*/	
+<script>
 $(function () {
-    $.getJSON("{% url 'chart_getdata' 'graph1' 50 70 %}", function(data) {
+    $.getJSON("{% url 'chart_getdata' 'graph1' %}", function(data) {
         $('#processed-signal').highcharts(data);
     });
-    $.getJSON("{% url 'chart_getdata' '343443' 50 70 %}", function(data) {
+    $.getJSON("{% url 'chart_getdata' '343443' %}", function(data) {
         $('#temporary-processing').highcharts(data);
+    });
+
+    $("form#data-slice").submit(function (e) {
+        e.preventDefault(); //prevent default form submit
+        $.getJSON("{% url 'chart_getdata' %}" + [$("#title").val(), $("#begin").val(), $("#end").val()].join('/') + '/', function(data) {
+            $('#processed-signal').highcharts(data);
+        });
     });
 });
 </script>
