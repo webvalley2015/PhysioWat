@@ -7,7 +7,7 @@
             {% csrf_token %}
             {% if manufacturer %}
                 {{ form }}
-                <select>
+                <select name="devicename">
                     {% for c in manufacturer %}
                         <option value="{{ c }}">{{ c }}</option>
                     {% endfor %}
