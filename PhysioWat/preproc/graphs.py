@@ -29,6 +29,5 @@ class linegraph(HighChartsLineView):
             for i in range(how_many_series):
                 data['series'][i]['data'] = data['series'][i]['data'][begin:]
 
-        print len(data['series'][0]['data'])
         return data
 
