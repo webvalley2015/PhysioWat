@@ -17,22 +17,28 @@ def smoothGaussian(X,sigma=5):
 
     return smoothed
 
-#Deprecated
-def ButterworthFilter (SIGNAL, F_PASS, F_STOP, F_SAMP, LOSS, ATTENUATION):
+def filtfiltFilter (SIGNAL, F_PASS, F_STOP, F_SAMP, LOSS, ATTENUATION, ftype = 'butter'):
     '''
-    Applies the ButterWorth filter to a signal
+    Applies the selected filter to a signal (all the types has the same parameter)
     return: the signal filtered
     SIGNAL: the signal to filter
-    F_PASS: pass frequency, last frequency kept. Must be smaller than F_STOP for a low_pass filter
-    F_STOP: stop frequency, first frequency removed. Must be between F_PASS and 0.5*smp_fr
+    F_PASS: pass frequency, last frequency kept
+    F_STOP: stop frequency, first frequency removed
     F_SAMP: smp_fr (sampling frequency)
     LOSS: index of the max variation of the kept frequency (in [0,1])
     ATTENUATION: index of the max variation of the removed frequency from 0 (higher ATTENUATION implies lower variation)
+    ftype: (default 'butter') is the type of filter. Should be "butter", "cheby1", "cheby2", "ellip"
+    notes:  F_PASS, F_STOP < smp_fr / 2
+            F_PASS < F_STOP for a lowpass filter
+            F_PASS > F_STOP for a highpass filter
     '''
     nyq = 0.5 * F_SAMP
     wp = np.array(F_PASS)/nyq
     ws = np.array(F_STOP)/nyq
-    b, a = filter_design.iirdesign(wp, ws, LOSS, ATTENUATION, ftype='butter')
+    b, a = filter_design.iirdesign(wp, ws, LOSS, ATTENUATION, ftype = ftype)
+    plot = False    
+    if plot:
+        mfreqz(b,a, wp, ws)
     filtered_signal = filtfilt(b, a, SIGNAL)
     return filtered_signal
 
@@ -49,13 +55,12 @@ def filterSignal (SIGNAL ,smp_fr, passFr, stopFr, LOSS=0.1, ATTENUATION=40, filt
     filterType: (default 'None') type of the filter. None or invalid value implies no filtering
     '''
 
-    filters=["butter", "cheby1", "cheby2", "ellip", "bessel"]
+    filters=["butter", "cheby1", "cheby2", "ellip"]
     if filterType in filters:
-        b, a = iir_coefficients(passFr, stopFr, smp_fr, LOSS, ATTENUATION, ftype=filterType)
-        filtered_signal=filtfilt(b, a, SIGNAL)
-        return filtered_signal
+        filtered_signal = filtfiltFilter(SIGNAL, passFr, stopFr, smp_fr, LOSS, ATTENUATION, ftype=filterType)
     else:
-        return SIGNAL
+        filtered_signal = SIGNAL
+    return filtered_signal
 
 #Plot frequency and phase response
 def mfreqz(b,a, wp, ws):
@@ -79,6 +84,7 @@ def mfreqz(b,a, wp, ws):
     plt.title(r'Phase response')
     plt.subplots_adjust(hspace=0.5)
 
+'''
 def iir_coefficients(F_PASS, F_STOP, F_SAMP, LOSS=0.1, ATTENUATION=40, ftype = 'butter', plot=False):
     nyq = 0.5 * F_SAMP
     wp = np.array(F_PASS)/nyq
@@ -86,4 +92,4 @@ def iir_coefficients(F_PASS, F_STOP, F_SAMP, LOSS=0.1, ATTENUATION=40, ftype = '
     b, a = fd.iirdesign(wp, ws, LOSS, ATTENUATION, ftype=ftype)
     if plot:
         mfreqz(b,a, wp, ws)
-    return b, a
+    return b, a'''
