@@ -7,25 +7,43 @@
 
 
 {% block container %}
-
 <div class="content row">
 
-    <div class="graphs col-md-6">
+    <div class="graphs col-md-8">
         <div class="processed-signal row">
-            <div id="processed-signal" style="min-width: 310px; height: 427px; margin: 0 auto"> </div>
+            <div id="processed-signal"> </div>
         </div>
         <div class="temporary-processing row">
-            <a href="#" class="thumbnail">
-                <img src="http://cdn.modalizer.com/wp-content/uploads/2012/08/Stonefly_adv_gatto.jpg">
-            </a>
+            <div id="temporary-processing"> </div>
         </div>
     </div>
 
-    <div class="algorithms col-md-6">
-        <a href="#" class="thumbnail">
-            <img src="http://sfondi.worldshot.net/resolution-720-1280/Sfondi:-Gattino-Sfondi-fotografici-37.jpg">
-        </a>
-    </div>
+    <div class="algorithms col-md-4">
+        <form id="data-slice" action=".">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" value="">
+                    Algorithm 1
+                </label>
+                <label>
+                    <input type="checkbox" value="">
+                    Algorithm 2
+                </label>
+            </div>
+            <!-- <label for="inputBegin">Begin</label> -->
+            <input type="text" class="form-control" id="begin" placeholder="begin">
+
+            <!-- <label for="inputEnd">End</label> -->
+            <input type="text" class="form-control" id="end" placeholder="end">
+
+            <!-- <label for="inputTitle">Name</label> -->
+            <input type="text" class="form-control" id="title" placeholder="graph title">
+
+            <button type="submit" class="btn btn-primary" id="apply_button">Apply</button>
+            <button type="reset" class="btn btn-danger">Reset</button>
+            
+            </form>
+   </div>
 
 </div>
 {% endblock %}
@@ -37,8 +55,18 @@
 
 <script>
 $(function () {
-    $.getJSON("{% url 'chart_getdata' %}", function(data) {
+    $.getJSON("{% url 'chart_getdata' 'graph1' %}", function(data) {
         $('#processed-signal').highcharts(data);
+    });
+    $.getJSON("{% url 'chart_getdata' '343443' %}", function(data) {
+        $('#temporary-processing').highcharts(data);
+    });
+
+    $("form#data-slice").submit(function (e) {
+        e.preventDefault(); //prevent default form submit
+        $.getJSON("{% url 'chart_getdata' %}" + [$("#title").val(), $("#begin").val(), $("#end").val()].join('/') + '/', function(data) {
+            $('#processed-signal').highcharts(data);
+        });
     });
 });
 </script>
