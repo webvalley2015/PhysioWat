@@ -162,30 +162,6 @@ def prepare_json_to_plot(series, labels):
         file.write(json_string)
         file.close()
 
-def prepare_json_to_plot_time(t, series, labels):
-    '''
-    Saves a json file in order to pass it to the layout team
-    :param series: list of series
-    :param labels: list of labels
-    :return: nothing
-    '''
-    if len(series)==len(labels):
-        li=[]
-        for i in range(len(series)):
-            time_series=np.vstack([t, series[i]])
-            ts=[]
-            print time_series.shape
-            for j in range(time_series.shape[1]):
-                ts.append(time_series[:,j].tolist())
-            print time_series
-            li.append({ "name" : labels[i],
-                        "data" : ts
-                    })
-        json_string=json.dumps(li)
-        file=open("graph.json", "w")
-        file.write(json_string)
-        file.close()
-
 def load_file_pd(filename, sep=";", names=None):
     '''
     Load data from file

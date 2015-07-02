@@ -46,6 +46,8 @@ if __name__ == '__main__':
     maxFr = 200
     ibi = ourTools.getIBI(filtered_signal, SAMP_F, delta, minFr, maxFr)
     
+    ibi.to_csv('ibiExample')    
+    
     #DEBUG output
     print ibi
     plt.plot(ibi.index, ibi.IBI)
