@@ -30,6 +30,6 @@ urlpatterns = [
     url(r'^preproc/', include('preproc.urls') ),
     # redirect to uploader
     url(r'^uploader/', include('uploader.urls')),
-    # redirect to extfeat
-    #url(r'^extfeat/', include('exfeat.urls')),
+    # redirect to designer
+    url(r'^designer/', include('designer.urls')),
 ]
