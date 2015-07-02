@@ -16,8 +16,11 @@ def upload(request):
             return HttpResponseRedirect(reverse('humanupload'))
     else:
         form = UploadForm()
-    context = {'form': form, 'manufacturer': fun()}
+    context = {'form': form, 'manufacturer': fun(), 'sensortypes': getSensorTypes()}
     return render(request, 'uploader/home.html', context)
 
 def fun():
     return Sensordevices.objects.values_list('device', flat=True).distinct()
+
+def getSensorTypes():
+    return Sensordevices.objects.values_list('sensortype', flat=True).distinct()

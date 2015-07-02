@@ -3,72 +3,42 @@ import models_dynamic
 
 class Experiment(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    experimenterid = models.IntegerField()
-    experimentname = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
     description = models.CharField(max_length=500, blank=True, null=True)
+    token = models.CharField(max_length=50)
 
     class Meta:
         managed = False
         db_table = 'experiment'
 
 
-class Experimenter(models.Model):
+class Recording(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    username = models.CharField(max_length=50)
-    password = models.CharField(max_length=50)
-    firstname = models.CharField(max_length=50)
-    lastname = models.CharField(max_length=50)
-    email = models.CharField(max_length=50, blank=True, null=True)
+    experimentid = models.ForeignKey(Experiment, db_column='experimentid')
+    devicename = models.CharField(max_length=50)
+    dictkeys = models.TextField(blank=True, null=True)  # This field type is a guess.
+    ts = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = 'experimenter'
+        db_table = 'recording'
 
 
-class Sensordevices(models.Model):
-    device = models.CharField(max_length=50)
-    sensortype = models.CharField(max_length=50)
+class Sensor(models.Model):
+    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
+    name = models.CharField(max_length=50, blank=True, null=True)
     description = models.CharField(max_length=50, blank=True, null=True)
-    device.primary_key = True;
-    sensortype.primary_key = True;
 
     class Meta:
         managed = False
-        db_table = 'sensordevices'
-        unique_together = (('device', 'sensortype'),)
+        db_table = 'sensor'
 
 
-class Sensors(models.Model):
-    sensornames = models.CharField(max_length=50)
+class SensorData(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
+    recordingid = models.ForeignKey(Recording, db_column='recordingid')
+    store = models.TextField()  # This field type is a guess.
 
     class Meta:
         managed = False
-        db_table = 'sensors'
-
-
-class Subject(models.Model):
-    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    firstname = models.CharField(max_length=50, blank=True, null=True)
-    lastname = models.CharField(max_length=50, blank=True, null=True)
-    dob = models.DateField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'subject'
-
-class Sensorexample(models.Model):
-    experimenterid = models.IntegerField(db_column='ExperimenterID')  # Field name made lowercase.
-    experimentid = models.IntegerField(db_column='ExperimentID')  # Field name made lowercase.
-    subjectid = models.IntegerField(db_column='SubjectID')  # Field name made lowercase.
-    timestamp = models.FloatField(db_column='TimeStamp')  # Field name made lowercase.
-    paramatervalue = models.CharField(max_length=50)
-
-    class Meta:
-        managed = False
-        db_table = 'sensorexample'
-        unique_together = (('experimenterid', 'experimentid', 'timestamp', 'subjectid'),)
-
-
-
-
+        db_table = 'sensor_data'
