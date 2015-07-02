@@ -22,7 +22,7 @@ def loadBVP(filename):
 #Simulate users app
 if __name__ == '__main__':
     #user insertion, the path is substituted with database source
-    path = './data/'
+    path = '/home/flavio/Work/PhysioWat/robaNoGit/data/SUB100/SUB100/Empatica_E4/'
     fileName = 'BVP.csv'
     SAMP_F = 64
 
@@ -31,12 +31,13 @@ if __name__ == '__main__':
     
     #filter the signal
     #the user selects the parameters, with default suggested
-    filterType = 'butter'
+    filterType = 'bessel'
     F_PASS = 2
     F_STOP = 6
     ILOSS = 0.1
     IATT = 40
     filtered_signal = ourFilters.filterSignal(rawdata, SAMP_F, passFr = F_PASS, stopFr = F_STOP, LOSS = ILOSS, ATTENUATION = IATT, filterType = filterType)
+    #filtered_signal = rawdata
     
     #get the IBI from the filtered signal
     #the user selects the parameters, with default suggested
