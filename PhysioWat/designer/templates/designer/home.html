@@ -1,21 +1,30 @@
 {% extends 'PhysioWat/base.html' %}
+{% load static %}
+{% load utils %}
+#load js
+{% block app_specific_js %}
+    <script src="{% static 'js/createSensor.js' %}"></script>
+    <style>
+        {% for c in 25|get_range %}
+            #coupIn{{ c }}{
+                display: none;
+            }
+        {% endfor %}
+    </style>
+{% endblock %}
+
 {% block container %}
+
     <div style="padding:40px;margin:40px;border:1px solid #ccc">
         <h1>Create a New Sensor</h1>
 
         <form action="#" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {% if manufacturer %}
-                {{ form }}
-                <select>
-                    {% for c in manufacturer %}
-                        <option value="{{ c }}">{{ c }}</option>
-                    {% endfor %}
-                </select>
-                <input type="submit" value="Upload"/>
-            {% else %}
-                Error while loading sensors manufacters database.
-            {% endif %}
+            {{ form }}
+            {% for c in 25|get_range %}
+                <input type="text" id="coupIn{{ c }}">
+            {% endfor %}
+            <input type="submit" value="Upload"/>
         </form>
 
     </div>
