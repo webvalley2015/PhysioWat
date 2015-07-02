@@ -10,7 +10,19 @@
 		{{ formFilt }}
 		{{ formDown }}
 		{{ formPick }}
-		<input type="submit" value="Upload"/>
+		
+        {% buttons %}
+            <button type="submit" class="btn btn-success">
+                Submit
+            </button>
+        {% endbuttons %}
+
+        {% buttons %}
+            <button type="reset" class="btn btn-danger">
+                Reset
+            </button>
+        {% endbuttons %}
+
 	</form>
 </div>
 
