@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http.response import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from forms import filter, downsampling, BVP, EKG, GSR, inertial, remove_spike
+from forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike
 
 
 def preproc_settings(request):
@@ -11,6 +11,7 @@ def preproc_settings(request):
 
             return HttpResponseRedirect(reverse('humanupload'))
     else:
+
         if (True):
             formDown = downsampling(initial={'switch':False})
             formFilt = filterAlg(initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType':'cheby2'})
