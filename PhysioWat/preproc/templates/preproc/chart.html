@@ -5,7 +5,6 @@
 {% endblock %}
 
 
-
 {% block container %}
 
 <div class="content row">
@@ -30,12 +29,25 @@
     </div>
 
 </div>
-
 {% endblock %}
 
 
 {% block app_specific_js %}
+<script>
+	bla = "ciao graph";
+</script>
 <script src="{% static 'preproc/highcharts/js/highcharts.js' %}" ></script>
 <script src="{% static 'preproc/js/chart.js' %}" ></script>
+<script>
+	$(document).ready(function() {
+		ajax_get_data();
+	});
+</script>
 {% endblock %}
 
+<<<<<<< HEAD
+
+
+
+=======
+>>>>>>> 434b5e21f3cbfabc3744eea8f7f265d9620c5391

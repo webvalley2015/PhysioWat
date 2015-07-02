@@ -44,7 +44,7 @@ def filterSignal (SIGNAL ,smp_fr, passFr, stopFr, LOSS, ATTENUATION, filterType 
     stopFr: the stop frequency of the filter
     LOSS: the maximum LOSS for the filter
     ATTENUATION: the minimum 'movement' for the filter
-    filterType: (default 'butter') type of the filter. None or invalid value implies no filtering
+    filterType: (default 'None') type of the filter. None or invalid value implies no filtering
     '''
     if filterType == 'butter':
         filtered_signal = ButterworthFilter(SIGNAL, passFr, stopFr, smp_fr, LOSS = LOSS, ATTENUATION = ATTENUATION)
