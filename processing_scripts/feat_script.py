@@ -29,6 +29,20 @@ cols = ["AccX","AccY","AccZ", "GyrX","GyrY","GyrZ", "MagX","MagY","MagZ"]
 
 colnames = ['Acc.std.Norm', 'Mag.std.Norm', 'Mag.Mean.Z', 'Mag.Mean.X', 'Mag.Mean.Y', 'Acc.std.Y', 'Acc.std.X', 'Acc.std.Z', 'Acc.Max.X', 'label', 'Gyr.Min.Z', 'Gyr.Min.Y', 'Gyr.Min.X', 'Mag.Min.Norm', 'Acc.Min.Norm', 'Gyr.Min.Norm', 'Mag.Mean.Norm', 'Acc.Mean.X', 'Acc.Mean.Y', 'Acc.Mean.Z', 'Gyr.Max.Norm', 'Mag.Max.Norm', 'Acc.Max.Norm', 'Gyr.Mean.Norm', 'Acc.Max.Y', 'Acc.Max.Z', 'Gyr.Mean.Z', 'Gyr.Mean.Y', 'Gyr.Mean.X', 'Mag.Max.Z', 'Mag.Max.X', 'Mag.Max.Y', 'Acc.Mean.Norm', 'Acc.Min.Z', 'Acc.Min.X', 'Acc.Min.Y', 'Gyr.std.Norm', 'Mag.Min.X', 'Mag.Min.Y', 'Mag.Min.Z', 'Mag.std.Z', 'Mag.std.Y', 'Mag.std.X', 'Gyr.std.X', 'Gyr.std.Y', 'Gyr.std.Z', 'Gyr.Max.Y', 'Gyr.Max.X', 'Gyr.Max.Z']
 
+names = ["Nearest Neighbors", "Linear SVM\t", "RBF SVM\t", "Decision Tree",
+             "Random Forest", "AdaBoost\t", "LDA\t", "QDA\t"]
+
+classifiers = {
+        'KNN': lambda nn: KNeighborsClassifier(n_neighbors=nn),
+        'SVL': lambda C: SVC(kernel="linear", C=C),
+        'SVM': lambda kernel, C, degree : SVC(kernel=kernel, C=C, degree=deg),
+        'DCT': lambda max_f: DecisionTreeClassifier(max_features=max_f),
+        'RFC': lambda n_est, max_f: RandomForestClassifier(n_estimators=n_est, max_features=max_f),
+        'ADA': lambda n_est, l_rate: AdaBoostClassifier(n_estimators = n_est, learning_rate=l_rate),
+        'LDA': lambda solver: LDA(solver=solver),
+        'QDA': lambda : QDA()
+        }
+
 def exFeat(l_curr, lab):
     mean = l_curr.mean()
     std = l_curr.std()
@@ -204,20 +218,6 @@ def tryjustone(in_data, te_data, which):
     return te_tar.values , y_pred
     
 def get_selected_clf(X, Y, which):
-    names = ["Nearest Neighbors", "Linear SVM", "RBF SVM", "Decision Tree",
-             "Random Forest", "AdaBoost", "Naive Bayes", "LDA", "QDA"]      
-    classifiers = {
-        'KNN':KNeighborsClassifier(3),
-        'SVL':SVC(kernel="linear", C=0.025),
-        'SVM':SVC(gamma=2, C=10),
-        'DCT':DecisionTreeClassifier(max_depth=5),
-        'RFC':RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
-        'ADA':AdaBoostClassifier(),
-        'GAU':GaussianNB(),
-        'LDA':LDA(),
-        'QDA':QDA()
-        }
-    
     clf = classifiers[which]
     clf=clf.fit(X, Y)
     return  clf
@@ -233,21 +233,6 @@ def trythemall(in_data, te_data):
     in_tar = in_data.label
     te_data = te_data[te_data.columns[:-1]]
     in_data = in_data[in_data.columns[:-1]]
-
-    names = ["Nearest Neighbors", "Linear SVM\t", "RBF SVM\t", "Decision Tree",
-             "Random Forest", "AdaBoost\t", "Naive Bayes", "LDA\t", "QDA\t"]
-
-    classifiers = {
-        'KNN': lambda : KNeighborsClassifier(3),
-        'SVL': lambda C: SVC(kernel="linear", C=C),
-        'SVM': lambda C : SVC(gamma=2, C=C),
-        'DCT': lambda : DecisionTreeClassifier(max_depth=5),
-        'RFC': lambda : RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
-        'ADA': lambda : AdaBoostClassifier(),
-        'GAU': lambda : GaussianNB(),
-        'LDA': lambda : LDA(),
-        'QDA': lambda : QDA()
-        }
         
         
     print 'List of accuracies...'
@@ -294,29 +279,132 @@ def get_report(y_true, y_pred):
 def bestfit(fe_data, alg, feat):
     #in_tar = in_data.label
     #in_data = in_data[in_data.columns[:-1]]
+#classifiers = {
+#        'SVM': lambda kernel, C, degree : SVC(kernel=kernel, C=C, degree=deg),
+#        'RFC': lambda n_est, max_f: RandomForestClassifier(n_estimators=n_est, max_features=max_f),
+#        'ADA': lambda n_est, l_rate: AdaBoostClassifier(n_estimators = n_est, learning_rate=l_rate)
+#        }
+#        
+    if alg == 'KNN': pos, val = bestfit_KNN(fe_data, alg, feat)
+        elif alg == 'SVL': pos, val = bestfit_SVL(fe_data, alg, feat)
+            elif alg == 'SVM': pos, val = bestfit_SVM(fe_data, alg, feat)
+                elif alg == 'DCT': pos, val = bestfit_DCT(fe_data, alg, feat)
+                    elif alg == 'RFC': pos, val = bestfit_RFC(fe_data, alg, feat)
+                        elif alg == 'ADA': pos, val = bestfit_ADA(fe_data, alg, feat)
+                            elif alg == 'LDA': pos, val = bestfit_LDA(fe_data, alg, feat)
+                                elif alg == 'QDA': pos, val = bestfit_QDA(fe_data, alg, feat):
+    return pos, val
 
+def bestfit_KNN(fe_data, alg, feat):
     accuracy = np.zeros(0)
-    Clist = [ 10**i for i in range(-5,8) ]
+    NNlist = [1, 3, 5, 7, 9, 11]
     iterations = 20
-    for C in Clist:
-        clf = classifiers[alg](C=C)
-        #clf = clf.fit(in_data, in_tar)
+    for nn in NNlist:
+        clf = classifiers[alg](n_neighbors=nn)
         mean_vec = 0.
         for i in range(iterations):
             fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
             in_tar = fe_data.label
             in_data = fe_data[fe_data.columns[:-1]]
             scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=-1)
-            print scores
+            #print scores
             in_vec = np.array([C, scores.mean(), scores.std()*2])
             mean_vec += in_vec[1]
         accuracy = np.append(accuracy, (mean_vec/iterations))
-    
     #plot the accuracy
-    #accuracy = accuracy.reshape((-1,3))
-    #accuracy = accuracy[1:,:]
+    plt.figure()
+    plt.plot(NNlist,accuracy)
+    #plt.xscale('log')
+    plt.show()    
+    return accuracy.argmax(), accuracy.max()
+
+
+def bestfit_SVL(fe_data, alg, feat):
+    accuracy = np.zeros(0)
+    Clist = [ 10**i for i in range(-5,8) ]
+    iterations = 20
+    for C in Clist:
+        clf = classifiers[alg](C=C)
+        mean_vec = 0.
+        for i in range(iterations):
+            fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
+            in_tar = fe_data.label
+            in_data = fe_data[fe_data.columns[:-1]]
+            scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=-1)
+            #print scores
+            in_vec = np.array([C, scores.mean(), scores.std()*2])
+            mean_vec += in_vec[1]
+        accuracy = np.append(accuracy, (mean_vec/iterations))
+    #plot the accuracy
     plt.figure()
     plt.plot(Clist,accuracy)
     plt.xscale('log')
+    plt.show()    
+    return accuracy.argmax(), accuracy.max()
+    
+
+def bestfit_DCT(fe_data, alg, feat):
+    accuracy = np.zeros(0)
+    MFlist = [1, 1., 'sqrt', 'log2', None]
+    iterations = 20
+    for max_f in MFlist:
+        clf = classifiers[alg](max_features=max_f)
+        mean_vec = 0.
+        for i in range(iterations):
+            fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
+            in_tar = fe_data.label
+            in_data = fe_data[fe_data.columns[:-1]]
+            scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=-1)
+            #print scores
+            in_vec = np.array([C, scores.mean(), scores.std()*2])
+            mean_vec += in_vec[1]
+        accuracy = np.append(accuracy, (mean_vec/iterations))
+    #plot the accuracy
+    plt.figure()
+    plt.plot(MFlist,accuracy)
+    #plt.xscale('log')
+    plt.show()    
+    return accuracy.argmax(), accuracy.max()
+    
+def bestfit_QDA(fe_data, alg, feat):
+    accuracy = np.zeros(0)
+    #just default parameters
+    iterations = 20
+    for i in range(iterations):
+        fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
+        in_tar = fe_data.label
+        in_data = fe_data[fe_data.columns[:-1]]
+        scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=-1)
+        #print scores
+        in_vec = np.array([C, scores.mean(), scores.std()*2])
+        mean_vec += in_vec[1]
+    accuracy = float(mean_vec)/iterations
+    #plot the accuracy
+    plt.figure()
+    plt.plot(accuracy)
+    #plt.xscale('log')
+    plt.show()    
+    return 0, accuracy.max()
+    
+def bestfit_KNN(fe_data, alg, feat):
+    accuracy = np.zeros(0)
+    SRlist = ['svd', 'lsqr', 'eigen']
+    iterations = 20
+    for solver in SRlist:
+        clf = classifiers[alg](solver=solver)
+        mean_vec = 0.
+        for i in range(iterations):
+            fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
+            in_tar = fe_data.label
+            in_data = fe_data[fe_data.columns[:-1]]
+            scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=-1)
+            #print scores
+            in_vec = np.array([C, scores.mean(), scores.std()*2])
+            mean_vec += in_vec[1]
+        accuracy = np.append(accuracy, (mean_vec/iterations))
+    #plot the accuracy
+    plt.figure()
+    plt.plot(SRlist,accuracy)
+    #plt.xscale('log')
     plt.show()    
     return accuracy.argmax(), accuracy.max()
