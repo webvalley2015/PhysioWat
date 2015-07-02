@@ -1,4 +1,6 @@
-7/1/15 15:30
-Control Trial Spec
-Exel sensor on Claire's left wrist
-60 seconds of Claire walking, typing, walking outside, sitting down and getting up
+7/2/15 Control Trial 11:12
+Subject: Claire
+Sensor: EXL S3 175
+60 s of control activity
+-Walking around
+-Picking things up

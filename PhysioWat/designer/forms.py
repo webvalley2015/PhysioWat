@@ -6,3 +6,4 @@ from django import forms
 class SensorDesignerForm(forms.Form):
     Name = forms.CharField()
     Sensors = forms.IntegerField(min_value=1)
+

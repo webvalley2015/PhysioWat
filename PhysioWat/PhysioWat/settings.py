@@ -37,8 +37,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #4 auth purposes
+    # 4 auth purposes
     'django.contrib.admindocs',
+    'highcharts',
     'PhysioWat',
     'uploader',
     'extfeat',
@@ -82,8 +83,12 @@ WSGI_APPLICATION = 'PhysioWat.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'dev.db',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'physiowat',
+        'USER': 'developer',
+        'PASSWORD': 'webvalley',
+        'HOST': '192.168.210.175',
+        'PORT': '5432',
     }
 }
 
@@ -106,20 +111,21 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATICFILES_FINDERS = ("django.contrib.staticfiles.finders.FileSystemFinder",
+ "django.contrib.staticfiles.finders.AppDirectoriesFinder")
+
 TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR,  'templates'),
+    os.path.join(BASE_DIR, 'templates'),
     'PhysioWat/templates'
 )
 
-#after login where to go?
+# after login where to go?
 LOGIN_REDIRECT_URL = '/'
 
-#where to store uploaded csv before deleting them all
+# where to store uploaded csv before deleting them all
 MEDIA_URL = '/media/'
-
 
 try:
     from local_settings import *
 except ImportError:
     pass
-

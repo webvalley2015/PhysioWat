@@ -1,9 +1,9 @@
 {% extends "PhysioWat/base.html" %}
 {% load static %}
+{% load highcharts_tags %}
 {% block app_specific_css %}
 
 {% endblock %}
-
 
 
 {% block container %}
@@ -12,9 +12,7 @@
 
     <div class="graphs col-md-6">
         <div class="processed-signal row">
-            <a href="#" class="thumbnail">
-                <img src="http://cdn-2.animalidalmondo.it/o/j/come-educare-un-gattino-in-casa_f71cb11c28667b31fea5f507adc7b629.jpg">
-            </a>
+            <div id="processed-signal" style="min-width: 310px; height: 427px; margin: 0 auto"> </div>
         </div>
         <div class="temporary-processing row">
             <a href="#" class="thumbnail">
@@ -30,12 +28,19 @@
     </div>
 
 </div>
-
 {% endblock %}
 
 
 {% block app_specific_js %}
-<script src="{% static 'preproc/highcharts/js/highcharts.js' %}" ></script>
-<script src="{% static 'preproc/js/chart.js' %}" ></script>
-{% endblock %}
 
+{% highcharts_js 1 0 0 0 %}
+
+<script>
+$(function () {
+    $.getJSON("{% url 'chart_getdata' %}", function(data) {
+        $('#processed-signal').highcharts(data);
+    });
+});
+</script>
+
+{% endblock app_specific_js %}
