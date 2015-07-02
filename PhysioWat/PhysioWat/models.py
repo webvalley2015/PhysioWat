@@ -1,5 +1,5 @@
 from django.db import models
-
+import models_dynamic
 
 class Experiment(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.

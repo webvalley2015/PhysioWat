@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from .forms import SensorDesignerForm
 from PhysioWat.models import Sensordevices
 from PhysioWat.models import Sensors
+import tablecreater
 
 # Create your views here.
 
@@ -22,5 +23,8 @@ def createsensor(request):
 
 def getSensordevices():
     return Sensordevices.objects.values_list('device', flat=True).distinct()
+
+def getAvaliableSensors():
+    return Sensordevices.objects.values_list('sensortype', flat=True).distinct()
 
 
