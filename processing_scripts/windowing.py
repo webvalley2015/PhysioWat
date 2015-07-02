@@ -42,7 +42,15 @@ def get_windows_no_mix(labels, WINLEN, WINSTEP):
             windows.append([i,i+WINLEN])
             windows_labels.append(win_label)
         i += WINSTEP
-    return (windows, windows_labels)
+    return windows, np.array(windows_labels)
 
-def get_windows_full_label(labels, WINLEN, WINSTEP):
-    pass
+def get_windows_full_label(labels):
+    wl= [[0,0]]
+    rl= [labels[0]]
+    for i in range(1, len(labels)):
+        if labels[i] != labels[i-1]:
+    	    wl[-1][1]= i
+            wl.append([i,0])
+            rl.append(labels[i])
+    wl[-1][1]= len(labels)
+    return wl, np.array(rl)
