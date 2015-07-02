@@ -51,7 +51,7 @@ class BVP(forms.Form):  #Uguale a quello sopra ma cambia un default
 
 
 class inertial(forms.Form):
-    coeff = forms.FloatField()
+    coeff = forms.FloatField(min_value=0)
 
 
 
