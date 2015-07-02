@@ -3,7 +3,7 @@ from django.contrib.postgres.fields import ArrayField
 
 
 class Experiment(models.Model):
-    id = models.AutoField(db_column='GID', primary_key=True)  # Field name made lowercase.
+    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=500, blank=True, null=True)
     token = models.CharField(max_length=50)
@@ -14,8 +14,8 @@ class Experiment(models.Model):
 
 
 class Recording(models.Model):
-    id = models.AutoField(db_column='PID', primary_key=True)  # Field name made lowercase.
-    experimentid = models.ForeignKey(Experiment,db_column='GID')
+    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
+    experimentid = models.ForeignKey(Experiment)
     devicename = models.CharField(max_length=50)
     dictkeys = ArrayField(
         models.CharField(max_length=50, blank=True, null=True)  # This field type is a guess.
@@ -39,7 +39,7 @@ class Sensor(models.Model):
 
 class SensorData(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    recordingid = models.ForeignKey(Recording,db_column='PID')
+    recordingid = models.ForeignKey(Recording)
     store = models.TextField()  # This field type is a guess.
 
     class Meta:

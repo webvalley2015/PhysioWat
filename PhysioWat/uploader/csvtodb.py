@@ -10,10 +10,7 @@ from django.db import connection
 def putintodb(fname, devicename):
     csvreader = csv.reader(fname[0], delimiter=',')
     dictky = csvreader.next()
-    Recording(experimentid=1,
-              devicename='IMU',
-              dictkeys=dictky,
-              ts=datetime.now()).save()
+    #Recording(experimentid=1, devicename='IMU', dictkeys=dictky, ts=datetime.now()).save()
 
     for row in csvreader:
         # raw query for each csv line
