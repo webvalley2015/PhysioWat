@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     # 4 auth purposes
     'django.contrib.admindocs',
+    'highcharts',
     'PhysioWat',
     'uploader',
     'extfeat',
