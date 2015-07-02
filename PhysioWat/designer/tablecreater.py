@@ -6,9 +6,9 @@ import psycopg2
 
 def addrowstosensordevices(devicename, sensorname, descritpion):
     for index in range(len(sensorname)):
-        temprow = Sensordevices(device=form.cleaned_data[devicename],
-                                sensortype=form.cleaned_data[sensorname[index]],
-                                description=form.cleaned_data[descritpion[index]])
+        temprow = Sensordevices(device=devicename,
+                                sensortype=sensorname[index],
+                                description=descritpion[index])
         temprow.save()
 
 
