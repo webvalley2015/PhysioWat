@@ -269,17 +269,32 @@ def get_report(y_true, y_pred):
     report = {
         #'Accuracy (n)': accuracy_score(y_true, y_pred, normalize=False),
         'Accuracy (%)': accuracy_score(y_true, y_pred),
+        'Zero-One Classification loss': zero_one_loss(y_true, y_pred),
+        #'Zero-One Classification loss': zero_one_loss(y_true, y_pred, normalize=False)
         #what is y_score?!? to compute average_precision_score
         'F-measure (macro)': f1_score(y_true, y_pred, average='macro'),
         'F-measure (micro)': f1_score(y_true, y_pred, average='micro'),
         'F-measure (weighted)': f1_score(y_true, y_pred, average='weighted'),
         #the beta-value is unknown!!! fix it
-        'WeHarmMean prec&recall': fbeta_score(y_true, y_pred, average='weighted', beta=0.5),
+        'WeHarmMean prec&recall': fbeta_score(y_true, y_pred, average='weighted', beta=1),
         'Hamming loss': hamming_loss(y_true, y_pred),
-        
-
-
-        
+        #hinge loss is missing! ( i get 6 classes in decision_function instead of 4)
+        'Jaccard distance': jaccard_similarity_score(y_true, y_pred),
+        'Precision score (macro)': precision_score(y_true, y_pred, average='macro'),
+        'Precision score (micro)': precision_score(y_true, y_pred, average='micro'), 
+        'Precision score (weighted)': precision_score(y_true, y_pred, average='weighted'),
+        'Recall score (macro)': recall_score(y_true, y_pred, average='macro'),
+        'Recall score (micro)': recall_score(y_true, y_pred, average='micro'), 
+        'Recall score (weighted)': recall_score(y_true, y_pred, average='weighted'), 
     }
     conf_mat = confusion_matrix(y_true, y_pred)
+
+    X = np.arange(len(report))
+    plt.bar(X, report.values(), align='center', width=0.5)
+    plt.xticks(X, report.keys(), rotation=90)
+    ymax = max(report.values()) + 1
+    plt.ylim(0, ymax)
+    plt.show()    
+    
     return report, conf_mat
+    

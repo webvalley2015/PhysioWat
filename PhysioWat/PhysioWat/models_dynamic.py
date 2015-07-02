@@ -7,7 +7,7 @@ class ACCX(models.Model):
     experimenterid = models.IntegerField(db_column='ExperimenterID')  # Field name made lowercase.
     experimentid = models.IntegerField(db_column='ExperimentID')  # Field name made lowercase.
     subjectid = models.IntegerField(db_column='SubjectID')  # Field name made lowercase.
-    timestamp = models.FloatField(db_column='TimeStamp')  # Field name made lowercase.
+    timestamp = models.FloatField(db_column='TS', primary_key=True)  # Field name made lowercase.
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
@@ -18,7 +18,7 @@ class ACCY(models.Model):
     experimenterid = models.IntegerField(db_column='ExperimenterID')  # Field name made lowercase.
     experimentid = models.IntegerField(db_column='ExperimentID')  # Field name made lowercase.
     subjectid = models.IntegerField(db_column='SubjectID')  # Field name made lowercase.
-    timestamp = models.FloatField(db_column='TimeStamp')  # Field name made lowercase.
+    timestamp = models.FloatField(db_column='TS', primary_key=True)  # Field name made lowercase.
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
@@ -29,7 +29,7 @@ class ACCZ(models.Model):
     experimenterid = models.IntegerField(db_column='ExperimenterID')  # Field name made lowercase.
     experimentid = models.IntegerField(db_column='ExperimentID')  # Field name made lowercase.
     subjectid = models.IntegerField(db_column='SubjectID')  # Field name made lowercase.
-    timestamp = models.FloatField(db_column='TimeStamp')  # Field name made lowercase.
+    timestamp = models.FloatField(db_column='TS', primary_key=True)  # Field name made lowercase.
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
@@ -40,7 +40,7 @@ class GYROX(models.Model):
     experimenterid = models.IntegerField(db_column='ExperimenterID')  # Field name made lowercase.
     experimentid = models.IntegerField(db_column='ExperimentID')  # Field name made lowercase.
     subjectid = models.IntegerField(db_column='SubjectID')  # Field name made lowercase.
-    timestamp = models.FloatField(db_column='TimeStamp')  # Field name made lowercase.
+    timestamp = models.FloatField(db_column='TS', primary_key=True)  # Field name made lowercase.
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
@@ -51,7 +51,7 @@ class GYROY(models.Model):
     experimenterid = models.IntegerField(db_column='ExperimenterID')  # Field name made lowercase.
     experimentid = models.IntegerField(db_column='ExperimentID')  # Field name made lowercase.
     subjectid = models.IntegerField(db_column='SubjectID')  # Field name made lowercase.
-    timestamp = models.FloatField(db_column='TimeStamp')  # Field name made lowercase.
+    timestamp = models.FloatField(db_column='TS', primary_key=True)  # Field name made lowercase.
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
@@ -62,7 +62,7 @@ class GYROZ(models.Model):
     experimenterid = models.IntegerField(db_column='ExperimenterID')  # Field name made lowercase.
     experimentid = models.IntegerField(db_column='ExperimentID')  # Field name made lowercase.
     subjectid = models.IntegerField(db_column='SubjectID')  # Field name made lowercase.
-    timestamp = models.FloatField(db_column='TimeStamp')  # Field name made lowercase.
+    timestamp = models.FloatField(db_column='TS', primary_key=True)  # Field name made lowercase.
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
@@ -73,7 +73,7 @@ class MAGX(models.Model):
     experimenterid = models.IntegerField(db_column='ExperimenterID')  # Field name made lowercase.
     experimentid = models.IntegerField(db_column='ExperimentID')  # Field name made lowercase.
     subjectid = models.IntegerField(db_column='SubjectID')  # Field name made lowercase.
-    timestamp = models.FloatField(db_column='TimeStamp')  # Field name made lowercase.
+    timestamp = models.FloatField(db_column='TS', primary_key=True)  # Field name made lowercase.
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
@@ -84,7 +84,7 @@ class MAGY(models.Model):
     experimenterid = models.IntegerField(db_column='ExperimenterID')  # Field name made lowercase.
     experimentid = models.IntegerField(db_column='ExperimentID')  # Field name made lowercase.
     subjectid = models.IntegerField(db_column='SubjectID')  # Field name made lowercase.
-    timestamp = models.FloatField(db_column='TimeStamp')  # Field name made lowercase.
+    timestamp = models.FloatField(db_column='TS', primary_key=True)  # Field name made lowercase.
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
@@ -95,7 +95,7 @@ class MAGZ(models.Model):
     experimenterid = models.IntegerField(db_column='ExperimenterID')  # Field name made lowercase.
     experimentid = models.IntegerField(db_column='ExperimentID')  # Field name made lowercase.
     subjectid = models.IntegerField(db_column='SubjectID')  # Field name made lowercase.
-    timestamp = models.FloatField(db_column='TimeStamp')  # Field name made lowercase.
+    timestamp = models.FloatField(db_column='TS', primary_key=True)  # Field name made lowercase.
     paramatervalue = models.CharField(max_length=50)
     class Meta:
         managed = False
