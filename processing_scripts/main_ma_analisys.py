@@ -38,7 +38,11 @@ for a in names:
 
 
 y_true, y_pred = f.tryjustone(data1, data2, 3)
-f.get_report(y_true, y_pred)
+metrics, conf_matrix = f.get_report(y_true, y_pred)
+
+for keys,values in metrics.items():
+   print  keys, '\t' , round(values,2)
+
 #y_true, y_pred = f.tryjustone(data1, data3, 3)
 #y_true, y_pred = f.tryjustone(data2, data3, 3)
 #y_true, y_pred = f.tryjustone(data2, data1, 3)
