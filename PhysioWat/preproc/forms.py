@@ -5,7 +5,7 @@ from django import forms
 
 
 class downsampling(forms.Form):
-    FS_NEW = forms.PositiveSmallIntegerField()
+    FS_NEW = forms.IntegerField()
     switch = forms.BooleanField()
 
 CHOICES=[("butter", "Butterworth"),
