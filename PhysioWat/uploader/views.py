@@ -4,7 +4,6 @@ from django.core.urlresolvers import reverse
 
 from .forms import UploadForm
 import csvtodb
-from PhysioWat.models import Sensordevices
 
 
 # Create your views here.
@@ -22,7 +21,6 @@ def upload(request):
     return render(request, 'uploader/home.html', context)
 
 def fun():
-    return Sensordevices.objects.values_list('device', flat=True).distinct()
-
+        return ['a','b','c','d']
 def getSensorTypes():
-    return Sensordevices.objects.values_list('sensortype', flat=True).distinct()
+        return ['e','f','g','h']
