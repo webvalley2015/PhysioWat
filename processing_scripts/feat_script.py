@@ -206,16 +206,17 @@ def tryjustone(in_data, te_data, which):
 def get_selected_clf(X, Y, which):
     names = ["Nearest Neighbors", "Linear SVM", "RBF SVM", "Decision Tree",
              "Random Forest", "AdaBoost", "Naive Bayes", "LDA", "QDA"]      
-    classifiers = [
-    KNeighborsClassifier(3),
-    SVC(kernel="linear", C=0.025),
-    SVC(gamma=2, C=10),
-    DecisionTreeClassifier(max_depth=5),
-    RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
-    AdaBoostClassifier(),
-    GaussianNB(),
-    LDA(),
-    QDA()]
+    classifiers = {
+        'KNN':KNeighborsClassifier(3),
+        'SVL':SVC(kernel="linear", C=0.025),
+        'SVM':SVC(gamma=2, C=10),
+        'DCT':DecisionTreeClassifier(max_depth=5),
+        'RFC':RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
+        'ADA':AdaBoostClassifier(),
+        'GAU':GaussianNB(),
+        'LDA':LDA(),
+        'QDA':QDA()
+        }
     
     clf = classifiers[which]
     clf=clf.fit(X, Y)
@@ -235,30 +236,22 @@ def trythemall(in_data, te_data):
 
     names = ["Nearest Neighbors", "Linear SVM\t", "RBF SVM\t", "Decision Tree",
              "Random Forest", "AdaBoost\t", "Naive Bayes", "LDA\t", "QDA\t"]
-#    classifiersDef = [
-#        KNeighborsClassifier(3),
-#        SVC(kernel="linear", C=0.025),
-#        SVC(gamma=2, C=10),
-#        DecisionTreeClassifier(max_depth=5),
-#        RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
-#        AdaBoostClassifier(),
-#        GaussianNB(),
-#        LDA(),
-#        QDA()]
-    classifiers = [
-        KNeighborsClassifier(3),
-        SVC(kernel="linear", C=0.025),
-        SVC(gamma=2, C=10),
-        DecisionTreeClassifier(max_depth=5),
-        RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
-        AdaBoostClassifier(),
-        GaussianNB(),
-        LDA(),
-        QDA()]
+
+    classifiers = {
+        'KNN': lambda : KNeighborsClassifier(3),
+        'SVL': lambda C: SVC(kernel="linear", C=C),
+        'SVM': lambda C : SVC(gamma=2, C=C),
+        'DCT': lambda : DecisionTreeClassifier(max_depth=5),
+        'RFC': lambda : RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
+        'ADA': lambda : AdaBoostClassifier(),
+        'GAU': lambda : GaussianNB(),
+        'LDA': lambda : LDA(),
+        'QDA': lambda : QDA()
+        }
         
         
     print 'List of accuracies...'
-    for name, clf in zip(names, classifiers):
+    for name, clf in zip(names, classifiers.items):
         #ax = plt.subplot(len(datasets), len(classifiers) + 1, i)
         clf.fit(in_data, in_tar)
         #labels_predict = clf.predict(te_data)
@@ -298,3 +291,32 @@ def get_report(y_true, y_pred):
     
     return report, conf_mat
     
+def bestfit(fe_data, alg, feat):
+    #in_tar = in_data.label
+    #in_data = in_data[in_data.columns[:-1]]
+
+    accuracy = np.zeros(0)
+    Clist = [ 10**i for i in range(-5,8) ]
+    iterations = 20
+    for C in Clist:
+        clf = classifiers[alg](C=C)
+        #clf = clf.fit(in_data, in_tar)
+        mean_vec = 0.
+        for i in range(iterations):
+            fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
+            in_tar = fe_data.label
+            in_data = fe_data[fe_data.columns[:-1]]
+            scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=-1)
+            print scores
+            in_vec = np.array([C, scores.mean(), scores.std()*2])
+            mean_vec += in_vec[1]
+        accuracy = np.append(accuracy, (mean_vec/iterations))
+    
+    #plot the accuracy
+    #accuracy = accuracy.reshape((-1,3))
+    #accuracy = accuracy[1:,:]
+    plt.figure()
+    plt.plot(Clist,accuracy)
+    plt.xscale('log')
+    plt.show()    
+    return accuracy.argmax(), accuracy.max()
