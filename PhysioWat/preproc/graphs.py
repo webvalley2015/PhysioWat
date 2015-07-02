@@ -11,10 +11,16 @@ class linegraph(HighChartsLineView):
 		f = open(myfile, "r")
 		data = json.load(f)
 		f.close()
+		
+		
 		# if title was provided requesting the url, use it as chart
 		# title, otherwise hope to find title in json
 		if title:
 			data['title'] = {}
 			data['title']['text'] = title
 		
+		
+		
 		return data
+
+
