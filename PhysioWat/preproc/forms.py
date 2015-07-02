@@ -8,6 +8,10 @@ class downsampling(forms.Form):
     FS_NEW = forms.IntegerField()
     switch = forms.BooleanField()
 
+class smoothGaussian(forms.Form):
+    sigma = forms.FloatField(min_value=0)
+    switch = forms.BooleanField()
+
 CHOICES=[("butter", "Butterworth"),
         ("cheby1", "Chebyshev I"),
         ("cheby2", "Chebyshev II"),
