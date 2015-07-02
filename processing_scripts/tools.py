@@ -162,30 +162,6 @@ def prepare_json_to_plot(series, labels):
         file.write(json_string)
         file.close()
 
-def prepare_json_to_plot_time(t, series, labels):
-    '''
-    Saves a json file in order to pass it to the layout team
-    :param series: list of series
-    :param labels: list of labels
-    :return: nothing
-    '''
-    if len(series)==len(labels):
-        li=[]
-        for i in range(len(series)):
-            time_series=np.vstack([t, series[i]])
-            ts=[]
-            print time_series.shape
-            for j in range(time_series.shape[1]):
-                ts.append(time_series[:,j].tolist())
-            print time_series
-            li.append({ "name" : labels[i],
-                        "data" : ts
-                    })
-        json_string=json.dumps(li)
-        file=open("graph.json", "w")
-        file.write(json_string)
-        file.close()
-
 def load_file_pd(filename, sep=";", names=None):
     '''
     Load data from file
@@ -195,15 +171,16 @@ def load_file_pd(filename, sep=";", names=None):
     data = pd.read_csv(filename, sep=sep, names=names)
     return data
 
-def downsampling(data, FSAMP, FS_NEW):
+def downsampling(data, FSAMP, FS_NEW, switch=True):
     '''
     Downsamples the signals (too much data is long to extract!)
     :param data: The data to downsample
     :param FSAMP: The strating frequency
     :param FS_NEW: The new frequency
+    :param off: Do not downsample
     :return: The downsampled data
     '''
-    if FSAMP <= FS_NEW:
+    if FSAMP <= FS_NEW or FSAMP%FS_NEW!=0 or not switch:
         return data
     N_SAMP = FSAMP/FS_NEW
 

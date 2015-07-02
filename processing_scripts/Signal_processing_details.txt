@@ -45,7 +45,11 @@ EKG:
     -Getting IBI
         tools.getIBI (default: peakDelta = 0.2)
 -Windowing and features extraction:
-    -TODO
+    -Creating windows
+        -choose between:
+            get_windows_contiguos, get_windows_no_mix, get_windows_full_label
+    -Extracting features
+        IBI.extract_IBI_features(data, windows)
 
 
 BVP:
@@ -56,7 +60,11 @@ BVP:
     -Getting IBI
         tools.getIBI (default: peakDelta = 1)
 -Windowing and features extraction:
-    -TODO
+    -Creating windows
+        -choose between:
+            get_windows_contiguos, get_windows_no_mix, get_windows_full_label
+    -Extracting features
+        IBI.extract_IBI_features(data, windows)
 
 
 Inertial data:
@@ -68,7 +76,7 @@ Inertial data:
     -filtering?
 -Time domain transformation:
     -None
--Windowing and features extraction:
+-Features extraction:
     -extract_features_TYPE(data, wlen, wstep, fsamp, col)
     
 
@@ -104,7 +112,26 @@ tools.downsampling(data, FSAMP, FS_NEW)
     #param FS_NEW: the frequency of the downsampled data
     notes: the algorithm returns data with FS_NEW >= FSAMP. The algorithm DOES NOT return error if FS_NEW doesn't divide FSAMP, but doesn't work well
 
+IBI.extract_IBI_features(data, windows):
+    exetract the features  from an IBI with passed windows
+    return: numpy array containing the features of each window
+    #param data: the data from which extract the features, passed as a numpy array (N,)
+    #param windows: numpy array containing the windows as [start, end]
 
+def get_windows_contiguos(labels, WINLEN, WINSTEP):
+    Get windows dividing regardless the label. If a window contains more labels, it will not have a label
+    return: Windows as a list of [start, end], np.array of labels
+    #param labels: np.array of labels
+    #param WINLEN: window length
+    #param WINSTEP: window step
 
-Preprocessing:
-    - BVP noise reduction: the main issue with this kind of data is that for each beat we also have another peak to clean. To identify just the first one of them we've applied a low-pass filter on the signal with the different algorithms (Butter, Chebyshev I and II, Besser, Ellip) and different filter parameters. In particular 
+get_windows_no_mix(labels, WINLEN, WINSTEP):
+    calculates the windows avoiding unlabeled windows
+    return: (windows, labels). windows is a list of [start, end], label is a list of int
+    #param labels: array of labels (int)
+    #param WINLEN: window length
+    #param WINSTEP: window step
+
+get_windows_full_label(labels):
+    returns the windows created by putting in the same windows all the near points with same label
+    #param labels: array of labels (int)
