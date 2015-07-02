@@ -6,7 +6,6 @@
 {% endblock %}
 
 
-
 {% block container %}
 
 <div class="content row">
@@ -29,21 +28,19 @@
     </div>
 
 </div>
-
 {% endblock %}
 
 
 {% block app_specific_js %}
+
 {% highcharts_js 1 0 0 0 %}
+
 <script>
-
-
-</scrip$(function () {
+$(function () {
     $.getJSON("{% url 'chart_getdata' %}", function(data) {
         $('#processed-signal').highcharts(data);
     });
+});
+</script>
 
-});t>
-<script src="{% static 'preproc/js/chart.js' %}" ></script>
-{% endblock %}
-
+{% endblock app_specific_js %}

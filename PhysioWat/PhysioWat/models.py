@@ -57,5 +57,18 @@ class Subject(models.Model):
         managed = False
         db_table = 'subject'
 
+class Sensorexample(models.Model):
+    experimenterid = models.IntegerField(db_column='ExperimenterID')  # Field name made lowercase.
+    experimentid = models.IntegerField(db_column='ExperimentID')  # Field name made lowercase.
+    subjectid = models.IntegerField(db_column='SubjectID')  # Field name made lowercase.
+    timestamp = models.FloatField(db_column='TimeStamp')  # Field name made lowercase.
+    paramatervalue = models.CharField(max_length=50)
+
+    class Meta:
+        managed = False
+        db_table = 'sensorexample'
+        unique_together = (('experimenterid', 'experimentid', 'timestamp', 'subjectid'),)
+
+
 
 

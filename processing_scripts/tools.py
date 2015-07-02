@@ -104,11 +104,13 @@ def load_file(filename, header=1, sep=";"):
     data[:,0]-=data[0,0]
     return data
 
-def max2interval(timesMax, minrate=40, maxrate=180):
+def max2interval(timesMax, minrate=40, maxrate=200):
     """
     intervals, time_intervals = max2interval(timesMax, minrate=40,maxrate=270):
     
     Returns intervals from max_times, after filtering possible artefacts based on rate range (rates in min^(-1))
+    if two peaks are nearer than minrate or further than maxrate, the algorithm try to recognize if there's a false true or a peak missing
+    minrate and maxrate are in min^(-1), and represents the minimum and the maximum bpm to detect
     """
     maxRR=60/minrate
     minRR=60/maxrate
@@ -180,18 +182,20 @@ def downsampling(data, FSAMP, FS_NEW):
     result = np.array(data[keep,:])
     return result
 
-def getIBI (signal, SAMP_F, peakDelta):
+def getIBI (signal, SAMP_F, peakDelta, minFr = 40, maxFr = 200):
     '''
     this function calculates the IBI on a BVP or EKG filtered graph, considering only peaks higher than peakDelta
     return: a pd DataFrame containing the inter-beat interval (in s) indexed with time
     signal: the filtered BVP or EKG signal
     SAMP_F: the sampling frequency of the data
     peakDelta: the minimum height of a peak to be recognised
+    minFr: (default 40) the minimum frequence (in min^(-1), or bpm) to recognize (two nearer peaks are signed as false positive)
+    maxFr: (default 200) the maximum frequence (in min^(-1), or bpm) to recognize (two further peaks makes the algorithm looks for peaks between those two)
     '''
     # estimating peaks and IBI
     t = np.arange(0, len(signal)/float(SAMP_F), 1.0/SAMP_F)
     maxp, minp = peakdet(signal, peakDelta, t)
-    IBI, tIBI = max2interval(maxp[:,0], 40, 180)
+    IBI, tIBI = max2interval(maxp[:,0], minFr, maxFr)
     
     #ibi contains the Inter-Beat interval between two beats, indexed with the time of the beats
     ibi = DataFrame(IBI, index = tIBI, columns=['IBI'])
