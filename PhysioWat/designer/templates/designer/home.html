@@ -3,10 +3,13 @@
 {% load utils %}
 #load js
 {% block app_specific_js %}
-    <script src="{% static 'js/createSensor.js' %}"></script>
+    <script src="{% static 'js/createSensor.js' %}" xmlns="http://www.w3.org/1999/html"></script>
     <style>
         {% for c in 25|get_range %}
-            #coupIn{{ c }}{
+            #nameIn{{ c }}{
+                display: none;
+            }
+            #typeIn{{ c }}{
                 display: none;
             }
         {% endfor %}
@@ -21,9 +24,22 @@
         <form action="#" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form }}
+            <table>
             {% for c in 25|get_range %}
-                <input type="text" id="coupIn{{ c }}">
+               <tr>
+                   <td>
+                       <select name="sensorType" id="typeIn{{ c }}">
+                       {% for c1 in sensType %}
+                            <option value="{{ c1 }}">{{ c1 }}</option>
+                        {% endfor %}
+                        </select>
+                   </td>
+                   <td>
+                       <input type="text" id="nameIn{{ c }}">
+                   </td>
+               </tr>
             {% endfor %}
+            </table>
             <input type="submit" value="Upload"/>
         </form>
 
