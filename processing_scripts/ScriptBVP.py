@@ -22,7 +22,7 @@ def loadBVP(filename):
 #Simulate users app
 if __name__ == '__main__':
     #user insertion, the path is substituted with database source
-    path = '/home/flavio/Work/PhysioWat/robaNoGit/data/SUB100/SUB100/Empatica_E4/'
+    path = './data/'
     fileName = 'BVP.csv'
     SAMP_F = 64
 

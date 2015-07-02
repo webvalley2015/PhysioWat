@@ -52,6 +52,6 @@ feats_acc=inertial.extract_features_acc(data, fsamp=sensfsamp, col_acc=lables_ac
 feats_gyr=inertial.extract_features_gyr(data, fsamp=sensfsamp, col_gyr=lables_gyr, WINLEN=1000, WINSTEP=500)
 feats_mag=inertial.extract_features_mag(data, fsamp=sensfsamp, col_mag=lables_mag, WINLEN=1000, WINSTEP=500)
 feats=pd.concat([feats_acc, feats_gyr, feats_mag], axis=1)
-
-# feats.to_csv("./output/feat_"+filename[7:-4]+".csv")
+print feats.shape
+feats.to_csv("./output/feat_"+filename[7:-4]+".csv")
 

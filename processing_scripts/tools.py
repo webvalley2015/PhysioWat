@@ -81,7 +81,7 @@ def gen_bateman(mx, T1, T2, fsamp=4, gsr = None):
     else:
         return bateman, t_bat
 
-
+#Deprecated
 def plotter(filename):
     '''
     :param filename: file to plot
@@ -162,17 +162,24 @@ def prepare_json_to_plot(series, labels):
         file.write(json_string)
         file.close()
 
-def load_file_pd(filename):
+def load_file_pd(filename, sep=";", names=None):
     '''
     Load data from file
     :param filename: name of the file where data is stored
     :return: data as pandas.DataFrame
     '''
-    data = pd.read_csv(filename, sep=";")
+    data = pd.read_csv(filename, sep=sep, names=names)
     return data
 
 def downsampling(data, FSAMP, FS_NEW):
-    if FSAMP >= FS_NEW:
+    '''
+    Downsamples the signals (too much data is long to extract!)
+    :param data: The data to downsample
+    :param FSAMP: The strating frequency
+    :param FS_NEW: The new frequency
+    :return: The downsampled data
+    '''
+    if FSAMP <= FS_NEW:
         return data
     N_SAMP = FSAMP/FS_NEW
 
