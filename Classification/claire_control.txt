@@ -1,6 +1,4 @@
-AccFullScale=8g, GyrFullScale=2000dps, SamplingRate=100Hz, PacketType=RAW
-timeStamp,packetCounter, AccX,AccY,AccZ, GyrX,GyrY,GyrZ, MagX,MagY,MagZ 
-  2000,0,-159,-332,4274,-17,15,37,85,-79,-373
+2000,0,-159,-332,4274,-17,15,37,85,-79,-373
 2010,1,-172,-345,4249,-18,13,37,85,-79,-373
 2020,2,-166,-300,4234,-14,15,36,-11,-65,-159
 2030,3,-135,-299,4220,-17,13,34,-11,-65,-159
