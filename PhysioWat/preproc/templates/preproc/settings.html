@@ -2,15 +2,16 @@
 {% block container %}
     <div style="padding:40px;margin:40px;border:1px solid #ccc">
         <h1>Preproc Settings</h1>
-
         <form action="#" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-                {{ form }}
-                <select name="devicename">
-                    {% for c in manufacturer %}
-                        <option value="{{ c }}">{{ c }}</option>
-                    {% endfor %}
-                </select>
+				{% for i in formSpec %}
+                {{ i }}
+				{% endfor %}
+				{{ formFilt }}
+				{{ formDown }}
+				{% if formPick %}
+					{{ formPick }}
+				{% endif %}
                 <input type="submit" value="Upload"/>
         </form>
     </div>
