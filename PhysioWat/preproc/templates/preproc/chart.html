@@ -7,68 +7,69 @@
 
 
 {% block container %}
-<div class="content row">
+	<div class="content row">
 
-    <div class="graphs col-md-8">
-        <div class="processed-signal row">
-            <div id="processed-signal"> </div>
-        </div>
-        <div class="temporary-processing row">
-            <div id="temporary-processing"> </div>
-        </div>
-    </div>
+		<div class="graphs col-md-8">
+				<div class="processed-signal row">
+					<div id="processed-signal"> </div>
+				</div>
+			<div class="divider"><hr></div>
+				<div class="temporary-processing row">
+					<div id="temporary-processing"> </div>
+				</div>
+		</div>
 
-    <div class="algorithms col-md-4">
-        <form id="data-slice" action=".">
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox" value="">
-                    Algorithm 1
-                </label>
-                <label>
-                    <input type="checkbox" value="">
-                    Algorithm 2
-                </label>
-            </div>
-            <!-- <label for="inputBegin">Begin</label> -->
-            <input type="text" class="form-control" id="begin" placeholder="begin">
+		<div class="algorithms col-md-4">
+			<form id="data-slice" action=".">
+				<div class="checkbox">
+					<label>
+						<input type="checkbox" value="">
+						Algorithm 1
+					</label>
+					<label>
+						<input type="checkbox" value="">
+						Algorithm 2
+					</label>
+				</div>
+				<!-- <label for="inputBegin">Begin</label> -->
+				<input type="text" class="form-control" id="begin" placeholder="begin">
 
-            <!-- <label for="inputEnd">End</label> -->
-            <input type="text" class="form-control" id="end" placeholder="end">
+				<!-- <label for="inputEnd">End</label> -->
+				<input type="text" class="form-control" id="end" placeholder="end">
 
-            <!-- <label for="inputTitle">Name</label> -->
-            <input type="text" class="form-control" id="title" placeholder="graph title">
+				<!-- <label for="inputTitle">Name</label> -->
+				<input type="text" class="form-control" id="title" placeholder="graph title">
 
-            <button type="submit" class="btn btn-primary" id="apply_button">Apply</button>
-            <button type="reset" class="btn btn-danger">Reset</button>
-            
-            </form>
-   </div>
+				<button type="submit" class="btn btn-primary" id="apply_button">Apply</button>
+				<button type="reset" class="btn btn-danger">Reset</button>
 
-</div>
+			</form>
+		</div>
+
+	</div>
 {% endblock %}
 
 
 {% block app_specific_js %}
 
-{% highcharts_js 1 0 0 0 %}
+	{% highcharts_js 1 1 0 0 %}
 
-<script>
-$(function () {
-    $.getJSON("{% url 'chart_getdata' 'graph1' %}", function(data) {
-        $('#processed-signal').highcharts(data);
-    });
-    $.getJSON("{% url 'chart_getdata' '343443' %}", function(data) {
-        $('#temporary-processing').highcharts(data);
-    });
+	<script>
+		$(function () {
+			$.getJSON("{% url 'chart_getdata' 'graph1' %}", function(data) {
+				$('#processed-signal').highcharts('StockChart',data);
+			});
+			$.getJSON("{% url 'chart_getdata' '343443' %}", function(data) {
+				$('#temporary-processing').highcharts('StockChart',data);
+			});
 
-    $("form#data-slice").submit(function (e) {
-        e.preventDefault(); //prevent default form submit
-        $.getJSON("{% url 'chart_getdata' %}" + [$("#title").val(), $("#begin").val(), $("#end").val()].join('/') + '/', function(data) {
-            $('#processed-signal').highcharts(data);
-        });
-    });
-});
-</script>
+			$("form#data-slice").submit(function (e) {
+				e.preventDefault(); //prevent default form submit
+				$.getJSON("{% url 'chart_getdata' %}" + [$("#title").val(), $("#begin").val(), $("#end").val()].join('/') + '/', function(data) {
+					$('#processed-signal').highcharts('StockChart',data);
+				});
+			});
+		});
+	</script>
 
 {% endblock app_specific_js %}
