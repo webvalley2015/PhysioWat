@@ -67,7 +67,7 @@ class Sensorexample(models.Model):
     class Meta:
         managed = False
         db_table = 'sensorexample'
-        unique_together = (('ExperimenterID', 'ExperimentID', 'TimeStamp', 'SubjectID'),)
+        unique_together = (('experimenterid', 'experimentid', 'timestamp', 'subjectid'),)
 
 
 
