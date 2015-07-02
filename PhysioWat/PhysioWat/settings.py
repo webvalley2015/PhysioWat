@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'extfeat',
     'preproc',
     'designer',
+    'bootstrap3',
 )
 
 MIDDLEWARE_CLASSES = (

@@ -1,17 +1,22 @@
 {% extends 'PhysioWat/base.html' %}
+{% load bootstrap3 %}
 {% block container %}
 <div>
 	<h1>Preproc Settings</h1>
 	<form action="#" method="post" enctype="multipart/form-data">
 		{% csrf_token %}
-		{% for i in formSpec %}
-		{{ i }}
-		{% endfor %}
+		{% bootstrap_form formSpec %}
 		
-		{{ formFilt }}
-		{{ formDown }}
-		{{ formPick }}
-		<input type="submit" value="Upload"/>
+		{% bootstrap_form formFilt %}
+		{% bootstrap_form formDown %}
+		{% bootstrap_form formPick %}
+		
+        {% buttons %}
+            <button type="submit" class="btn btn-success">Submit</button>
+            <button type="reset" class="btn btn-danger">Reset</button>
+        {% endbuttons %}
+
 	</form>
 </div>
+
 {% endblock %}
