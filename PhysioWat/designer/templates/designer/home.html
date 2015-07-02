@@ -9,6 +9,9 @@
             #nameIn{{ c }}{
                 display: none;
             }
+            #extraIn{{ c }}{
+                display: none;
+            }
             #typeIn{{ c }}{
                 display: none;
             }
@@ -28,11 +31,15 @@
             {% for c in 25|get_range %}
                <tr>
                    <td>
-                       <select name="sensorType" id="typeIn{{ c }}">
+                       <select name="sensorType" id="typeIn{{ c }}" onClick="addField({{ c }})">
                        {% for c1 in sensType %}
                             <option value="{{ c1 }}">{{ c1 }}</option>
                         {% endfor %}
+                            <option value="empty">Other...</option>
                         </select>
+                   </td>
+                   <td>
+                       <input type="text" id="extraIn{{ c }}">
                    </td>
                    <td>
                        <input type="text" id="nameIn{{ c }}">
