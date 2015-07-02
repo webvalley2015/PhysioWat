@@ -303,22 +303,15 @@ def extract_features(pha, t, DELTA, windows):
         feats_all=feats_all.append(winfeat)
     return feats_all
 
-def remove_spikes(data, FSAMP, TH=0.1):
-    '''
-    Removes annoying spikes
-    :param data: data set (no t)
-    :param FSAMP: sampling frequency
-    :param TH: Threshold
-    :return: data, timestamps
-    '''
+def remove_spikes(data, FSAMP, TH=0.005):
     t = np.arange(len(data)) * 1/FSAMP
-    spikes = abs(np.diff(data, FSAMP))
-    spikes = smoothGaussian(spikes, round(FSAMP/2))
+    spikes = abs(np.diff(data))
+    spikes = smoothGaussian(spikes, FSAMP)
+    spikes = (spikes - np.min(spikes))/(np.max(spikes) - np.min(spikes))
     indexes_spikes = np.array(np.where(spikes<=TH))[0]
     data_in = data[indexes_spikes]
     t_in = t[indexes_spikes]
     f = interp1d(t_in, data_in)
     t_out = np.arange(t_in[0], t_in[-1], 1/FSAMP)
     data_out = f(t_out)
-
     return t_out, data_out
