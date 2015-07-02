@@ -6,69 +6,7 @@ from __future__ import division
 import numpy as np
 import pandas as pd
 
-def fix_missing(data):  #TODO ask Andrea!
-
-    counter=np.array(data['counter'])
-    ts=np.array(data['timestamp'])
-
-    counter_diff=np.diff(counter)
-    indici_sbagliati=np.where((counter_diff!=1) & (counter_diff!=-9999))
-    indici_sbagliati=indici_sbagliati[0]
-
-    if len(indici_sbagliati) != 0:
-        values=pd.DataFrame()
-        first_valid_row=0
-
-        for i in range(len(indici_sbagliati)):
-            values_temp=data.iloc[first_valid_row:indici_sbagliati[i]+1,:]
-
-            last_counter=counter[indici_sbagliati[i]]
-            last_ts=ts[indici_sbagliati[i]]
-
-            next_counter=counter[indici_sbagliati[i]+1]
-            next_ts=ts[indici_sbagliati[i]+1]
-
-            if next_counter>last_counter:
-                print('1')
-                n_missing_values=next_counter-last_counter
-                dt=next_ts-last_ts
-                if dt>2550:
-                    print('warning here: too many missing data')
-                # fix
-            else:
-                print('2')
-                n_missing_values=9999-last_counter+next_counter
-                dt=next_ts-last_ts
-                if dt>2550:
-                    print('warning here: too many missing data')
-
-            valid_row=values_temp.iloc[values_temp.shape[0]-1,:]
-
-            print('N_missing values: '+str(n_missing_values))
-            for counter_row in range(n_missing_values):
-                values_temp=values_temp.append(valid_row, ignore_index=True)
-
-            values=values.append(values_temp)
-            first_valid_row=indici_sbagliati[i]+1
-
-        values_temp=data.iloc[first_valid_row:data.shape[0],:]
-
-        values=values.append(values_temp)
-        values_temp=data.iloc[first_valid_row:data.shape[0],:]
-
-        values=values.append(values_temp)
-
-        t0=values.timestamp.iloc[0]
-        ts_new=np.arange(t0,t0+values.shape[0]*10,10)
-
-        values['timestamp']=ts_new
-
-        return(values)
-    else:
-        return(data)
-
-
-def convert_units(data, lables, coeff = 1):
+def convert_units(data, labels, coeff = 1):
     '''
     :param data: accelerometer, gyroscope OR magnetometer data as a pandas.DataFrame with x, y, z indexes. Do not
                  pass more than 1 sensor data at a time!!
@@ -76,7 +14,7 @@ def convert_units(data, lables, coeff = 1):
     :param prefix: "acc", "gyr" or "mag" (accelerometer, gyroscope or magnetoscope
     :return: the converted data
     '''
-    data[lables]*=coeff
+    data[labels]*=coeff
     return data
 
 def power_fmax(spec,freq,fmin,fmax):

@@ -7,24 +7,27 @@ import GSR
 import matplotlib.pyplot as plt
 import numpy as np
 
-filename="./data/GSR.csv"
+filename="./data/GSR_F01_M.txt"
 
 T1=0.75
 T2=2
 MX=1
 DELTA=0.02
-FS=4
+FS=256
 nFS=16
 
-gsr_data = tools.load_file(filename, header=1, sep=";") # 8 ","
+gsr_data = tools.load_file(filename, header=8, sep=",") # 8 ","
 gsr_data=tools.downsampling(gsr_data, FS, nFS)
 plt.figure(1)
 plt.plot(gsr_data[:,0], gsr_data[:,1])
 plt.xlabel("Time (s)")
 plt.ylabel("GSR (uS)")
 plt.title("Raw GSR")
-
-t_driver, driver, phasic_d, tonic_d = GSR.estimate_drivers(gsr_data[:,0], gsr_data[:,1], T1, T2, MX, DELTA)
+# t_gsr, gsr = GSR.remove_spikes(gsr_data[:,1], nFS)
+t_gsr = gsr_data[:,0]
+gsr   = gsr_data[:,1]
+# print t_gsr.shape, gsr.shape, gsr_data.shape
+t_driver, driver, phasic_d, tonic_d= GSR.estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA)
 
 
 pha_processed = GSR.processPSR(phasic_d, t_driver, DELTA)
