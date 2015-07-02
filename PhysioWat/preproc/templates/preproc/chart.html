@@ -59,7 +59,7 @@
 			$.getJSON("{% url 'chart_getdata' 'graph1' %}", function(data) {
 				$('#processed-signal').highcharts('StockChart',data);
 			});
-			$.getJSON("{% url 'chart_getdata' '343443' %}", function(data) {
+			$.getJSON("{% url 'chart_getdata' 'graph2' %}", function(data) {
 				$('#temporary-processing').highcharts('StockChart',data);
 			});
 

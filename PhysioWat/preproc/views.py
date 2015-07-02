@@ -1,5 +1,8 @@
 from django.shortcuts import render
+from django.http.response import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 from forms import filter, downsampling, BVP, EKG, GSR, inertial, remove_spike
+
 
 def preproc_settings(request):
     if request.method == "POST":
@@ -30,8 +33,9 @@ def preproc_settings(request):
     context = {'formFilt': formFilt, 'formDown': formDown, 'formPick':formPick, 'formSpec':formSpec}
     return render(request, 'preproc/settings.html', context)
 
+
 def show_chart(request):
-	#context
-	template = "preproc/chart.html"
-	return render(request, template)
+    #context
+    template = "preproc/chart.html"
+    return render(request, template)
 
