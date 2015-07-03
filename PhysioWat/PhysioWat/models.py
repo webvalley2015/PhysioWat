@@ -8,6 +8,7 @@ class Experiment(models.Model):
     description = models.CharField(max_length=500, blank=True, null=True)
     token = models.CharField(max_length=50)
 
+
 class Recording(models.Model):
     experiment_id = models.ForeignKey(Experiment)
     device_name = models.CharField(max_length=50)
@@ -16,6 +17,7 @@ class Recording(models.Model):
     )
     description = models.CharField(max_length=200, blank=True)
     ts = models.DateTimeField(default=datetime.now)
+
 
 class Sensor(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)

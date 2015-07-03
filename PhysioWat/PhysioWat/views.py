@@ -1,10 +1,12 @@
 __author__ = 'federico'
 from django.shortcuts import render
+from .models import Sensor, Recording
 
 
 def index(request):
     template = 'PhysioWat/index.html'
-    context = {'a': 1234, 'name':"txt"}
+    sensors = Recording.objects.all()
+    context = {'sensors': sensors, 'name': "txt"}
     return render(request, template, context)
 
 
