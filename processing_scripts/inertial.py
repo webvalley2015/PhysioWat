@@ -14,6 +14,7 @@ def convert_units(data, labels, coeff = 1):
     :param prefix: "acc", "gyr" or "mag" (accelerometer, gyroscope or magnetoscope
     :return: the converted data
     '''
+    #TODO SCEGLI DEVICE
     data[labels]*=coeff
     return data
 
@@ -25,7 +26,7 @@ def power_fmax(spec,freq,fmin,fmax):
     fmax=freq_band[np.argmax(psd_band)]
     return powerinband, fmax
 
-def extract_features_acc(data, WINLEN = 30, WINSTEP = 15, fsamp=100, col_acc=['accx','accy','accz']):
+def extract_features_acc(data, windows, fsamp=100, col_acc=['accx','accy','accz']):
     '''
     PASS COL_ACC IN ORDER X, Y, Z
     :param data: data where to extract feats
@@ -48,22 +49,22 @@ def extract_features_acc(data, WINLEN = 30, WINSTEP = 15, fsamp=100, col_acc=['a
     data=get_differences(data, col_all)
 
     #===================================
-    samples, labels=windowing_and_extraction(data, fsamp, WINLEN, WINSTEP)
+    samples, labels=windowing_and_extraction(data, fsamp, windows)
     samples2=pd.DataFrame(samples, columns=labels)
     return samples2
 
-def extract_features_gyr(data, WINLEN = 30, WINSTEP = 15, fsamp=100, col_gyr=['gyrx','gyry','gyrz']):
+def extract_features_gyr(data, windows, fsamp=100, col_gyr=['gyrx','gyry','gyrz']):
     data=get_differences(data, col_gyr)
     #===================================
-    samples, labels=windowing_and_extraction(data, fsamp, WINLEN, WINSTEP)
+    samples, labels=windowing_and_extraction(data, fsamp,windows)
     samples2=pd.DataFrame(samples, columns=labels)
     return samples2
 
-def extract_features_mag(data, WINLEN = 30, WINSTEP = 15, fsamp=100, col_mag=['magx','magy','magz']):
+def extract_features_mag(data, windows, fsamp=100, col_mag=['magx','magy','magz']):
     data=get_differences(data, col_mag)
 
     #===================================
-    samples, labels=windowing_and_extraction(data, fsamp, WINLEN, WINSTEP)
+    samples, labels=windowing_and_extraction(data, fsamp, windows)
     samples2=pd.DataFrame(samples, columns=labels)
     return samples2
 
@@ -79,17 +80,15 @@ def get_differences(data, col_all, n=[1,2,5,10]):
         data=data.join(diff)
     return data
 
-def windowing_and_extraction(data, fsamp, WINSTEP, WINLEN):
+def windowing_and_extraction(data, fsamp, windows):
     samples = []
-
-    t_start=data.timestamp.iloc[0]
-    t_max=data.timestamp.iloc[-1]
-    #
-    t_end=t_start+WINLEN
 
     bands=np.linspace(0.1,25,11)
     # ciclo sulla sessione - finestratura
-    while(t_end<=t_max):
+    for start, end in windows:
+        t_start = data.timestamp.iloc()[start]
+        t_end = data.timestamp.iloc()[end]
+
         feat=np.array([])
         labels=np.array([])
 
@@ -143,6 +142,5 @@ def windowing_and_extraction(data, fsamp, WINSTEP, WINLEN):
                 labels=np.hstack([labels, prefix+'_-_power_'+str(bands[j])+'-'+str(bands[j+1]), prefix+'_-_fmax_'+str(bands[j])+'-'+str(bands[j+1])])
 
         samples.append(feat)
-        t_start=t_start+WINSTEP
-        t_end=t_start+WINLEN
+
     return samples, labels

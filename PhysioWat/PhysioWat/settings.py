@@ -39,12 +39,14 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     #4 auth purposes
     'django.contrib.admindocs',
+    #'django.contrib.postgres.fields.ArrayField',
     'highcharts',
     'PhysioWat',
     'uploader',
     'extfeat',
     'preproc',
     'designer',
+    'bootstrap3',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -84,8 +86,12 @@ WSGI_APPLICATION = 'PhysioWat.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'dev.db',
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'physiowat_db',
+            'USER': 'developer',
+            'PASSWORD': 'webvalley',
+            'HOST': '192.168.210.175',
+            'PORT': '5432',
     }
 }
 
@@ -122,9 +128,4 @@ LOGIN_REDIRECT_URL = '/'
 #where to store uploaded csv before deleting them all
 MEDIA_URL = '/media/'
 
-
-try:
-    from local_settings import *
-except ImportError:
-    pass
 

@@ -1,5 +1,6 @@
 from django.db import models
-import models_dynamic
+from django.contrib.postgres.fields import ArrayField
+
 
 class Experiment(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
@@ -14,9 +15,11 @@ class Experiment(models.Model):
 
 class Recording(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    experimentid = models.ForeignKey(Experiment, db_column='experimentid')
+    experimentid = models.ForeignKey(Experiment)
     devicename = models.CharField(max_length=50)
-    dictkeys = models.TextField(blank=True, null=True)  # This field type is a guess.
+    dictkeys = ArrayField(
+        models.CharField(max_length=50, blank=True, null=True)  # This field type is a guess.
+    )
     ts = models.DateTimeField()
 
     class Meta:
@@ -36,7 +39,7 @@ class Sensor(models.Model):
 
 class SensorData(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    recordingid = models.ForeignKey(Recording, db_column='recordingid')
+    recordingid = models.ForeignKey(Recording)
     store = models.TextField()  # This field type is a guess.
 
     class Meta:
