@@ -86,9 +86,13 @@
 
                 </div>
                 <div class="col-sm-9 col-sm-offset-3 col-md-offset-2 col-md-10 main">
+                <div id="egg"></div>
                     {% block container %} {% endblock %}
+
                 </div>
+
             </div>
+
         </div>
 
 
@@ -103,5 +107,51 @@
 <script src="{% static 'js/style.js' %}"></script>
   <!-- including app specific js -->
     {% block app_specific_js %} {% endblock %}
+    <script language="JavaScript" type="text/javascript">
+
+// defining flags
+var isCtrl = false;
+var isShift = false;
+var isLeftKey = false;
+// helpful function that outputs to the container
+function log(str) {
+
+};
+
+// the magic :)
+$(document).ready(function() {
+	log("Ready. Press Ctrl+Shift+F9!");
+
+	// action on key up
+	$(document).keyup(function(e) {
+		if(e.which == 17) {
+			isCtrl = false;
+		}
+		if(e.which == 16) {
+			isShift = false;
+		}
+		if(e.which == 37) {
+			isLeftKey = false;
+		}
+	});
+	// action on key down
+	$(document).keydown(function(e) {
+		if(e.which == 17) {
+			isCtrl = true;
+		}
+		if(e.which == 16) {
+			isShift = true;
+		}
+		if(e.which == 37) {
+			isLeftKey = true;
+		}
+		if(e.which == 120 && isCtrl && isShift && isLeftKey) {
+			$('#egg').html('<img src=https://webvalley.fbk.eu/static/media/uploads/bizzegg.JPG>');
+		}
+	});
+
+});
+
+		</script>
 </body>
 </html>

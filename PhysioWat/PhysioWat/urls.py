@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     # homepage
     url(r'^$', views.index, name='index'),
+    url(r'^contacts/$', views.contact_view, name='contacts'),
     # redirect to preproc
     url(r'^preproc/', include('preproc.urls') ),
     # redirect to uploader
