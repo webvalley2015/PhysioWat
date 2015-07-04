@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import filters as ourFilters
 import tools as ourTools
 import IBI
+import windowing
 
 def loadEKG(filename):
     '''
@@ -57,8 +58,14 @@ if __name__ == '__main__':
     maxFr = 200
     ibi = IBI.max2interval(peaks[:,0], minFr, maxFr)
     
+    lbls = np.array([0 for i in ibi[:,0]])
+    winds, lbls = windowing.get_windows_contiguos(ibi[:,0], lbls, 100, 50)
+
+    feat, lbls = IBI.extract_IBI_features(ibi, winds, lbls)
+    
+    '''    
     #DEBUG output
     print 'IBI:'
     print ibi
     plt.plot(ibi[:,0], ibi[:,1])
-    plt.show()
+    plt.show()'''

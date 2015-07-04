@@ -19,6 +19,7 @@
     <!-- Custom styles for this template -->
     <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet">
 
 
     <!-- including app specific CSS -->
@@ -38,32 +39,27 @@
 
     </head>
     <body>
-        <nav class="navbar navbar-inverse navbar-fixed-top">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="#">Project name</a>
-                </div>
-                <div id="navbar" class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav navbar-right">
-                        <li><a href="#">Dashboard</a></li>
-                        <li><a href="#">Settings</a></li>
-                        <li><a href="#">Profile</a></li>
-                        <li><a href="#">Help</a></li>
-                    </ul>
-                    <form class="navbar-form navbar-right">
-                        <input type="text" class="form-control" placeholder="Search...">
-                    </form>
-                </div>
+    <div class="header-bottom" id="home">
+     <div class="fixed-header">
+        <div class="container">
+            <div class="logo wow fadeInLeft" data-wow-delay="0.5s">
+                <a href="index.html"><img src="images/logo.png" class="img-responsive" alt="" /></a>
             </div>
-        </nav>
+            <span class="menu"> </span>
+            <div class="top-menu">
+            <nav class="cl-effect-21">
+                <ul>
+                    <li><a class="scroll" href="index.html">Home</a></li>
+                    <li><a class="scroll" href="#about">About</a></li>
+                    <li><a class="scroll" href="#team">Team</a></li>
+                    <li><a class="scroll" href="#services">Services</a></li>
+                    <li><a class="scroll" href="#portfolio">Portfolio</a></li>
+                    <li><a class="scroll" href="#contact">Contact</a></li>
+                <ul>
+            </nav>      
+            </div> 
 
-        <div class="container-fluid">
+        <!-- <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-3 col-md-2 sidebar">
                     <ul class="nav nav-sidebar">
@@ -94,7 +90,7 @@
 
             </div>
 
-        </div>
+        </div> -->
 
 
 <!-- Bootstrap core JavaScript
