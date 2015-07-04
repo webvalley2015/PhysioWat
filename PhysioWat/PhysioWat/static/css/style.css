@@ -232,3 +232,20 @@ section.border button.active {
   transform: rotateY(180deg);
 }
 /*end about page*/
+
+
+/* DIV CENTERED; FIXED*/
+div#main{ 
+background-color:white;
+padding:1%;
+left: 50%;
+margin-left: -40px;
+position: fixed;
+}
+
+div#fieldtop {
+vertical-align:top;
+}
+div#fieldbottom {
+vertical-align:bottom;
+}

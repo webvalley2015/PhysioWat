@@ -1,16 +1,28 @@
 __author__ = 'federico'
 from django.shortcuts import render
+from .models import Sensor, Recording
+
 
 def index(request):
     template = 'PhysioWat/index.html'
-    context = {'a': 1234, 'name':"txt"}
+    sensors = Recording.objects.all()
+    context = {'sensors': sensors, 'name': "txt"}
     return render(request, template, context)
 
+
 def trialpage(request):
-	#this function was added just to see how the django - html works. Begging the pardon of the db team, i may put on more functions like this. just don't worry (for now :) )
-	#i know who you are -.-"
-	template = 'PhysioWat/index.html'
-	context = {'l':['a','b','c']}
-	return render(request, template, context)
+    """this function was added just to see how the django - html works.
+    Begging the pardon of the db team, i may put on more functions like this. just don't worry (for now :) )
+    i know who you are -.-"
+    """
+    template = 'PhysioWat/index.html'
+    context = {'l':['a','b','c']}
+    return render(request, template, context)
+
+
+def contact_view(request):
+    template = 'contact_form/contact_form.html'
+    context = {}
+    return render(request, template, context)
 
 

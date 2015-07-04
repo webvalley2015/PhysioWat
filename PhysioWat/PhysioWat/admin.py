@@ -1,9 +1,9 @@
 from django.contrib import admin
-from .models import Experimenter, Experiment, Sensors, Subject, Sensordevices
+from .models import Experiment, Recording, Sensor, SensorRawData, PreprocessedData, FeatExtractedData
 
-admin.site.register(Experimenter)
 admin.site.register(Experiment)
-admin.site.register(Sensors)
-admin.site.register(Subject)
-admin.site.register(Sensordevices)
-
+admin.site.register(Sensor)
+admin.site.register(Recording)
+admin.site.register(SensorRawData)
+admin.site.register(PreprocessedData)
+admin.site.register(FeatExtractedData)

@@ -1,0 +1,55 @@
+{% extends 'PhysioWat/base.html' %}
+{% load static %}
+{% load utils %}
+#load js
+{% block app_specific_js %}
+    <script src="{% static 'js/createSensor.js' %}" xmlns="http://www.w3.org/1999/html"></script>
+    <style>
+        {% for c in 25|get_range %}
+            #nameIn{{ c }}{
+                display: none;
+            }
+            #extraIn{{ c }}{
+                display: none;
+            }
+            #typeIn{{ c }}{
+                display: none;
+            }
+        {% endfor %}
+    </style>
+{% endblock %}
+
+{% block container %}
+
+    <div style="padding:40px;margin:40px;border:1px solid #ccc">
+        <h1>Create a New Sensor</h1>
+
+        <form action="#" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form }}
+            <table>
+            {% for c in 25|get_range %}
+               <tr>
+                   <td>
+                       <select name="sensorType" id="typeIn{{ c }}" onClick="addField({{ c }})">
+                       {% for c1 in sensType %}
+                            <option value="{{ c1 }}">{{ c1 }}</option>
+                        {% endfor %}
+                            <option value="empty">Other...</option>
+                        </select>
+                   </td>
+                   <td>
+                       <input type="text" id="extraIn{{ c }}">
+                   </td>
+                   <td>
+                       <input type="text" id="nameIn{{ c }}">
+                   </td>
+               </tr>
+            {% endfor %}
+            <input type="submit" value="Upload"/>
+            </table>
+
+        </form>
+
+    </div>
+{% endblock %}

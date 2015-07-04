@@ -3,24 +3,39 @@
 {% block container %}
 
 {% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
+<p align="center">Your username and password didn't match. Please try again.</p>
 {% endif %}
 
 <form method="post" action="{% url 'django.contrib.auth.views.login' %}">
 {% csrf_token %}
-<table>
+	<div id="main">
+<p align="center" > <font color="lightblue">Login to Your account </font></p>
+<br>
+<!-- <table align="center">
 <tr>
-    <td>{{ form.username.label_tag }}</td>
-    <td>{{ form.username }}</td>
+<td>{{ form.username.label_tag }}</td>
+<td>{{ form.username }}</td>
 </tr>
 <tr>
-    <td>{{ form.password.label_tag }}</td>
-    <td>{{ form.password }}</td>
+<td>{{ form.password.label_tag }}</td>
+<td>{{ form.password }}</td>
 </tr>
-</table>
-
-<input type="submit" value="login" />
+</table> -->	
+		<div id="fieldtop">
+		<!--{{ form.username.label_tag }}-->
+		{{ form.username }}
+		</div>
+<br>
+		<div id="fieldbottom">
+		<!--{{ form.password.label_tag }}-->
+		{{ form.password }}
+		</div>
+<br>
+<button style="width:100%; height:auto; background-color:lightblue">
+<input type="submit" value="Login" style="color: white; background-color:lightblue;"/>
+</button>
 <input type="hidden" name="next" value="{{ next }}" />
 </form>
+</div>
 
 {% endblock %}

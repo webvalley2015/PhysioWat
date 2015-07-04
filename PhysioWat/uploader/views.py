@@ -2,24 +2,40 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from .forms import UploadForm
-from PhysioWat.models import Sensordevices
+import csvtodb
+from PhysioWat.models import Experiment
+from django.contrib import messages
 
-# Create your views here.
-
+#View to Upload a CSV File
 def upload(request):
+
     if request.method == "POST":
+
         form = UploadForm(request.POST, request.FILES)
+
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('imageupload'))
+
+            experimentName = request.POST.get('experiment')
+            actualPasscode = Experiment.objects.get(name=experimentName)
+            actualPasscode = actualPasscode.token
+            enteredPasscode = form.cleaned_data
+            enteredPasscode = enteredPasscode["password"]
+
+            if enteredPasscode == actualPasscode:
+                csvtodb.putintodb(request.FILES.getlist('file'), request.POST.get('device'), request.POST.get('description'), request.POST.get('experiment'))
+                messages.success(request, 'Successfully Uploaded File')
+            else:
+                messages.error(request, 'Invalid Password')
+
+            return HttpResponseRedirect(reverse('humanupload'))
+
     else:
         form = UploadForm()
-    images = Upload.objects.all()
-    context = {'form': form, 'images': images, 'manufacturer': fun()}
+        context = {'form': form, 'experiments': getExperiments()}
+
     return render(request, 'uploader/home.html', context)
 
-def fun():
-    devicestring = []
-    for de in Sensordevices.objects.distinct('device'):
-        devicestring += [de.device]
-    return devicestring
+
+#Gets a list of all available experiments
+def getExperiments():
+        return Experiment.objects.values_list('name', flat=True)

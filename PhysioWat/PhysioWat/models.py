@@ -1,61 +1,41 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField, HStoreField
+from datetime import datetime
 
 
 class Experiment(models.Model):
-    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    experimenterid = models.IntegerField()
-    experimentname = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
     description = models.CharField(max_length=500, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'experiment'
+    token = models.CharField(max_length=50)
 
 
-class Experimenter(models.Model):
-    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    username = models.CharField(max_length=50)
-    password = models.CharField(max_length=50)
-    firstname = models.CharField(max_length=50)
-    lastname = models.CharField(max_length=50)
-    email = models.CharField(max_length=50, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'experimenter'
+class Recording(models.Model):
+    experiment = models.ForeignKey(Experiment)
+    device_name = models.CharField(max_length=50)
+    dict_keys = ArrayField(
+        models.CharField(max_length=50, blank=True, null=True)
+    )
+    description = models.CharField(max_length=200, blank=True)
+    ts = models.DateTimeField(default=datetime.now)
 
 
-class Sensordevices(models.Model):
-    device = models.CharField(max_length=50)
-    sensortype = models.CharField(max_length=50)
+class Sensor(models.Model):
+    name = models.CharField(max_length=50, blank=True, null=True)
     description = models.CharField(max_length=50, blank=True, null=True)
-    device.primary_key = True;
-    sensortype.primary_key = True;
-
-    class Meta:
-        managed = False
-        db_table = 'sensordevices'
-        unique_together = (('device', 'sensortype'),)
 
 
-class Sensors(models.Model):
-    sensornames = models.CharField(max_length=50)
-    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'sensors'
+class SensorRawData(models.Model):
+    recording = models.ForeignKey(Recording)
+    store = HStoreField()
 
 
-class Subject(models.Model):
-    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    firstname = models.CharField(max_length=50, blank=True, null=True)
-    lastname = models.CharField(max_length=50, blank=True, null=True)
-    dob = models.DateField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'subject'
+class PreprocessedData(models.Model):
+    raw_data = models.ForeignKey(SensorRawData)
+    parameters = HStoreField()
+    store = HStoreField()
 
 
-
+class FeatExtractedData(models.Model):
+    preprocessed = models.ForeignKey(PreprocessedData)
+    parameters = HStoreField()
+    path_to_file = models.CharField(max_length=500)
