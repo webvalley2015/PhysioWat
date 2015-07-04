@@ -5,7 +5,7 @@
 
         <form action="#" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {% if manufacturer %}
+
                 {{ form }}
                 <select name="devicename">
                     {% for c in manufacturer %}
@@ -13,9 +13,9 @@
                     {% endfor %}
                 </select>
                 <input type="submit" value="Upload"/>
-            {% else %}
+
                 Error while loading sensors manufacters database.
-            {% endif %}
+
         </form>
     </div>
 {% endblock %}
