@@ -10,6 +10,7 @@ def preproc_settings(request):
         if form.is_valid():
             return HttpResponseRedirect(reverse('humanupload'))
     else:
+
         formPick = None
         if (True):
             formDown = downsampling(initial={'switch':False})
