@@ -21,6 +21,7 @@
 
 	<div class="algorithms col-md-4">
 			<ul class="nav nav-tabs">
+			{{ forms }}
 			
 				{% for k,v in forms.items %}		  
 					 <li role="presentation" class="active"><a href="#" id={{ k }}>{{ k }}</a></li>
@@ -42,7 +43,7 @@
 
 </div>
 
-{{ forms }}		
+{{ forms.keys }}		
 
 {% endblock %}
 
