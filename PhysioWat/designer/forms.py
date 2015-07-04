@@ -1,7 +1,7 @@
 __author__ = 'stephen'
 from django import forms
 from django.forms import ModelForm
-from PhysioWat.models import PhysiowatExperiment
+from PhysioWat.models import Experiment
 
 # FileUpload form class.
 class SensorDesignerForm(forms.Form):
@@ -16,6 +16,6 @@ class experiments(ModelForm):
     token = forms.CharField(widget=forms.PasswordInput())
     repeat_token = forms.CharField(widget=forms.PasswordInput())
     class Meta:
-        model = PhysiowatExperiment
+        model = Experiment
         fields = ['name', 'description', 'token']
 
