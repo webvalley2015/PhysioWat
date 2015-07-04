@@ -10,7 +10,7 @@ class SensorDesignerForm(forms.Form):
     }))
 
 class experiments(forms.Form):
-    name = forms.CharField()
-    desc = forms.CharField()
+    name = forms.CharField(widget=forms.TextInput())
+    desc = forms.CharField(widget=forms.Textarea())
     password = forms.CharField(widget=forms.PasswordInput())
 

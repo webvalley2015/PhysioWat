@@ -9,22 +9,42 @@
 {% block container %}
 <div class="content row">
 
-	<div class="graphs col-md-8">
-		<div class="processed-signal row">
-			<div id="processed-signal"> </div>
+		<div class="graphs col-md-8">
+			<div class="processed-signal row">
+				<div id="processed-signal"> </div>
+			</div>
+			<hr>
+			<div class="temporary-processing row">
+				<div id="temporary-processing"> </div>
+			</div>
 		</div>
-		<hr>
-		<div class="temporary-processing row">
-			<div id="temporary-processing"> </div>
-		</div>
-	</div>
+
 	<div class="algorithms col-md-4">
-		{% for f in forms %}
-			{% include "includes/bootstrap_form.html" with form=f %}
-		{% endfor %}
+			<ul class="nav nav-tabs">
+			{{ forms }}
+			
+				{% for k,v in forms.items %}		  
+					 <li role="presentation" class="active"><a href="#" id={{ k }}>{{ k }}</a></li>
+				{% endfor %}
+			</ul>
+			
+			{% for k,v in forms.items %}		
+		<!-- in the end, this contains a form. wich tag is better? div, what?-->
+				<p id = {{ k }} style="visibility: hidden">
+			   
+				PARAGRAFO SHISH <br>
+				 {% include "includes/bootstrap_form.html" with form=v %} 
+				<br>
+				<br>
+				</p>
+             {% endfor %}
+
 	</div>
 
 </div>
+
+{{ forms.keys }}		
+
 {% endblock %}
 
 
@@ -33,6 +53,9 @@
 {% highcharts_js 1 1 0 0 %}
 
 <script>
+	
+//SHALL I MAKE A LIST OF EVERY ONE OR JUST ITERATE?? HOW TO ITERATE ()BECAUSE HE HAS TO DO WITH EVERYTHING	
+
 $(function () {
 	$.getJSON("{% url 'chart_getdata' 'graph1' %}", function(data) {
 		$('#processed-signal').highcharts('StockChart',data);
@@ -51,3 +74,5 @@ $(function () {
 </script>
 
 {% endblock app_specific_js %}
+
+
