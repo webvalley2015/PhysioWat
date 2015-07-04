@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 
 from .forms import UploadForm
 import csvtodb
+from PhysioWat.models import PhysiowatExperiment
 
 
 # Create your views here.
@@ -17,10 +18,8 @@ def upload(request):
             return HttpResponseRedirect(reverse('humanupload'))
     else:
         form = UploadForm()
-    context = {'form': form, 'manufacturer': fun(), 'sensortypes': getSensorTypes()}
+        context = {'form': form, 'experiments': getExperiments()}
     return render(request, 'uploader/home.html', context)
 
-def fun():
-        return ['a','b','c','d']
-def getSensorTypes():
-        return ['e','f','g','h']
+def getExperiments():
+        return PhysiowatExperiment.objects.values_list('name', flat=True)

@@ -72,7 +72,7 @@ def show_chart(request):
             formFilt = filterAlg(initial={'filterType':'none'})
             formSpec = GSR()
 
-    context = {'forms': [formFilt, formDown, formPick, formSpec, formGau]}
+    context = {'forms': { 'formFilt':formFilt, 'formDown':formFilt, 'formPick':formFilt, 'formSpec':formFilt, 'formGau':formFilt }}
 
     return render(request, template, context)
 
