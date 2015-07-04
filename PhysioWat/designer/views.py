@@ -22,7 +22,7 @@ def create_experiement(request):
                 else:
                     messages.error(request, 'Tokens dont match')
             else:
-                messages.error(request, 'Experiment already exist')
+                messages.error(request, 'Experiment already exists')
         else:
             messages.error(request, 'Error while creating the experiment.')
         #return HttpResponse("/")
