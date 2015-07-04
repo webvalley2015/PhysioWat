@@ -79,7 +79,7 @@ def show_chart(request):
 
 def select_experiment(request):
 	#GET DATA FROM DATABASE ::(GET THE LIST OF EXPERIMENTS: NAME, TIME, given in input THE ID OF RESEARCHER (you server have it!) )
-	Experiments = get_data()
+	Experiments = get_my_choices()
 	
 	if( request.method == 'POST' ):
 		id_exp = (request.POST)
