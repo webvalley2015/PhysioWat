@@ -2,7 +2,6 @@ __author__ = 'stephen'
 from django import forms
 from django.forms import ModelForm
 from PhysioWat.models import Experiment
-import jsontest
 
 # FileUpload form class.
 class SensorDesignerForm(forms.Form):
@@ -12,7 +11,6 @@ class SensorDesignerForm(forms.Form):
     }))
 
 class experiments(ModelForm):
-    jsontest.runtest()
     name = forms.CharField(widget=forms.TextInput())
     description = forms.CharField(widget=forms.Textarea())
     token = forms.CharField(widget=forms.PasswordInput())
