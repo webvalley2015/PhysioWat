@@ -37,9 +37,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
     #4 auth purposes
     'django.contrib.admindocs',
-    #'django.contrib.postgres.fields.ArrayField',
     'highcharts',
     'PhysioWat',
     'uploader',

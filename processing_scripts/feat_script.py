@@ -21,6 +21,9 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.lda import LDA
 from sklearn.qda import QDA
 from sklearn.metrics import *
+import matplotlib.cm as cm
+import matplotlib.mlab as mlab
+import matplotlib.pyplot as plt
 
 WINLEN = 100
 WINSTEP = 50
@@ -406,5 +409,33 @@ def bestfit_KNN(fe_data, alg, feat):
     plt.figure()
     plt.plot(SRlist,accuracy)
     #plt.xscale('log')
+    plt.show()    
+    return accuracy.argmax(), accuracy.max()
+    
+def bestfit_ADA(fe_data, alg, feat):
+    accuracy = np.zeros(0)
+    NElist = [i*50 for i in range(0,201)]
+    LRlist = [i*0.25 for i in range(2,9) ]
+    iterations = 5# 20
+    for n_est in NElist:
+        for l_rate in LRlist:
+            clf = classifiers[alg](n_estimators = n_est, learning_rate=l_rate)
+            mean_vec = 0.
+            for i in range(iterations):
+                fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
+                in_tar = fe_data.label
+                in_data = fe_data[fe_data.columns[:-1]]
+                scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=-1)
+                #print scores
+                in_vec = np.array([C, scores.mean(), scores.std()*2])
+                mean_vec += in_vec[1]
+            accuracy_local = mean_vec/iterations
+            _ = pd.Series([n_est, l_rate, accuracy])
+            accuracy = accuracy.append(_)
+    #plot the accuracy
+    plt.figure()
+    CS = plt.contour(X, Y, Z)
+    plt.clabel(CS, inline=1, fontsize=10)
+    plt.title('Simplest default with labels')
     plt.show()    
     return accuracy.argmax(), accuracy.max()
