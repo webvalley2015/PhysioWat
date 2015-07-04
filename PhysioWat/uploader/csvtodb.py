@@ -17,6 +17,6 @@ def putintodb(fname, devicename):
     for row in csvreader:
         # raw query for each csv line
         cursor = connection.cursor()
-        cursor.execute('INSERT INTO sensor_data (recordingid,store) VALUES (1,hstore(%s,%s))', [dictky,row])
+        cursor.execute("INSERT INTO \"PhysioWat_sensordata\" (store) VALUES (hstore(%s,%s))", [dictky,row])
         # results = cursor.fetchall()
     return 0
