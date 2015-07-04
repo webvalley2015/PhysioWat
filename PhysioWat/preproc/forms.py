@@ -1,6 +1,6 @@
 __author__ = 'federico'
 from django import forms
-
+from PhysioWat.models import Experiment
 # FileUpload form class.
 
 
@@ -8,15 +8,17 @@ class downsampling(forms.Form):
     FS_NEW = forms.IntegerField()
     switch = forms.BooleanField()
 
+
 class smoothGaussian(forms.Form):
     sigma = forms.FloatField(min_value=0)
     switch = forms.BooleanField()
 
-CHOICES=[("butter", "Butterworth"),
-        ("cheby1", "Chebyshev I"),
-        ("cheby2", "Chebyshev II"),
-        ("ellip", "Couer/Ellip"),
-        ("none", "Filter OFF")]
+
+CHOICES = [("butter", "Butterworth"),
+           ("cheby1", "Chebyshev I"),
+           ("cheby2", "Chebyshev II"),
+           ("ellip", "Couer/Ellip"),
+           ("none", "Filter OFF")]
 
 
 class filterAlg(forms.Form):
@@ -48,7 +50,7 @@ class EKG(forms.Form):
     maxFr = forms.FloatField(min_value=0)
 
 
-class BVP(forms.Form):  #Uguale a quello sopra ma cambia un default
+class BVP(forms.Form):  # Uguale a quello sopra ma cambia un default
     delta = forms.FloatField(min_value=0)
     minFr = forms.FloatField(min_value=0)
     maxFr = forms.FloatField(min_value=0)
@@ -57,17 +59,17 @@ class BVP(forms.Form):  #Uguale a quello sopra ma cambia un default
 class inertial(forms.Form):
     coeff = forms.FloatField(min_value=0)
 
-class choose_exp(forms.Form):
-	
-	def get_my_choices():
-		choices_list = [('1','ESPERIMENTO1'),
-		('2','QUELLO DEL BABBUINO'),
-		('3','ESPERIMENTO 3')];
-		return choices_list
 
-	def __init__(self, *args, **kwargs):
-		super(MyForm, self).__init__(*args, **kwargs)
-		self.fields['my_choice_field'] = forms.ChoiceField(
-			choices=get_my_choices() )
-	
+class choose_exp(forms.Form):
+    def get_my_choices():
+        choices_list = [('1', 'ESPERIMENTO1'),
+                        ('2', 'QUELLO DEL BABBUINO'),
+                        ('3', 'ESPERIMENTO 3')];
+        return choices_list
+
+    def __init__(self, *args, **kwargs):
+        super(MyForm, self).__init__(*args, **kwargs)
+        self.fields['my_choice_field'] = forms.ChoiceField(
+            choices=get_my_choices())
+
 
