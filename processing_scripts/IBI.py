@@ -1,6 +1,8 @@
 from __future__ import division
 import numpy as np
 from scipy import interpolate
+import tools as ourTools
+import matplotlib.pyplot as plt #DEBUG ONLY
 import spectrum as spct
 
 #####################################
@@ -36,6 +38,65 @@ def extract_IBI_features(data, windows):
         this_win = data[win_lim[0]:win_lim[1]]
         result.append(calculateHRVindexes(this_win))
     return np.array(result)
+
+
+def getPeaksIBI(signal, SAMP_F, peakDelta):
+    '''
+    get the peaks for the ibi calculation
+    return: an nparrays (N,2), containing the time (in s) in the first column and the height of the peak in the second column
+    signal: signal in which search the peaks
+    peakDelta: minimum peak height
+    SAMP_F: the sampling frequency of signal
+    '''
+    t = np.arange(0, len(signal)/float(SAMP_F), 1.0/SAMP_F)
+    maxp, minp = ourTools.peakdet(signal, peakDelta, t)
+    '''print 'maxp:'
+    print maxp
+    plt.plot(t, signal)
+    plt.plot(maxp[:,0], maxp[:,1], 'o')
+    plt.show()'''
+    return maxp
+
+def max2interval(peaks, minrate=40, maxrate=200):
+    """
+    Returns intervals from timesMax, after filtering possible artefacts based on rate range (rates in min^(-1))
+    if two peaks are nearer than minrate or further than maxrate, the algorithm try to recognize if there's a false true or a peak missing
+    return: an nparray (N,2) containing the time in the first column and the ibi in the second
+    peaks: an nparray (N,) containing the time of the peaks in the first column
+    minrate: represents the minimum(in min^(-1)) bpm to detect
+    maxrate: represents the maximum(in min^(-1)) bpm to detect
+    """
+    maxRR=60/minrate
+    minRR=60/maxrate
+
+    RR=[]
+    timeRR=[]
+
+    # algoritmo alternativo
+    # beat artifacts correction
+    ##inizializzazioni
+
+    tprev=peaks[0]
+    tfalse=tprev
+
+    for i in range(1, len(peaks)):
+        tact=peaks[i]
+
+        RRcurr=tact-tprev
+        if (RRcurr<minRR): # troppo breve: falso picco?
+            tfalse=tact  #aspetto (non aggiorno tact) e salvo il falso campione
+
+        elif RRcurr>maxRR: # troppo lungo ho perso un picco?
+            RRcurr=tact-tfalse # provo con l'ultimo falso picco se esiste
+            tprev=tact # dopo ripartiro' da questo picco
+
+        if RRcurr>minRR and RRcurr<maxRR: # tutto OK
+            RR.append(RRcurr) #aggiungo valore RR
+            timeRR.append(tact) #aggiungo istante temporale
+            tfalse=tact #aggiorno falso picco
+            tprev=tact #aggiorno tprev
+    #the result contains a 2D array with the times and the ibi
+    return np.column_stack(( np.array(timeRR), np.array(RR)))
 
 
 def calculateTDindexes(RR):
