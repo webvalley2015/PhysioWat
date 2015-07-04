@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http.response import HttpResponseRedirect
+from django.http.response import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike, smoothGaussian, choose_exp
 
@@ -77,20 +77,19 @@ def show_chart(request):
 
     return render(request, template, context)
 
-def select_experiment(request):	
-	if( request.method == 'POST' ):
-		form = (request.POST)
-		if(form.is_valid()):
-			#GET DATA FORM DB ::(GET THE LIST OF SUBJECTS , NAME, WHATEVER, given in inpyt THE ID OF THE EXPERIMENT)
-			subj_list = (('1','SOGG1'),
-			('2','GIANLUCA ADELANTE'),
-			('3','UN BARBONE A CASO'))
-			form = forms.ChoiceField(choice=subj_list)
-			#return HttpResponseRedirect('subj_selection')
-	else:
-		#GET DATA FROM DATABASE ::(GET THE LIST OF EXPERIMENTS: NAME, TIME, given in input THE ID OF RESEARCHER (you server have it!) )
-		form = choose_exp()
-		context = {'form':form}
-		template = ('preproc/select.html')
-		return render(request, template, context)
+def select_experiment(request):
+
+    if (request.method == 'POST'):
+        form = choose_exp(request.POST)
+        if (form.is_valid()):
+            print form.selected()		
+            #GET DATA FORM DB ::(GET THE LIST OF SUBJECTS , NAME, WHATEVER, given in inpyt THE ID OF THE EXPERIMENT)
+            subj_list = (('1','SOGG1'),('2','GIANLUCA ADELANTE'),('3','UN BARBONE A CASO'))
+            return HttpResponse('Ok')
+    else:
+        #GET DATA FROM DATABASE ::(GET THE LIST OF EXPERIMENTS: NAME, TIME, given in input THE ID OF RESEARCHER (you server have it!) )
+        form = choose_exp()
+        context = {'form':form}
+        template = ('preproc/select.html')
+        return render(request, template, context)
 	
