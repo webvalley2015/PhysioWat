@@ -13,7 +13,6 @@ def create_experiement(request):
             b2 = form.cleaned_data['desc']
             b3 = form.cleaned_data['password']
 
-
         # b2.save()
         # return HttpResponse(form.cleaned_data['Name'] + str(form.cleaned_data['Sensors']))#request.POST.get('Name')     #form.cleaned_data['Name']
     else:
