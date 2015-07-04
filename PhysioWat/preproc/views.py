@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike, smoothGaussian, choose_exp
+from PhysioWat.models import Experiment
+from django.contrib import messages
 
 
 def preproc_settings(request):
@@ -13,28 +15,30 @@ def preproc_settings(request):
 
         formPick = None
         if (True):
-            formDown = downsampling(initial={'switch':False})
+            formDown = downsampling(initial={'switch': False})
             formGau = smoothGaussian(initial={'sigma': 2})
-            formFilt = filterAlg(initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType':'cheby2'})
+            formFilt = filterAlg(
+                initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType': 'cheby2'})
             formSpec = BVP()
         if (True):
-            formDown = downsampling(initial={'switch':False})
+            formDown = downsampling(initial={'switch': False})
             formGau = smoothGaussian(initial={'sigma': 2})
-            formFilt = filterAlg(initial={'filterType':'none'})
+            formFilt = filterAlg(initial={'filterType': 'none'})
             formSpec = EKG()
         if (True):
-            formDown = downsampling(initial={'switch':False})
+            formDown = downsampling(initial={'switch': False})
             formGau = smoothGaussian(initial={'sigma': 2})
-            formFilt = filterAlg(initial={'filterType':'none'})
-            formSpec = inertial()    
+            formFilt = filterAlg(initial={'filterType': 'none'})
+            formSpec = inertial()
         if (True):
             formPick = remove_spike()
-            formDown = downsampling(initial={'switch':False})
+            formDown = downsampling(initial={'switch': False})
             formGau = smoothGaussian(initial={'sigma': 2})
-            formFilt = filterAlg(initial={'filterType':'none'})
+            formFilt = filterAlg(initial={'filterType': 'none'})
             formSpec = GSR()
 
-    context = {'formFilt': formFilt, 'formDown': formDown, 'formPick':formPick, 'formSpec':formSpec, 'formGau':formGau}
+    context = {'formFilt': formFilt, 'formDown': formDown, 'formPick': formPick, 'formSpec': formSpec,
+               'formGau': formGau}
     return render(request, 'preproc/settings.html', context)
 
 
@@ -51,33 +55,42 @@ def show_chart(request):
     else:
         formPick = None
         if (True):
-            formDown = downsampling(initial={'switch':False})
+            formDown = downsampling(initial={'switch': False})
             formGau = smoothGaussian(initial={'sigma': 2})
-            formFilt = filterAlg(initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType':'cheby2'})
+            formFilt = filterAlg(
+                initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType': 'cheby2'})
             formSpec = BVP()
         if (True):
-            formDown = downsampling(initial={'switch':False})
+            formDown = downsampling(initial={'switch': False})
             formGau = smoothGaussian(initial={'sigma': 2})
-            formFilt = filterAlg(initial={'filterType':'none'})
+            formFilt = filterAlg(initial={'filterType': 'none'})
             formSpec = EKG()
         if (True):
-            formDown = downsampling(initial={'switch':False})
+            formDown = downsampling(initial={'switch': False})
             formGau = smoothGaussian(initial={'sigma': 2})
-            formFilt = filterAlg(initial={'filterType':'none'})
-            formSpec = inertial()    
+            formFilt = filterAlg(initial={'filterType': 'none'})
+            formSpec = inertial()
         if (True):
             formPick = remove_spike()
-            formDown = downsampling(initial={'switch':False})
+            formDown = downsampling(initial={'switch': False})
             formGau = smoothGaussian(initial={'sigma': 2})
-            formFilt = filterAlg(initial={'filterType':'none'})
+            formFilt = filterAlg(initial={'filterType': 'none'})
             formSpec = GSR()
 
-    context = {'forms': { 'formFilt':formFilt, 'formDown':formDown, 
-    'formPick':formPick, 'formSpec':formSpec, 'formGau':formGau }}
-
+    context = {'forms': {'formFilt': formFilt, 'formDown': formDown,
+                         'formPick': formPick, 'formSpec': formSpec, 'formGau': formGau}}
     return render(request, template, context)
 
-def select_experiment(request):
+
+
+def getExperimentsNames():
+    return Experiment.objects.values_list('name', flat=True).distinct()
+
+def getExperimentsList():
+    return Experiment.objects.values_list('name', 'token').distinct()
+
+
+def select_experiment_no_use(request):
 
     if (request.method == 'POST'):
         form = choose_exp(request.POST)
@@ -92,4 +105,4 @@ def select_experiment(request):
         context = {'form':form}
         template = ('preproc/select.html')
         return render(request, template, context)
-	
+

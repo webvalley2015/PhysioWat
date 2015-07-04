@@ -15,6 +15,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
 <!--//fonts-->
 <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="js/process.js"></script>
 <script type="text/javascript" src="js/move-top.js"></script>
 <script type="text/javascript" src="js/easing.js"></script>
 <script type="text/javascript">
@@ -129,19 +130,48 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 			    });
 			  </script>
 			<!--End-slider-script-->	
-	<!--start-team-->
+	<div class="row form-group">
+        <div class="col-xs-12">
+            <ul class="nav nav-pills nav-justified thumbnail setup-panel">
+                <li class="active"><a href="#step-1">
+                    <h4 class="list-group-item-heading">Step 1</h4>
+                    <p class="list-group-item-text">First step description</p>
+                </a></li>
+                <li class="disabled"><a href="#step-2">
+                    <h4 class="list-group-item-heading">Step 2</h4>
+                    <p class="list-group-item-text">Second step description</p>
+                </a></li>
+                <li class="disabled"><a href="#step-3">
+                    <h4 class="list-group-item-heading">Step 3</h4>
+                    <p class="list-group-item-text">Third step description</p>
+                </a></li>
+            </ul>
+        </div>
+	</div>
+    <div class="row setup-content" id="step-1">
+        <div class="col-xs-12">
+            <div class="col-md-12 well text-center">
+                <h1> STEP 1</h1>
+                <button id="activate-step-2" class="btn btn-primary btn-lg">Activate Step 2</button>
+            </div>
+        </div>
+    </div>
+    <div class="row setup-content" id="step-2">
+        <div class="col-xs-12">
+            <div class="col-md-12 well">
+                <h1 class="text-center"> STEP 2</h1>
+            </div>
+        </div>
+    </div>
+    <div class="row setup-content" id="step-3">
+        <div class="col-xs-12">
+            <div class="col-md-12 well">
+                <h1 class="text-center"> STEP 3</h1>
+            </div>
+        </div>
+    </div>
 	<!--end-team-->
 	<!--start-skill--><!--end-skill-->
-	<!--start-services--><!--end-services-->
-	<!--start-testimonials--><!--end-testimonials-->
-	<!--start-portfolio--><!--end-portfolio-->
-	<link rel="stylesheet" href="css/swipebox.css">
-	<script src="js/jquery.swipebox.min.js"></script> 
-	    <script type="text/javascript">
-			jQuery(function($) {
-				$(".swipebox").swipebox();
-			});
-		</script>
 	<!-- Portfolio Ends Here -->
 	<script type="text/javascript" src="js/jquery.mixitup.min.js"></script>
 <script type="text/javascript">
@@ -190,67 +220,9 @@ $(function () {
 	<!--start-clients--><!--end-clients-->
 	<!--start-blog--><!--end-blog-->
 	<!--start-map-->
-	<div class="map">
-    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2768.2128590580264!2d11.123116499999991!3d46.066796700000005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4782714a693250df%3A0x16faa4cc65ceea27!2sUniversity+of+Trento!5e0!3m2!1sen!2sit!4v1435848490247" width="95%" height="600" frameborder="0" style="border:0" allowfullscreen></iframe>
-    </div>
+	<div class="map"></div>
 	<!--end-map-->
 	<!--start-contact-->
-	<div class="contact" id="contact">
-		<div class="container">
-			<div class="contact-top">
-				<div class="col-md-6 contact-left">
-					<h3>Contact us</h3>
-					<p>The set doesn't moved. Deep don't fruit fowl gathering heaven days moving cre eping under from i air. Set it fifth Meat was darkness. every bring in it.The set doesn't moved. Deep don't fruit fowl gathering heaven days moving creeping under from i air. Set it fifth Meat was darkness. every bring in it.</p>
-					<div class="contact-left-bottom">
-						<div class="address">
-							<div class="cnt-left">
-								<span class="ads"> </span>
-							</div>
-							<div class="cnt-right">
-								<p>STREET ADDRESS @ KEEP IT 100 LANE</p>
-							</div>
-							<div class="clearfix"></div>
-						</div>
-						<div class="phone">
-							<div class="cnt-left">
-								<span class="ph"> </span>
-							</div>
-							<div class="cnt-right">
-								<p>(+39)1234567890</p>
-							</div>
-							<div class="clearfix"></div>
-						</div>
-						<div class="phone">
-							<div class="cnt-left">
-								<span class="email"> </span>
-							</div>
-							<div class="cnt-right">
-								<p><a href="mailto:fbk@fbk.com">fbk@fbk.COM</a></p>
-							</div>
-							<div class="clearfix"></div>
-						</div>
-					</div>
-				</div>
-                {% block content %}
-				<div class="col-md-6 contact-left">
-					<h3>Send Message</h3>
-					<div class="contact-right-bottom">
-                        {% csrf_token %}
-						<input type="text" value="Your Name" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Your Name';}"/>
-						<input type="text" value="Your Email" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Your Email';}"/>
-						<textarea value="Message" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Message';}">Message</textarea>
-						<div class="contact-but">
-							<form>	
-                                <input type="submit" value="" />
-							</form>	
-						</div>
-					</div>
-				</div>
-                {% endblock content %}
-				<div class="clearfix"> </div>
-			</div>
-		</div>
-	</div>
 	<!--end-contact-->
 	<!--start-footer-->
 	<div class="footer">
