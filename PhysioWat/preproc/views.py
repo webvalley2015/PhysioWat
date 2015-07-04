@@ -77,20 +77,20 @@ def show_chart(request):
 
     return render(request, template, context)
 
-def select_experiment(request):
-	#GET DATA FROM DATABASE ::(GET THE LIST OF EXPERIMENTS: NAME, TIME, given in input THE ID OF RESEARCHER (you server have it!) )
-	Experiments = get_my_choices()
-	
+def select_experiment(request):	
 	if( request.method == 'POST' ):
-		id_exp = (request.POST)
-		#GET DATA FORM DB ::(GET THE LIST OF SUBJECTS , NAME, WHATEVER, given in inpyt THE ID OF THE EXPERIMENT)
-		subj_list = (('1','SOGG1'),
-		('2','GIANLUCA ADELANTE'),
-		('3','UN BARBONE A CASO'))
-		form = forms.ChoiceField(choice=subj_list)
-		
-		
-	
-	template = "preproc/choose.html"
-	context = {'Experiments':Experiments}
+		form = (request.POST)
+		if(form.is_valid()):
+			#GET DATA FORM DB ::(GET THE LIST OF SUBJECTS , NAME, WHATEVER, given in inpyt THE ID OF THE EXPERIMENT)
+			subj_list = (('1','SOGG1'),
+			('2','GIANLUCA ADELANTE'),
+			('3','UN BARBONE A CASO'))
+			form = forms.ChoiceField(choice=subj_list)
+			#return HttpResponseRedirect('subj_selection')
+	else:
+		#GET DATA FROM DATABASE ::(GET THE LIST OF EXPERIMENTS: NAME, TIME, given in input THE ID OF RESEARCHER (you server have it!) )
+		form = choose_exp()
+		context = {'form':form}
+		template = ('preproc/select.html')
+		return render(request, template, context)
 	
