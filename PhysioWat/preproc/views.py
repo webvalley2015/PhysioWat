@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http.response import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike, smoothGaussian
+from forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike, smoothGaussian, choose_exp
 
 
 def preproc_settings(request):
@@ -77,3 +77,20 @@ def show_chart(request):
 
     return render(request, template, context)
 
+def select_experiment(request):
+	#GET DATA FROM DATABASE ::(GET THE LIST OF EXPERIMENTS: NAME, TIME, given in input THE ID OF RESEARCHER (you server have it!) )
+	Experiments = get_data()
+	
+	if( request.method == 'POST' ):
+		id_exp = (request.POST)
+		#GET DATA FORM DB ::(GET THE LIST OF SUBJECTS , NAME, WHATEVER, given in inpyt THE ID OF THE EXPERIMENT)
+		subj_list = (('1','SOGG1'),
+		('2','GIANLUCA ADELANTE'),
+		('3','UN BARBONE A CASO'))
+		form = forms.ChoiceField(choice=subj_list)
+		
+		
+	
+	template = "preproc/choose.html"
+	context = {'Experiments':Experiments}
+	

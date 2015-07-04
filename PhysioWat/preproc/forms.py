@@ -57,5 +57,17 @@ class BVP(forms.Form):  #Uguale a quello sopra ma cambia un default
 class inertial(forms.Form):
     coeff = forms.FloatField(min_value=0)
 
+class choose_exp(forms.Form):
+	
+	def get_my_choices():
+		choices_list = [('1','ESPERIMENTO1'),
+		('2','QUELLO DEL BABBUINO'),
+		('3','ESPERIMENTO 3')];
+		return choices_list
 
+	def __init__(self, *args, **kwargs):
+		super(MyForm, self).__init__(*args, **kwargs)
+		self.fields['my_choice_field'] = forms.ChoiceField(
+			choices=get_my_choices() )
+	
 
