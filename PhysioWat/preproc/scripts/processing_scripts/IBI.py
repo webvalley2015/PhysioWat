@@ -1,6 +1,6 @@
 from __future__ import division
 import numpy as np
-import tools as ourTools
+from tools import peakdet
 
 #####################################
 ## NOTE
@@ -55,7 +55,7 @@ def getPeaksIBI(signal, SAMP_F, peakDelta):
     SAMP_F: the sampling frequency of signal
     '''
     t = np.arange(0, len(signal)/float(SAMP_F), 1.0/SAMP_F)
-    maxp, minp = ourTools.peakdet(signal, peakDelta, t)
+    maxp, minp = peakdet(signal, peakDelta, t)
     '''print 'maxp:'
     print maxp
     plt.plot(t, signal)
