@@ -10,6 +10,7 @@ def preproc_settings(request):
         if form.is_valid():
             return HttpResponseRedirect(reverse('humanupload'))
     else:
+
         formPick = None
         if (True):
             formDown = downsampling(initial={'switch':False})
@@ -71,7 +72,8 @@ def show_chart(request):
             formFilt = filterAlg(initial={'filterType':'none'})
             formSpec = GSR()
 
-    context = {'forms': [formFilt, formDown, formPick, formSpec, formGau]}
+    context = {'forms': { 'formFilt':formFilt, 'formDown':formDown, 
+    'formPick':formPick, 'formSpec':formSpec, 'formGau':formGau }}
 
     return render(request, template, context)
 

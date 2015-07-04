@@ -8,9 +8,12 @@ function for extract IBI from BVP
 '''
 
 import numpy as np
+
 import matplotlib.pyplot as plt
-import filters as ourFilters
+from PhysioWat.preproc.scripts.processing_scripts import filters as ourFilters
 import tools as ourTools
+import IBI
+
 
 def loadBVP(filename):
     '''
@@ -31,7 +34,7 @@ if __name__ == '__main__':
     
     #filter the signal
     #the user selects the parameters, with default suggested
-    filterType = 'bessel'
+    filterType = 'butter'
     F_PASS = 2
     F_STOP = 6
     ILOSS = 0.1
@@ -39,17 +42,21 @@ if __name__ == '__main__':
     filtered_signal = ourFilters.filterSignal(rawdata, SAMP_F, passFr = F_PASS, stopFr = F_STOP, LOSS = ILOSS, ATTENUATION = IATT, filterType = filterType)
     #filtered_signal = rawdata
     
-    #get the IBI from the filtered signal
+    #extraction peaks from the signal
     #the user selects the parameters, with default suggested
     delta = 1
+    peaks = IBI.getPeaksIBI(filtered_signal,SAMP_F, delta)
+    
+    #calculation of the IBI
+    #the user selects the parameters, with default suggested
     minFr = 40
     maxFr = 200
-    ibi = ourTools.getIBI(filtered_signal, SAMP_F, delta, minFr, maxFr)
+    ibi = IBI.max2interval(peaks[:,0], minFr, maxFr)
     
-    ibi.to_csv('ibiExample')    
+    #ibi.to_csv('ibiExample')    
     
     #DEBUG output
     print ibi
-    plt.plot(ibi.index, ibi.IBI)
+    plt.plot(ibi[:,0], ibi[:,1])
     plt.show()
 
