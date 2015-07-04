@@ -55,6 +55,7 @@ classifiersDefaultParameters = {
         'QDA': QDA()
         }
     
+iterations = 5 #20
 
 def feat_boxplot(x):
     '''
@@ -92,7 +93,7 @@ def feat_boxplot(x):
     
 def crossvalidate_1df_SVM(data, alg, k):
     '''
-    This function use a k-fold crossvalidation to predict labels from the
+    This function use a k-fold crossvalidation to predict labels on the
     input database
       
     Params:
@@ -113,7 +114,8 @@ def crossvalidate_1df_SVM(data, alg, k):
         (on the screen) the accuracy mean for each k-fold, because of the
             predict function
         
-    Notes: just use to copy lines
+    FIXME:
+        the kf command doesn't seem valid but it seems all to work fine
     
     '''
     sol = data.label  #standard way to divide the feature DF from the target
@@ -126,7 +128,7 @@ def crossvalidate_1df_SVM(data, alg, k):
     #perform K-FOLD validation
     #set the K parameters, usually 5 or 10
     acc = np.zeros([k,1])
-    kf = cross_validation.KFold(data.shape[0],k), shuffle=True)
+    kf = cross_validation.KFold(data.shape[0],k)# right here
 
     for train_index, test_index in kf:
         X_train, X_test = data[train_index], data[test_index]
@@ -138,7 +140,7 @@ def crossvalidate_1df_SVM(data, alg, k):
    
 def quick_fat(in_data, te_data, alg): # stand for quick Fit And Test
     '''
-    This function use to fit on a dataset and test
+    This function fit on a dataset and test
     on one another. Just a quick prediction
       
     Params:
@@ -225,7 +227,31 @@ def predict(clf, testX, testY):
     print "Accuracy %.5f" % (score)
     return labels_predict
 
-def trythemall(in_data, te_data):
+
+
+def deep_alg_fat(in_data, te_data): #stans for Deep Algorithms Fit & Test
+    '''
+    Have to work on it.
+    It perform a test on all the algorithms, but just only
+    with the def parameters.
+    Need to change it
+      
+    Params:
+        in_data (pandas.DataFrame)        
+            dataframe of extracted features (with labels as last column).
+            Used to fit the model
+        te_data (pandas.DataFrame)        
+            datafram of extracted features (with labels as last column).
+            Used to test the model
+            
+    Return:
+        metricsDF (pd.Dataframe)
+            dataframe of metrics, rows as metrics and cols as diff algorithms
+        
+    FIXME
+        need to work on it. At the moment it doesn't work
+    
+    '''
     te_tar = te_data.label
     in_tar = in_data.label
     te_data = te_data[te_data.columns[:-1]]
@@ -240,7 +266,28 @@ def trythemall(in_data, te_data):
         score = clf.score(te_data, te_tar)
         print "Accuracy for\t " + name +"\t  %.5f" %(score)
         
+        
+        
 def get_report(y_true, y_pred):
+    '''
+    This function calculates the most common metrics for a classification
+    and put them in a dictionary
+      
+    Params:
+        y_true (np.array)
+            array of the true labels of the features
+        y_pred (np.array)
+            array of the predicted labels
+            
+    Return:
+        report (pd.Dict)
+            dictionary containing all the features and their value
+        conf_mat (np.array)
+            matrix containing the dispersion matrix.
+            Cols are real classes, rows the predicted ones
+        
+    Notes: if 'print' is deleted, testY is not necessary
+    '''
     report = {
         #'Accuracy (n)': accuracy_score(y_true, y_pred, normalize=False),
         'Accuracy (%)': accuracy_score(y_true, y_pred),
@@ -273,49 +320,115 @@ def get_report(y_true, y_pred):
     
     return report, conf_mat
     
-def bestfit(fe_data, alg, feat):
-       
-    if   alg == 'KNN': pos, val = bestfit_KNN(fe_data, alg, feat)
-    elif alg == 'SVM': pos, val = bestfit_SVM(fe_data, alg, feat)
-    elif alg == 'DCT': pos, val = bestfit_DCT(fe_data, alg, feat)
-    elif alg == 'RFC': pos, val = bestfit_RFC(fe_data, alg, feat)
-    elif alg == 'ADA': pos, val = bestfit_ADA(fe_data, alg, feat)
-    elif alg == 'LDA': pos, val = bestfit_LDA(fe_data, alg, feat)
-    elif alg == 'QDA': pos, val = bestfit_QDA(fe_data, alg, feat)
-        
-    return pos, val
+    
+    
+def bestfit(fe_data, alg, metric):
+    '''
+    If you have some parameters to fit this is the right function.
+    Given the dataframe of the extracted features and the metric to
+    maximize it returns the clf ready to be used for the classification.
+    
+    -- Disclaimer --
+    it just calls the right subfunction to proceed
+      
+    Params:
+        fe_data (pd.DataFrame)
+            the feature dataframe to fit your data
+        alg (string)
+            string of three upcase characters to identify the algorithm.
+            To have the list see the classifiers dictionary
+        metric (string)
+            string of three upcase characters to identify the metric.
+            To have the list see the metrics dictionary
 
-def bestfit_KNN(fe_data, alg, feat):
-    accuracy = np.zeros(0)
+    Return:
+        clf (classificators' object)
+            the classificator fit on the given dataframe
+            
+    FIXME : misses the metrics option. Now it's just accuracy (and not global)
+
+
+    '''
+       
+    if   alg == 'KNN': clf = bestfit_KNN(fe_data, alg, metric)
+    elif alg == 'SVM': clf = bestfit_SVM(fe_data, alg, metric)
+    elif alg == 'DCT': clf = bestfit_DCT(fe_data, alg, metric)
+    elif alg == 'RFC': clf = bestfit_RFC(fe_data, alg, metric)
+    elif alg == 'ADA': clf = bestfit_ADA(fe_data, alg, metric)
+    elif alg == 'LDA': clf = bestfit_LDA(fe_data, alg, metric)
+    elif alg == 'QDA': clf = bestfit_QDA(fe_data, alg, metric)
+    
+    return clf
+
+
+
+
+'''
+    --------------------------------------------------------------------
+    - Now begins the sequence of subfucions.                           -
+    - They all work in the same way and all return the same parameters -
+    - So this is the general description for them                      -
+    --------------------------------------------------------------------
+      
+    Params:
+        fe_data (pd.DataFrame)
+            the feature dataframe to fit your data
+        alg (string)
+            string of three upcase characters to identify the algorithm.
+            To have the list see the classifiers dictionary
+        metric (string)
+            string of three upcase characters to identify the metric.
+            To have the list see the metrics dictionary
+
+    Return:
+        clf (classificators' object)
+            the classificator ready already fit on the given dataframe
+'''
+
+
+
+
+def bestfit_KNN(fe_data, alg, metric):  # ok
+    my_met = np.matrix([[0,0,0]])
     NNlist = [1, 3, 5, 7, 9, 11]
-    iterations = 20
+    
     for nn in NNlist:
-        clf = classifiers[alg](n_neighbors=nn)
-        mean_vec = 0.
+        clf = classifiers[alg](nn)
+        mean_sum = 0.
+        std_sum = 0.
         for i in range(iterations):
             fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
             in_tar = fe_data.label
             in_data = fe_data[fe_data.columns[:-1]]
-            scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=1)
-            #print scores
-            in_vec = np.array([C, scores.mean(), scores.std()*2])
-            mean_vec += in_vec[1]
-        accuracy = np.append(accuracy, (mean_vec/iterations))
-    #plot the accuracy
+            scores = cross_validation.cross_val_score(clf, in_data, in_tar, 
+                                                      cv=10, n_jobs=1)
+            #in this array are saved the value, the 
+            mean_sum += scores.mean()
+            std_sum  += scores.std()
+        in_vec = np.array([nn, (mean_sum/iterations), (std_sum/iterations)])
+        my_met = np.vstack((my_met, in_vec))
+        
+        
+    #plot the my_met
     plt.figure()
-    plt.plot(NNlist,accuracy)
-    #plt.xscale('log')
-    plt.show()    
-    return accuracy.argmax(), accuracy.max()
+    plt.plot(my_met[:,0], my_met[:,1])
+    #plt.xscale('log') #just if a parameter is exponentially growing
+    plt.show()
 
-
-def bestfit_SVC(fe_data, alg, feat):
+    bestnn = NNlist[my_met[:,1].argmax()]
+    
+    clf = classifiers[alg](bestnn)
+    clf = clf.fit(in_data, in_tar)
+    return clf
+    
+    
+def bestfit_SVC(fe_data, alg, metric):
     Klist = ['linear', 'poly', 'rbf', 'sigmoid', 'precomputed']
     iterations = 5 #20
     for i in range(len(Klist)):
         kernel = Klist[i]
         if kernel in ['linear', 'rbf', 'poly', 'sigmoid', 'precomputed']:
-            accuracy = np.zeros(0)
+            my_met = np.zeros(0)
             Clist = [ 10**i for i in range(-5,8) ]
             for C in Clist:
                 #clf = classifiers[alg](kernel=kernel, C=C) 
@@ -329,16 +442,16 @@ def bestfit_SVC(fe_data, alg, feat):
                     #print scores
                     in_vec = np.array([C, scores.mean(), scores.std()*2])
                     mean_vec += in_vec[1]
-                accuracy = np.append(accuracy, (mean_vec/iterations))
-            #plot the accuracy
+                my_met = np.append(my_met, (mean_vec/iterations))
+            #plot the my_met
             plt.figure()
-            plt.plot(Clist,accuracy)
+            plt.plot(Clist,my_met)
             plt.title(kernel)
             plt.show()
         elif kernel == 'poly':
             Clist = [ 10**i for i in range(-5,8) ]
             Dlist = [2,3]
-            accuracy = np.zeros((len(Clist), len(Dlist)))
+            my_met = np.zeros((len(Clist), len(Dlist)))
             for C in Clist:
                 for deg in Dlist:
                     #clf = classifiers[alg](kernel=kernel, C=C, degree=deg)            
@@ -352,18 +465,18 @@ def bestfit_SVC(fe_data, alg, feat):
                         #print scores
                         in_vec = np.array([C, scores.mean(), scores.std()*2])
                         mean_vec += in_vec[1]
-                    accuracy_local = mean_vec/iterations
-                    accuracy[Clist.index(C), Dlist.index(deg)] = accuracy_local
-            #plot the accuracy
+                    my_met_local = mean_vec/iterations
+                    my_met[Clist.index(C), Dlist.index(deg)] = my_met_local
+            #plot the my_met
             plt.figure()
-            plt.imshow(accuracy)
+            plt.imshow(my_met)
             plt.title(kernel)
             plt.show()
-    return accuracy.argmax(), accuracy.max()
+    return my_met.argmax(), my_met.max()
     
 
-def bestfit_DCT(fe_data, alg, feat):
-    accuracy = np.zeros(0)
+def bestfit_DCT(fe_data, alg, metric):
+    my_met = np.zeros(0)
     MFlist = [1, 1., 'sqrt', 'log2', None]
     iterations = 20
     for max_f in MFlist:
@@ -377,16 +490,16 @@ def bestfit_DCT(fe_data, alg, feat):
             #print scores
             in_vec = np.array([C, scores.mean(), scores.std()*2])
             mean_vec += in_vec[1]
-        accuracy = np.append(accuracy, (mean_vec/iterations))
-    #plot the accuracy
+        my_met = np.append(my_met, (mean_vec/iterations))
+    #plot the my_met
     plt.figure()
-    plt.plot(MFlist,accuracy)
+    plt.plot(MFlist,my_met)
     #plt.xscale('log')
     plt.show()    
-    return accuracy.argmax(), accuracy.max()
+    return my_met.argmax(), my_met.max()
     
-def bestfit_QDA(fe_data, alg, feat):
-    accuracy = np.zeros(0)
+def bestfit_QDA(fe_data, alg, metric):
+    my_met = np.zeros(0)
     #just default parameters
     iterations = 20
     for i in range(iterations):
@@ -397,17 +510,17 @@ def bestfit_QDA(fe_data, alg, feat):
         #print scores
         in_vec = np.array([C, scores.mean(), scores.std()*2])
         mean_vec += in_vec[1]
-    accuracy = float(mean_vec)/iterations
-    #plot the accuracy
+    my_met = float(mean_vec)/iterations
+    #plot the my_met
     plt.figure()
-    plt.plot(accuracy)
+    plt.plot(my_met)
     #plt.xscale('log')
     plt.show()    
-    return 0, accuracy.max()
+    return 0, my_met.max()
     
 #!!! solver
-def bestfit_LDA(fe_data, alg, feat):
-    accuracy = np.zeros(0)
+def bestfit_LDA(fe_data, alg, metric):
+    my_met = np.zeros(0)
     SRlist = ['svd', 'lsqr', 'eigen']
     iterations = 20
     for solver in SRlist:
@@ -421,18 +534,18 @@ def bestfit_LDA(fe_data, alg, feat):
             #print scores
             in_vec = np.array([C, scores.mean(), scores.std()*2])
             mean_vec += in_vec[1]
-        accuracy = np.append(accuracy, (mean_vec/iterations))
-    #plot the accuracy
+        my_met = np.append(my_met, (mean_vec/iterations))
+    #plot the my_met
     plt.figure()
-    plt.plot(SRlist,accuracy)
+    plt.plot(SRlist,my_met)
     #plt.xscale('log')
     plt.show()    
-    return accuracy.argmax(), accuracy.max()
+    return my_met.argmax(), my_met.max()
     
-def bestfit_ADA(fe_data, alg, feat):
+def bestfit_ADA(fe_data, alg, metric):
     NElist = [i*50 for i in range(1,201)]
     LRlist = [i*0.25 for i in range(2,9) ]
-    accuracy = np.zeros((len(NElist), len(LRlist)))
+    my_met = np.zeros((len(NElist), len(LRlist)))
     iterations = 20
     for n_est in NElist:
         for l_rate in LRlist:
@@ -447,19 +560,19 @@ def bestfit_ADA(fe_data, alg, feat):
                 #print scores
                 in_vec = np.array([C, scores.mean(), scores.std()*2])
                 mean_vec += in_vec[1]
-            accuracy_local = mean_vec/iterations
-            accuracy[NElist.index(n_est), LRlist.index(l_rate)] = accuracy_local
-    #plot the accuracy
+            my_met_local = mean_vec/iterations
+            my_met[NElist.index(n_est), LRlist.index(l_rate)] = my_met_local
+    #plot the my_met
     plt.figure()
-    plt.imshow(accuracy)
+    plt.imshow(my_met)
     plt.show()    
-    return accuracy.argmax(), accuracy.max()
+    return my_met.argmax(), my_met.max()
     
     
-def bestfit_RFC(fe_data, alg, feat):
+def bestfit_RFC(fe_data, alg, metric):
     NElist = [i*25 for i in range(1,20)]
     MFlist = [1, 1., 'sqrt', 'log2', None]
-    accuracy = np.zeros((len(NElist), len(MFlist)))
+    my_met = np.zeros((len(NElist), len(MFlist)))
     iterations = 10# 20
     for n_est in NElist:
         for max_f in MFlist:
@@ -475,10 +588,10 @@ def bestfit_RFC(fe_data, alg, feat):
                 #print scores
                 in_vec = np.array([C, scores.mean(), scores.std()*2])
                 mean_vec += in_vec[1]
-            accuracy_local = mean_vec/iterations
-            accuracy[NElist.index(n_est), MFlist.index(max_f)] = accuracy_local
-    #plot the accuracy
+            my_met_local = mean_vec/iterations
+            my_met[NElist.index(n_est), MFlist.index(max_f)] = my_met_local
+    #plot the my_met
     plt.figure()
-    plt.imshow(accuracy)
+    plt.imshow(my_met)
     plt.show()    
-    return accuracy.argmax(), accuracy.max()
+    return my_met.argmax(), my_met.max()
