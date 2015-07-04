@@ -21,6 +21,7 @@ def upload(request):
     return render(request, 'uploader/home.html', context)
 
 def fun():
-        return ['a','b','c','d']
+    import preproc.scripts.processing_scripts.main_test_inertial
+    return ['a','b','c','d']
 def getSensorTypes():
-        return ['e','f','g','h']
+    return ['e','f','g','h']

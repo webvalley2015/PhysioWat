@@ -6,10 +6,10 @@ Created on Wed Jul  1 17:10:50 2015
 """
 
 #import libraries
-import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
-import feat_script as f
+
+from PhysioWat.preproc.scripts.processing_scripts import feat_script as f
+
 
 #define costants
 labels = {'still':0,

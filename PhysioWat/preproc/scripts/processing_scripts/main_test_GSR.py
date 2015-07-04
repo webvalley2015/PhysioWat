@@ -2,11 +2,9 @@
 at the moment, just for gsr (ap)
 '''
 
-import tools
-import GSR
+from PhysioWat.preproc.scripts.processing_scripts import GSR, tools
 import matplotlib.pyplot as plt
-import numpy as np
-import windowing as win
+import PhysioWat.preproc.scripts.processing_scripts.windowing as win
 
 filename="./data/GSR.csv"
 
