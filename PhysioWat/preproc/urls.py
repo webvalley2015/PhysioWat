@@ -11,4 +11,5 @@ urlpatterns = patterns('preproc.views',
     url( regex='^linegraph_getdata/(?P<title>\w+)/$', view=linegraph.as_view(), name="chart_getdata" ),
     url( regex='^linegraph_getdata/(?P<title>\w+)/(?P<begin>\d+)/(?P<end>\d+)/$', view=linegraph.as_view(), name="chart_getdata" ),
     url( regex='^chart/$', view=show_chart, name="chart_show" ),
+    url( regex='^select/$', view=select_experiment_no_use, name="exp_selection")
 )
