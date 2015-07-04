@@ -37,7 +37,6 @@ names = ["Nearest Neighbors", "Linear SVM\t", "RBF SVM\t", "Decision Tree",
 
 classifiers = {
         'KNN': lambda nn: KNeighborsClassifier(n_neighbors=nn),
-        'SVL': lambda C: SVC(kernel="linear", C=C),
         'SVM': lambda kernel, C, degree : SVC(kernel=kernel, C=C, degree=deg),
         'DCT': lambda max_f: DecisionTreeClassifier(max_features=max_f),
         'RFC': lambda n_est, max_f: RandomForestClassifier(n_estimators=n_est, max_features=max_f),
@@ -280,20 +279,15 @@ def get_report(y_true, y_pred):
     return report, conf_mat
     
 def bestfit(fe_data, alg, feat):
-    #in_tar = in_data.label
-    #in_data = in_data[in_data.columns[:-1]]
-#classifiers = {
-#        'SVM': lambda kernel, C, degree : SVC(kernel=kernel, C=C, degree=deg),
-#        }
-#        
-    if alg == 'KNN': pos, val = bestfit_KNN(fe_data, alg, feat)
-        elif alg == 'SVL': pos, val = bestfit_SVL(fe_data, alg, feat)
-            elif alg == 'SVM': pos, val = bestfit_SVM(fe_data, alg, feat)
-                elif alg == 'DCT': pos, val = bestfit_DCT(fe_data, alg, feat)
-                    elif alg == 'RFC': pos, val = bestfit_RFC(fe_data, alg, feat)
-                        elif alg == 'ADA': pos, val = bestfit_ADA(fe_data, alg, feat)
-                            elif alg == 'LDA': pos, val = bestfit_LDA(fe_data, alg, feat)
-                                elif alg == 'QDA': pos, val = bestfit_QDA(fe_data, alg, feat):
+       
+    if   alg == 'KNN': pos, val = bestfit_KNN(fe_data, alg, feat)
+    elif alg == 'SVM': pos, val = bestfit_SVM(fe_data, alg, feat)
+    elif alg == 'DCT': pos, val = bestfit_DCT(fe_data, alg, feat)
+    elif alg == 'RFC': pos, val = bestfit_RFC(fe_data, alg, feat)
+    elif alg == 'ADA': pos, val = bestfit_ADA(fe_data, alg, feat)
+    elif alg == 'LDA': pos, val = bestfit_LDA(fe_data, alg, feat)
+    elif alg == 'QDA': pos, val = bestfit_QDA(fe_data, alg, feat)
+        
     return pos, val
 
 def bestfit_KNN(fe_data, alg, feat):
@@ -320,7 +314,7 @@ def bestfit_KNN(fe_data, alg, feat):
     return accuracy.argmax(), accuracy.max()
 
 
-def bestfit_SVL(fe_data, alg, feat):
+def bestfit_SVC(fe_data, alg, feat):
     Klist = ['linear', 'poly', 'rbf', 'sigmoid', 'precomputed']
     iterations = 5 #20
     for i in range(len(Klist)):
@@ -416,7 +410,8 @@ def bestfit_QDA(fe_data, alg, feat):
     plt.show()    
     return 0, accuracy.max()
     
-def bestfit_KNN(fe_data, alg, feat):
+#!!! solver
+def bestfit_LDA(fe_data, alg, feat):
     accuracy = np.zeros(0)
     SRlist = ['svd', 'lsqr', 'eigen']
     iterations = 20
