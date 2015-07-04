@@ -1,3 +1,4 @@
+__author__ = 'riccardo'
 '''
 Functions for windowing
 '''
@@ -58,7 +59,7 @@ def get_windows_full_label(time, labels):
     	    wl[-1][1]= i
             wl.append([time[i],0])
             rl.append(labels[i])
-    wl[-1][1]= time[-1]+1
+    wl[-1][1]= time[-1]
     return wl, np.array(rl)
 
 def generate_dummy_windows(time, WINLEN, WINSTEP):
@@ -70,6 +71,6 @@ def generate_dummy_windows(time, WINLEN, WINSTEP):
     :return: list of couples [start, end]
     '''
     ws=[]
-    for start in range(time[0],time[-1]-WINLEN, WINSTEP):
+    for start in np.arange(time[0],time[-1]-WINLEN, WINSTEP):
         ws.append([start, start+WINLEN])
     return ws

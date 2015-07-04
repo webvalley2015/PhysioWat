@@ -58,4 +58,21 @@ class inertial(forms.Form):
     coeff = forms.FloatField(min_value=0)
 
 
+def get_my_choices():
+	#ritorna una roba dal db
+	choices_list = [('1','ESPERIMENTO1'),
+	('2','QUELLO DEL BABBUINO'),
+	('3','ESPERIMENTO 3')];
+	return choices_list
+	
+	
+class choose_exp(forms.Form):
+	experiment = forms.ChoiceField()
+	asd = forms.ChoiceField()
+	def __init__(self, *args, **kwargs):
+		super(choose_exp, self).__init__(*args, **kwargs)
+		print get_my_choices()
+		self.fields['experiment'].choices = get_my_choices()
+		self.fields['asd'].choices = [('ciao', 'Hello')]
+	
 

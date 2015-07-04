@@ -1,13 +1,16 @@
 from __future__ import division
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import json
 import pandas as pd
 from pandas import DataFrame
+# from PhysioWat.models import Recording, SensorRawData
+from StringIO import StringIO
 
 def peakdet(v, delta, x = None, startMax = True):
     '''
-    Functions for detecting peaks in EKG/GSR
+    Functions for detecting peaks
+    return: two nparrays (N,2), containing the time (in s) in the first column and the height of the peak in the second column
     v: function in which search the peaks
     delta: minimum peak height
     x: (default None) the "timeline"
@@ -101,47 +104,22 @@ def load_file(filename, header=1, sep=";"):
     :return: data as np.array
     '''
     data = np.genfromtxt(filename, delimiter=sep, skip_header=header)
-    data[:,0]-=data[0,0]
     return data
 
-def max2interval(timesMax, minrate=40, maxrate=200):
-    """
-    intervals, time_intervals = max2interval(timesMax, minrate=40,maxrate=270):
-    
-    Returns intervals from max_times, after filtering possible artefacts based on rate range (rates in min^(-1))
-    if two peaks are nearer than minrate or further than maxrate, the algorithm try to recognize if there's a false true or a peak missing
-    minrate and maxrate are in min^(-1), and represents the minimum and the maximum bpm to detect
-    """
-    maxRR=60/minrate
-    minRR=60/maxrate
-
-    RR=[]
-    timeRR=[]
-
-    # algoritmo alternativo
-    # beat artifacts correction
-    ##inizializzazioni
-
-    tprev=timesMax[0]
-    tfalse=tprev
-
-    for i in range(1, len(timesMax)):
-        tact=timesMax[i]
-
-        RRcurr=tact-tprev
-        if (RRcurr<minRR): # troppo breve: falso picco?
-            tfalse=tact  #aspetto (non aggiorno tact) e salvo il falso campione
-
-        elif RRcurr>maxRR: # troppo lungo ho perso un picco?
-            RRcurr=tact-tfalse # provo con l'ultimo falso picco se esiste
-            tprev=tact # dopo ripartiro' da questo picco
-
-        if RRcurr>minRR and RRcurr<maxRR: # tutto OK
-            RR.append(RRcurr) #aggiungo valore RR
-            timeRR.append(tact) #aggiungo istante temporale
-            tfalse=tact #aggiorno falso picco
-            tprev=tact #aggiorno tprev
-    return np.array(RR),  np.array(timeRR)
+def load_file_db(recordingID):
+    # raw query for i csv line
+    table = Recording.objects.get(id=recordingID)
+    data = SensorRawData.objects.filter(recording_id=recordingID)
+    alldata = (','.join(table.dict_keys)+'\n').replace(' ','')
+    for record in data:
+        ll=[]
+        for key in table.dict_keys:
+            ll.append(record.store[key])
+        alldata+=','.join(ll)+'\n'
+    datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
+    datacsv[:,0]-=datacsv[0,0]
+    return datacsv
+    # results = cursor.fetchall()
 
 
 def prepare_json_to_plot(series, labels):
@@ -171,6 +149,20 @@ def load_file_pd(filename, sep=";", names=None):
     data = pd.read_csv(filename, sep=sep, names=names)
     return data
 
+def load_file_pd_db(recordingID):
+    # raw query for i csv line
+    table = Recording.objects.get(id=recordingID)
+    data = SensorRawData.objects.filter(recording_id_id=recordingID)
+    alldata = (','.join(table.dict_keys)+'\n').replace(' ','')
+    for record in data:
+        ll=[]
+        for key in table.dict_keys:
+            ll.append(record.store[key])
+        alldata+=','.join(ll)+'\n'
+    datacsv = pd.read_csv(StringIO(alldata), sep=',')
+    return datacsv
+    # results = cursor.fetchall()
+
 def downsampling(data, FSAMP, FS_NEW, switch=True):
     '''
     Downsamples the signals (too much data is long to extract!)
@@ -190,21 +182,20 @@ def downsampling(data, FSAMP, FS_NEW, switch=True):
     result = np.array(data[keep,:])
     return result
 
-def getIBI (signal, SAMP_F, peakDelta, minFr = 40, maxFr = 200):
+def normalize(data):
     '''
-    this function calculates the IBI on a BVP or EKG filtered graph, considering only peaks higher than peakDelta
-    return: a pd DataFrame containing the inter-beat interval (in s) indexed with time
-    signal: the filtered BVP or EKG signal
-    SAMP_F: the sampling frequency of the data
-    peakDelta: the minimum height of a peak to be recognised
-    minFr: (default 40) the minimum frequence (in min^(-1), or bpm) to recognize (two nearer peaks are signed as false positive)
-    maxFr: (default 200) the maximum frequence (in min^(-1), or bpm) to recognize (two further peaks makes the algorithm looks for peaks between those two)
+    normalize (mean = 0, std = 1) an array (N,) passed
+    return: the array normalized
+    data: he array to normalize
     '''
-    # estimating peaks and IBI
-    t = np.arange(0, len(signal)/float(SAMP_F), 1.0/SAMP_F)
-    maxp, minp = peakdet(signal, peakDelta, t)
-    IBI, tIBI = max2interval(maxp[:,0], minFr, maxFr)
-    
-    #ibi contains the Inter-Beat interval between two beats, indexed with the time of the beats
-    ibi = DataFrame(IBI, index = tIBI, columns=['IBI'])
-    return ibi
+    new_data = (data - np.mean(data))/np.std(data)
+    return new_data
+
+def dict_to_csv(d, filename):
+    feats=[]
+    for key, value in d.items():
+        feats.append(value)
+    np.savetxt(filename, np.column_stack(feats), header=",".join(d.keys()))
+
+def array_labels_to_csv(array, labels, filename):
+    np.savetxt(filename, array, header=",".join(labels.tolist()))

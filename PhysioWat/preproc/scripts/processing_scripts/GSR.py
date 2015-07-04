@@ -2,13 +2,13 @@
 Functions for GSR only
 '''
 from __future__ import division
+
 import numpy as np
 import scipy.signal as spy
-from tools import peakdet, gen_bateman
+from PhysioWat.PhysioWat.preproc.scripts.processing_scripts.tools import peakdet, gen_bateman
 from filters import smoothGaussian
 from scipy.interpolate import interp1d
-import pandas as pd
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
 def estimate_drivers(t_gsr, gsr, T1=0.75, T2=2, MX=1, DELTA_PEAK=0.02, FS=None, k_near=5, grid_size=5, s=0.2):
@@ -136,7 +136,7 @@ def processPSR(pha, t, DELTA):
 
     if len(max_pha)==0 or len(min_pha)==0 :
         print('no peaks found processPSR')
-        return pd.DataFrame()
+        return dict()
 
     vector_maxmin = np.zeros(len(pha))
     vector_maxmin[max_pha[:,0].astype(int)] = 1
@@ -149,23 +149,17 @@ def processPSR(pha, t, DELTA):
     vector_peaks = np.diff(vector_peaks)
     vector_peaks = np.r_[0, vector_peaks]
 
-    pha_processed = pd.DataFrame(np.c_[pha, vector_maxmin, vector_peaks], index = t, columns = ['pha', 'maxmin', 'peaks'])
-    return pha_processed
+    return pha, vector_maxmin, vector_peaks, t
 
-def PSRindexes(pha_processed, plot = False):
+def PSRindexes(pha, maxmin, peaks, t):
     """
     FEATURES = GSRindexes(PHA_PROCESSED)
 
     Returns a dict of labeled features.
     """
-    if len(pha_processed.peaks) == 0: # no peaks
+    if len(peaks) == 0: # no peaks
         print('no peaks found PSR indexes')
         return dict()
-
-    pha = np.array(pha_processed.pha)
-    maxmin = np.array(pha_processed.maxmin)
-    peaks = np.array(pha_processed.peaks)
-    t = np.array(pha_processed.index)
 
     t_max = t[maxmin == 1]
     pha_max = pha[maxmin == 1]
@@ -177,24 +171,6 @@ def PSRindexes(pha_processed, plot = False):
     t_end = t[peaks == -1]
 #    t_end = np.r_[t_end, t[-1]]
 
-    if plot:
-        # plotting
-        t_min = t[maxmin == -1]
-        #  pha_min = pha[maxmin == -1]
-
-#        pha_end = pha[peaks == -1]
-#        pha_end = np.r_[pha_end, pha[-1]]
-
-        plt.plot(t, pha, 'o-b')
-        plt.vlines(t_max, min(pha), max(pha), 'r', linewidth = 1.5)
-        plt.vlines(t_min, min(pha), max(pha), 'b', linewidth = 1.5)
-        plt.vlines(t_start, min(pha), max(pha), 'g')
-        plt.vlines(t_end, min(pha), max(pha), 'c')
-        #    plt.hlines(DELTA, min(t), max(t), 'k', linewidth = 0.8)
-        plt.xlabel('Time [s]')
-        plt.grid()
-        plt.show()
-
     # simple features
     features = {'pha_max' : np.max(pha), 'pha_min' : np.min(pha), 'pha_mean' : np.mean(pha), 'pha_std' : np.std(pha), 'pha_auc' : np.sum(pha)/len(pha)}
     # n peaks
@@ -204,6 +180,7 @@ def PSRindexes(pha_processed, plot = False):
         features.update({'pks_max' : np.nan, 'pks_min' : np.nan, 'pks_mean' : np.nan})
         features.update({'dur_min' : np.nan, 'dur_max' : np.nan, 'dur_mean' : np.nan})
         features.update({'slp_max' : np.nan, 'slp_min' : np.nan, 'slp_mean' : np.nan})
+        features.update({"latency" : np.nan})
     else:
         # pks amplitudes
         features.update({'pks_max' : np.max(pha_max), 'pks_min' : np.min(pha_max), 'pks_mean' : np.mean(pha_max)})
@@ -288,17 +265,21 @@ def get_interpolation_indexes(maxs, driver, n=3):
 def extract_features(pha, t, DELTA, windows):
     '''
     STEP e LEN in seconds
-    :param pha_processed: the phasic dataset
+    :param pha_processed: the phasic np matrix with 4 columns
     :param WINSTEP: window step
     :param WINLEN: window length
-    :return: features as pandas dataframe
+    :return: features as np array
     '''
-    pha_processed=processPSR(pha, t, DELTA)
-    feats_all=pd.DataFrame()
+    pha, maxmin, peaks, t=processPSR(pha, t, DELTA)
+    feats_all=dict()
     for t_start, t_end in windows:
-        window=pha_processed[t_start:t_end]
-        winfeat=pd.DataFrame(PSRindexes(window), index=[t_start])
-        feats_all=feats_all.append(winfeat)
+        window=(t>=t_start) & (t<t_end)
+        winfeat=PSRindexes(pha[window], maxmin[window], peaks[window], t[window])
+        for key, value in winfeat.items():
+            if key in feats_all:
+                feats_all.update({key: np.hstack((feats_all[key], value))})
+            else:
+                feats_all.update({key: np.array([value])})
     return feats_all
 
 def remove_spikes(data, FSAMP, TH=0.005):
