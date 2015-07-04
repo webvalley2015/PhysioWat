@@ -2,7 +2,8 @@
 <div>
 	<form action="#" method="post" enctype="multipart/form-data">
 		{% csrf_token %}
-		{% bootstrap_form form %}
+		<!--{% bootstrap_form form %}-->
+		{% bootstrap_form form layout='inline' %}
 
         {% buttons %}
             <button type="submit" class="btn btn-success">Submit</button>
