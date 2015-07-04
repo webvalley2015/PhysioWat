@@ -8,7 +8,6 @@ class Experiment(models.Model):
     description = models.CharField(max_length=500, blank=True, null=True)
     token = models.CharField(max_length=50)
 
-
 class Recording(models.Model):
     experiment_id = models.ForeignKey(Experiment)
     device_name = models.CharField(max_length=50)
