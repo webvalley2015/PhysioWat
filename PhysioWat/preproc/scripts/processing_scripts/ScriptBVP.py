@@ -8,10 +8,12 @@ function for extract IBI from BVP
 '''
 
 import numpy as np
+
 import matplotlib.pyplot as plt
-import filters as ourFilters
+from PhysioWat.preproc.scripts.processing_scripts import filters as ourFilters
 import tools as ourTools
 import IBI
+
 
 def loadBVP(filename):
     '''
