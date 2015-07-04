@@ -182,6 +182,15 @@ def downsampling(data, FSAMP, FS_NEW, switch=True):
     result = np.array(data[keep,:])
     return result
 
+def normalize(data):
+    '''
+    normalize (mean = 0, std = 1) an array (N,) passed
+    return: the array normalized
+    data: he array to normalize
+    '''
+    new_data = (data - np.mean(data))/np.std(data)
+    return new_data
+
 def dict_to_csv(d, filename):
     feats=[]
     for key, value in d.items():

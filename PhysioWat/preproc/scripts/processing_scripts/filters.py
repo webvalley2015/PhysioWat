@@ -3,8 +3,8 @@ Filters
 '''
 from scipy.signal import gaussian, convolve, filtfilt, filter_design, freqz
 import numpy as np
-# import matplotlib.pyplot as plt
-from scipy.signal import filter_design as fd
+#DEBUG ONLY
+import matplotlib.pyplot as plt
 
 def smoothGaussian(X,sigma=5, switch=True):
     """
@@ -64,6 +64,7 @@ def filterSignal (SIGNAL ,smp_fr, passFr, stopFr, LOSS=0.1, ATTENUATION=40, filt
         filtered_signal = SIGNAL
     return filtered_signal
 
+#DEBUG ONLY
 #Plot frequency and phase response
 def mfreqz(b,a, wp, ws):
     w,h = freqz(b,a)
@@ -85,13 +86,3 @@ def mfreqz(b,a, wp, ws):
     plt.xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
     plt.title(r'Phase response')
     plt.subplots_adjust(hspace=0.5)
-
-'''
-def iir_coefficients(F_PASS, F_STOP, F_SAMP, LOSS=0.1, ATTENUATION=40, ftype = 'butter', plot=False):
-    nyq = 0.5 * F_SAMP
-    wp = np.array(F_PASS)/nyq
-    ws = np.array(F_STOP)/nyq
-    b, a = fd.iirdesign(wp, ws, LOSS, ATTENUATION, ftype=ftype)
-    if plot:
-        mfreqz(b,a, wp, ws)
-    return b, a'''

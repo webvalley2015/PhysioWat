@@ -19,7 +19,11 @@
     <!-- Custom styles for this template -->
     <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
-
+    <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet">
+    <link href="{% static 'js/move-top.js' %}" rel="stylesheet">
+    <link href="{% static 'js/easing.js' %}" rel="stylesheet">
+    <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet">="{% static 'js/easing.js' %}" rel="stylesheet">
+    <link href="{% static 'js/jquery-1.11.0.min.js' %}" rel="stylesheet">
 
     <!-- including app specific CSS -->
     {% block app_specific_css %} {% endblock %}
@@ -63,7 +67,7 @@
             </div>
         </nav>
 
-        <div class="container-fluid">
+        <!-- <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-3 col-md-2 sidebar">
                     <ul class="nav nav-sidebar">
@@ -87,7 +91,7 @@
 
                 </div>
                 <div class="col-sm-9 col-sm-offset-3 col-md-offset-2 col-md-10 main">
-                <div id="egg"></div>
+                <div id="egg"></div> -->
                     {% block container %} {% endblock %}
 
                 </div>
