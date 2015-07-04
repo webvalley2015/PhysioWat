@@ -5,7 +5,6 @@ at the moment, just for gsr (ap)
 import tools
 import GSR
 import matplotlib.pyplot as plt
-import numpy as np
 import windowing as win
 
 filename="./data/GSR.csv"

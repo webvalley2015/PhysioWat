@@ -85,10 +85,7 @@ def windowing_and_extraction(data, fsamp, windows):
 
     bands=np.linspace(0.1,25,11)
     # ciclo sulla sessione - finestratura
-    for start, end in windows:
-        t_start = data.timestamp.iloc()[start]
-        t_end = data.timestamp.iloc()[end]
-
+    for t_start, t_end in windows:
         feat=np.array([])
         labels=np.array([])
 
