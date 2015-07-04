@@ -15,17 +15,14 @@ def upload(request):
 
         if form.is_valid():
 
-            a = request.POST.get('devicename')
-            b = Experiment.objects.get(name=a)
-            b = b.token
-            d = form.cleaned_data
-            d = d["password"]
+            experimentName = request.POST.get('experiment')
+            actualPasscode = Experiment.objects.get(name=experimentName)
+            actualPasscode = actualPasscode.token
+            enteredPasscode = form.cleaned_data
+            enteredPasscode = enteredPasscode["password"]
 
-            print b
-            print d
-
-            if b == d:
-                csvtodb.putintodb(request.FILES.getlist('file'), request.POST.get('devicename'))
+            if enteredPasscode == actualPasscode:
+                csvtodb.putintodb(request.FILES.getlist('file'), request.POST.get('device'), request.POST.get('description'), request.POST.get('experiment'))
                 messages.success(request, 'Successfully Uploaded File')
             else:
                 messages.error(request, 'Invalid Password')

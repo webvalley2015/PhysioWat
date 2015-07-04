@@ -49,8 +49,10 @@ console.log(formlist);
 				<br>
 				</div>
              {% endfor %}
-
+        
+              {% include "includes/bootstrap_buttons.html" %}
 	</div>
+
 
 </div>	
 
@@ -69,7 +71,7 @@ console.log(formlist);
 var formlist=[];
 
 
-$(document).ready(function()){
+$(document).ready(function(){
 	console.log("esisto");
 
 var i = 0;

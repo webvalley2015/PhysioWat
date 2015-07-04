@@ -3,8 +3,8 @@
     <h1>Upload File</h1>
     <form action="#" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <label for="devicename">Experiment </label>
-        <select name="devicename">
+        <label for="experiment">Experiment </label>
+        <select name="experiment">
             {% for c in experiments %}
                 <option value="{{ c }}">{{ c }}</option>
             {% endfor %}
