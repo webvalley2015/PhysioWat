@@ -32,7 +32,7 @@ def create_experiement(request):
     return render(request, 'designer/experiments.html', context)
 
 def getExperimentsNames():
-    return PhysiowatExperiment.objects.values_list('name', flat=True).distinct()
+    return Experiment.objects.values_list('name', flat=True).distinct()
 
 # def getAvaliableSensors():
 #     return Sensordevices.objects.values_list('sensortype', flat=True).distinct().order_by('sensortype')
