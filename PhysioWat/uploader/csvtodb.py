@@ -2,14 +2,14 @@ __author__ = 'andrew'
 
 import csv
 
-from PhysioWat.models import Recording, SensorData
+from PhysioWat.models import Recording, SensorRawData
 # from django.db import connection
 
 
 def putintodb(fname, dvname):
     csvreader = csv.reader(fname[0], delimiter=',')
     dictky = csvreader.next()
-    r = Recording(experiment_id_id=1, device_name='test', dict_keys=dictky, description='fuffa')
+    r = Recording(experiment_id=1, device_name='test', dict_keys=dictky, description='fuffa')
     r.save()
     newrecording_id = r.id
     for row in csvreader:

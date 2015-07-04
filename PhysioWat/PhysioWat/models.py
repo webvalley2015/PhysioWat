@@ -10,7 +10,7 @@ class Experiment(models.Model):
 
 
 class Recording(models.Model):
-    experiment_id = models.ForeignKey(Experiment)
+    experiment = models.ForeignKey(Experiment)
     device_name = models.CharField(max_length=50)
     dict_keys = ArrayField(
         models.CharField(max_length=50, blank=True, null=True)
@@ -24,6 +24,18 @@ class Sensor(models.Model):
     description = models.CharField(max_length=50, blank=True, null=True)
 
 
-class SensorData(models.Model):
-    recording_id = models.ForeignKey(Recording)
+class SensorRawData(models.Model):
+    recording = models.ForeignKey(Recording)
     store = HStoreField()
+
+
+class PreprocessedData(models.Model):
+    raw_data = models.ForeignKey(SensorRawData)
+    parameters = HStoreField()
+    store = HStoreField()
+
+
+class FeatExtractedData(models.Model):
+    preprocessed = models.ForeignKey(PreprocessedData)
+    parameters = HStoreField()
+    path_to_file = models.CharField(max_length=500)
