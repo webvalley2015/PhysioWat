@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from .forms import experiments
 from django.contrib import messages
-from PhysioWat.models import Experiment
+from PhysioWat.models import PhysiowatExperiment
 # from PhysioWat.models import S
 # from PhysioWat.models import Sensor
 # Create your views here.
