@@ -6,6 +6,6 @@ from django import forms
 class UploadForm(forms.Form):
     #device = forms.CharField()
     file = forms.FileField()
-    device = forms.CharField(widget=forms.TextInput())
-    description = forms.CharField(widget=forms.Textarea(), max_length=200)
+    device = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Max Character Length: 50'}))
+    description = forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'Max Character Length: 200'}),  max_length=200)
     password = forms.CharField(widget=forms.PasswordInput())
