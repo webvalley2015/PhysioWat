@@ -2,12 +2,14 @@
 Functions for GSR only
 '''
 from __future__ import division
+
 import numpy as np
+import pandas as pd
+
 import scipy.signal as spy
 from tools import peakdet, gen_bateman
-from filters import smoothGaussian
+from PhysioWat.preproc.scripts.processing_scripts.filters import smoothGaussian
 from scipy.interpolate import interp1d
-import pandas as pd
 import matplotlib.pyplot as plt
 
 
