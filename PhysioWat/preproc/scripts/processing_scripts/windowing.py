@@ -3,21 +3,21 @@ Functions for windowing
 '''
 import numpy as np
 
-def get_windows_contiguos(labels, WINLEN, WINSTEP):
+def get_windows_contiguos(time, labels, WINLEN, WINSTEP):
     '''
     Get windows dividing regardless the label. If a window contains more labels, it will not have a label
     :param labels: np.array of labels
-    :param WINLEN: window length
-    :param WINSTEP: window step
+    :param WINLEN: window length in time!
+    :param WINSTEP: window step in time!
     :return: Windows as a list of [start, end], np.array of labels
     '''
-    starts=np.arange(0, len(labels)-WINLEN, WINSTEP)
+    starts=np.arange(time[0], time[-1]-WINLEN, WINSTEP)
     ends=starts+WINLEN
     windows=[]
     labs=np.array([])
     for i in range(len(starts)):
         windows.append([starts[i], ends[i]])
-        portion=labels[starts[i]:ends[i]]
+        portion=labels[(time>=starts[i]) & (time<ends[i])]
         mean=portion.mean()
         if mean==int(mean):
             labs=np.r_[labs, mean]
@@ -25,7 +25,7 @@ def get_windows_contiguos(labels, WINLEN, WINSTEP):
             labs=np.r_[labs, np.nan]
     return windows, labs
 
-def get_windows_no_mix(labels, WINLEN, WINSTEP):
+def get_windows_no_mix(time, labels, WINLEN, WINSTEP):
     '''
     calculates the windows, restarting from beginning for every new label
     return: (windows, labels). windows is a list of [start, end], label is a list of int
@@ -33,18 +33,19 @@ def get_windows_no_mix(labels, WINLEN, WINSTEP):
     '''
     windows=[]
     labs=np.array([])
-    parts, mini_labels = get_windows_full_label(labels)
+    parts, mini_labels = get_windows_full_label(time, labels)
     for start, end in parts:
-        partial=labels[start:end]
-        starts=np.arange(0, len(partial)-WINLEN, WINSTEP)
+        t_partial=time[(time>=start) & (time<end)]
+        partial=labels[(time>=start) & (time<end)]
+        starts=np.arange(t_partial[0], t_partial[-1]-WINLEN, WINSTEP)
         ends=starts+WINLEN
         for i in range(len(starts)):
-            windows.append([start+starts[i], start+ends[i]])
+            windows.append([starts[i], ends[i]])
             labs=np.r_[labs, partial[0]]
     return windows, labs
 
 
-def get_windows_full_label(labels):
+def get_windows_full_label(time, labels):
     '''
     Window = Label length
     :param labels: np.array of labels
@@ -55,12 +56,12 @@ def get_windows_full_label(labels):
     for i in range(1, len(labels)):
         if labels[i] != labels[i-1]:
     	    wl[-1][1]= i
-            wl.append([i,0])
+            wl.append([time[i],0])
             rl.append(labels[i])
-    wl[-1][1]= len(labels)
+    wl[-1][1]= time[-1]+1
     return wl, np.array(rl)
 
-def generate_dummy_windows(L, WINLEN, WINSTEP):
+def generate_dummy_windows(time, WINLEN, WINSTEP):
     '''
     Dummy windows for debugging
     :param L: length
@@ -69,6 +70,6 @@ def generate_dummy_windows(L, WINLEN, WINSTEP):
     :return: list of couples [start, end]
     '''
     ws=[]
-    for start in range(0,L-WINLEN, WINSTEP):
+    for start in range(time[0],time[-1]-WINLEN, WINSTEP):
         ws.append([start, start+WINLEN])
     return ws

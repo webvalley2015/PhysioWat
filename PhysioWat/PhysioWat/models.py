@@ -27,3 +27,4 @@ class Sensor(models.Model):
 class SensorData(models.Model):
     recording_id = models.ForeignKey(Recording)
     store = HStoreField()
+

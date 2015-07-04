@@ -297,9 +297,7 @@ def extract_features(pha, t, DELTA, windows):
     '''
     pha_processed=processPSR(pha, t, DELTA)
     feats_all=pd.DataFrame()
-    for start, end in windows:
-        t_start=pha_processed.index[start]
-        t_end=pha_processed.index[end]
+    for t_start, t_end in windows:
         window=pha_processed[t_start:t_end]
         winfeat=pd.DataFrame(PSRindexes(window), index=[t_start])
         feats_all=feats_all.append(winfeat)

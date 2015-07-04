@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PhysioWat.preproc.scripts.processing_scripts import filters as ourFilters
 import tools as ourTools
+import IBI
 
 
 def loadEKG(filename):
@@ -25,7 +26,7 @@ def loadEKG(filename):
 #Simulate user app
 if __name__ == '__main__':
     #user insertion, the path is substituted with database source
-    path = "/home/flavio/Work/PhysioWat/robaNoGit/data/Nicola's_data/"
+    path = "/home/flavio/Work/PhysioWat/robaNoGit/data/Nicolasdata/"
     fileName = "EKG_F01_F.txt"
     SAMP_F = 256
     
@@ -47,14 +48,19 @@ if __name__ == '__main__':
     IATT = 0
     filtered_signal = ourFilters.filterSignal(downsampled_data, SAMP_F, passFr = F_PASS, stopFr = F_STOP, LOSS = ILOSS, ATTENUATION = IATT, filterType = filterType)
     
-    #extraction of IBI from preprocessed signal
+    #extraction peaks from the signal
     #the user selects the parameters, with default suggested
     delta = 0.2
+    peaks = IBI.getPeaksIBI(filtered_signal,SAMP_F, delta)
+    
+    #calculation of the IBI
+    #the user selects the parameters, with default suggested
     minFr = 40
     maxFr = 200
-    ibi = ourTools.getIBI(filtered_signal, SAMP_F, delta, minFr, maxFr)
+    ibi = IBI.max2interval(peaks[:,0], minFr, maxFr)
     
     #DEBUG output
+    print 'IBI:'
     print ibi
-    plt.plot(ibi.index, ibi.IBI)
+    plt.plot(ibi[:,0], ibi[:,1])
     plt.show()

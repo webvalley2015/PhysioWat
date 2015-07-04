@@ -28,7 +28,7 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^contacts/$', views.contact_view, name='contacts'),
     # redirect to preproc
-    url(r'^preproc/', include('preproc.urls') ),
+    #url(r'^preproc/', include('preproc.urls') ),
     # redirect to uploader
     url(r'^uploader/', include('uploader.urls')),
     # redirect to designer

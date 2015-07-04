@@ -21,6 +21,9 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.lda import LDA
 from sklearn.qda import QDA
 from sklearn.metrics import *
+import matplotlib.cm as cm
+import matplotlib.mlab as mlab
+import matplotlib.pyplot as plt
 
 WINLEN = 100
 WINSTEP = 50
@@ -281,8 +284,6 @@ def bestfit(fe_data, alg, feat):
     #in_data = in_data[in_data.columns[:-1]]
 #classifiers = {
 #        'SVM': lambda kernel, C, degree : SVC(kernel=kernel, C=C, degree=deg),
-#        'RFC': lambda n_est, max_f: RandomForestClassifier(n_estimators=n_est, max_features=max_f),
-#        'ADA': lambda n_est, l_rate: AdaBoostClassifier(n_estimators = n_est, learning_rate=l_rate)
 #        }
 #        
     if alg == 'KNN': pos, val = bestfit_KNN(fe_data, alg, feat)
@@ -306,7 +307,7 @@ def bestfit_KNN(fe_data, alg, feat):
             fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
             in_tar = fe_data.label
             in_data = fe_data[fe_data.columns[:-1]]
-            scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=-1)
+            scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=1)
             #print scores
             in_vec = np.array([C, scores.mean(), scores.std()*2])
             mean_vec += in_vec[1]
@@ -320,26 +321,55 @@ def bestfit_KNN(fe_data, alg, feat):
 
 
 def bestfit_SVL(fe_data, alg, feat):
-    accuracy = np.zeros(0)
-    Clist = [ 10**i for i in range(-5,8) ]
-    iterations = 20
-    for C in Clist:
-        clf = classifiers[alg](C=C)
-        mean_vec = 0.
-        for i in range(iterations):
-            fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
-            in_tar = fe_data.label
-            in_data = fe_data[fe_data.columns[:-1]]
-            scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=-1)
-            #print scores
-            in_vec = np.array([C, scores.mean(), scores.std()*2])
-            mean_vec += in_vec[1]
-        accuracy = np.append(accuracy, (mean_vec/iterations))
-    #plot the accuracy
-    plt.figure()
-    plt.plot(Clist,accuracy)
-    plt.xscale('log')
-    plt.show()    
+    Klist = ['linear', 'poly', 'rbf', 'sigmoid', 'precomputed']
+    iterations = 5 #20
+    for i in range(len(Klist)):
+        kernel = Klist[i]
+        if kernel in ['linear', 'rbf', 'poly', 'sigmoid', 'precomputed']:
+            accuracy = np.zeros(0)
+            Clist = [ 10**i for i in range(-5,8) ]
+            for C in Clist:
+                #clf = classifiers[alg](kernel=kernel, C=C) 
+                clf = SVC(kernel=kernel, C=C)                
+                mean_vec = 0.
+                for i in range(iterations):
+                    fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
+                    in_tar = fe_data.label
+                    in_data = fe_data[fe_data.columns[:-1]]
+                    scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=1)
+                    #print scores
+                    in_vec = np.array([C, scores.mean(), scores.std()*2])
+                    mean_vec += in_vec[1]
+                accuracy = np.append(accuracy, (mean_vec/iterations))
+            #plot the accuracy
+            plt.figure()
+            plt.plot(Clist,accuracy)
+            plt.title(kernel)
+            plt.show()
+        elif kernel == 'poly':
+            Clist = [ 10**i for i in range(-5,8) ]
+            Dlist = [2,3]
+            accuracy = np.zeros((len(Clist), len(Dlist)))
+            for C in Clist:
+                for deg in Dlist:
+                    #clf = classifiers[alg](kernel=kernel, C=C, degree=deg)            
+                    clf = SVC(kernel=kernel, C=C, degree=deg)                    
+                    mean_vec = 0.
+                    for i in range(iterations):
+                        fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
+                        in_tar = fe_data.label
+                        in_data = fe_data[fe_data.columns[:-1]]
+                        scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=5, n_jobs=1)
+                        #print scores
+                        in_vec = np.array([C, scores.mean(), scores.std()*2])
+                        mean_vec += in_vec[1]
+                    accuracy_local = mean_vec/iterations
+                    accuracy[Clist.index(C), Dlist.index(deg)] = accuracy_local
+            #plot the accuracy
+            plt.figure()
+            plt.imshow(accuracy)
+            plt.title(kernel)
+            plt.show()
     return accuracy.argmax(), accuracy.max()
     
 
@@ -354,7 +384,7 @@ def bestfit_DCT(fe_data, alg, feat):
             fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
             in_tar = fe_data.label
             in_data = fe_data[fe_data.columns[:-1]]
-            scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=-1)
+            scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=1)
             #print scores
             in_vec = np.array([C, scores.mean(), scores.std()*2])
             mean_vec += in_vec[1]
@@ -374,7 +404,7 @@ def bestfit_QDA(fe_data, alg, feat):
         fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
         in_tar = fe_data.label
         in_data = fe_data[fe_data.columns[:-1]]
-        scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=-1)
+        scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=1)
         #print scores
         in_vec = np.array([C, scores.mean(), scores.std()*2])
         mean_vec += in_vec[1]
@@ -397,7 +427,7 @@ def bestfit_KNN(fe_data, alg, feat):
             fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
             in_tar = fe_data.label
             in_data = fe_data[fe_data.columns[:-1]]
-            scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=-1)
+            scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=1)
             #print scores
             in_vec = np.array([C, scores.mean(), scores.std()*2])
             mean_vec += in_vec[1]
@@ -406,5 +436,59 @@ def bestfit_KNN(fe_data, alg, feat):
     plt.figure()
     plt.plot(SRlist,accuracy)
     #plt.xscale('log')
+    plt.show()    
+    return accuracy.argmax(), accuracy.max()
+    
+def bestfit_ADA(fe_data, alg, feat):
+    NElist = [i*50 for i in range(1,201)]
+    LRlist = [i*0.25 for i in range(2,9) ]
+    accuracy = np.zeros((len(NElist), len(LRlist)))
+    iterations = 20
+    for n_est in NElist:
+        for l_rate in LRlist:
+            clf = classifiers[alg](n_estimators = n_est, learning_rate=l_rate)
+            #clf = AdaBoostClassifier(n_estimators = n_est, learning_rate=l_rate)
+            mean_vec = 0.
+            for i in range(iterations):
+                fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
+                in_tar = fe_data.label
+                in_data = fe_data[fe_data.columns[:-1]]
+                scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=5, n_jobs=1)
+                #print scores
+                in_vec = np.array([C, scores.mean(), scores.std()*2])
+                mean_vec += in_vec[1]
+            accuracy_local = mean_vec/iterations
+            accuracy[NElist.index(n_est), LRlist.index(l_rate)] = accuracy_local
+    #plot the accuracy
+    plt.figure()
+    plt.imshow(accuracy)
+    plt.show()    
+    return accuracy.argmax(), accuracy.max()
+    
+    
+def bestfit_RFC(fe_data, alg, feat):
+    NElist = [i*25 for i in range(1,20)]
+    MFlist = [1, 1., 'sqrt', 'log2', None]
+    accuracy = np.zeros((len(NElist), len(MFlist)))
+    iterations = 10# 20
+    for n_est in NElist:
+        for max_f in MFlist:
+            #clf = classifiers[alg](n_estimators = n_est, max_features=max_f)
+            #print(max_f)
+            clf = RandomForestClassifier(n_estimators=n_est, max_features=max_f)            
+            mean_vec = 0.
+            for i in range(iterations):
+                fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
+                in_tar = fe_data.label
+                in_data = fe_data[fe_data.columns[:-1]]
+                scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=5, n_jobs=1)
+                #print scores
+                in_vec = np.array([C, scores.mean(), scores.std()*2])
+                mean_vec += in_vec[1]
+            accuracy_local = mean_vec/iterations
+            accuracy[NElist.index(n_est), MFlist.index(max_f)] = accuracy_local
+    #plot the accuracy
+    plt.figure()
+    plt.imshow(accuracy)
     plt.show()    
     return accuracy.argmax(), accuracy.max()
