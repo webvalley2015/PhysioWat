@@ -70,6 +70,6 @@ def generate_dummy_windows(time, WINLEN, WINSTEP):
     :return: list of couples [start, end]
     '''
     ws=[]
-    for start in range(time[0],time[-1]-WINLEN, WINSTEP):
+    for start in np.arange(time[0],time[-1]-WINLEN, WINSTEP):
         ws.append([start, start+WINLEN])
     return ws

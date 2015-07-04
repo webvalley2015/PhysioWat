@@ -26,18 +26,25 @@ def calculateHRVindexes(RR, Finterp=4):
     return Indexes
 
 
-def extract_IBI_features(data, windows):
+def extract_IBI_features(data, windows, labels):
     '''
     exetract the features  from an IBI with passed windows
-    return: numpy array containing the features of each window
-    data: the data from which extract the features, passed as a numpy array (N,)
-    windows: numpy array containing the start and the end point of every windows
+    return: np.array containing the features of each window, the new labels (removes the ones corresponding to empty windows)
+    data: the data from which extract the features, passed as a numpy array (N,2) with time and values in the two columns
+    windows: numpy array containing the start and the end point (in time) of every windows
+    labels: np.array containing the labels
     '''
     result = []
-    for win_lim in windows:
-        this_win = data[win_lim[0]:win_lim[1]]
+    res_labels = labels
+    times = data[:,0]
+    values = data[:,1]
+    for tindex in xrange(len(windows)):
+        startt, endt = windows[tindex]
+        this_win = values[(times >= startt)&(times < endt)]
+        if this_win.size == 0:
+            res_labels.pop(tindex)
         result.append(calculateHRVindexes(this_win))
-    return np.array(result)
+    return np.array(result), res_labels
 
 
 def getPeaksIBI(signal, SAMP_F, peakDelta):

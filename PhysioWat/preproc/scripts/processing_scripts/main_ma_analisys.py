@@ -6,10 +6,10 @@ Created on Wed Jul  1 17:10:50 2015
 """
 
 #import libraries
-import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
-import feat_script as f
+
+from PhysioWat.preproc.scripts.processing_scripts import feat_script as f
+
 
 #define costants
 labels = {'still':0,
@@ -23,6 +23,8 @@ localdir = '/home/andrea/Work/data/27_06_Analisys/extracted/'
 data1 = pd.DataFrame.from_csv(path=localdir + 'gr1')
 data2 = pd.DataFrame.from_csv(path=localdir + 'gr2')
 data3 = pd.DataFrame.from_csv(path=localdir + 'gr3')
+
+or #try withrh the iris dataset
 
 #f.feat_barplot(data1)
 #f.feat_barplot(data2)

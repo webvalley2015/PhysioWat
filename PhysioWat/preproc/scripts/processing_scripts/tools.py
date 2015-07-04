@@ -3,6 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 import pandas as pd
+from pandas import DataFrame
+# from PhysioWat.models import Recording, SensorData
+# from StringIO import StringIO
 
 def peakdet(v, delta, x = None, startMax = True):
     '''
@@ -104,6 +107,22 @@ def load_file(filename, header=1, sep=";"):
     data[:,0]-=data[0,0]
     return data
 
+def load_file_db(recordingID):
+    # raw query for i csv line
+    table = Recording.objects.get(id=recordingID)
+    data = SensorData.objects.filter(recording_id_id=recordingID)
+    alldata = (','.join(table.dict_keys)+'\n').replace(' ','')
+    for record in data:
+        ll=[]
+        for key in table.dict_keys:
+            ll.append(record.store[key])
+        alldata+=','.join(ll)+'\n'
+    datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
+    datacsv[:,0]-=datacsv[0,0]
+    return datacsv
+    # results = cursor.fetchall()
+
+
 def prepare_json_to_plot(series, labels):
     '''
     Saves a json file in order to pass it to the layout team
@@ -130,6 +149,20 @@ def load_file_pd(filename, sep=";", names=None):
     '''
     data = pd.read_csv(filename, sep=sep, names=names)
     return data
+
+def load_file_pd_db(recordingID):
+    # raw query for i csv line
+    table = Recording.objects.get(id=recordingID)
+    data = SensorData.objects.filter(recording_id_id=recordingID)
+    alldata = (','.join(table.dict_keys)+'\n').replace(' ','')
+    for record in data:
+        ll=[]
+        for key in table.dict_keys:
+            ll.append(record.store[key])
+        alldata+=','.join(ll)+'\n'
+    datacsv = pd.read_csv(StringIO(alldata), sep=',')
+    return datacsv
+    # results = cursor.fetchall()
 
 def downsampling(data, FSAMP, FS_NEW, switch=True):
     '''
