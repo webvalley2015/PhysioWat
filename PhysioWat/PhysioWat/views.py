@@ -1,10 +1,12 @@
 __author__ = 'federico'
 from django.shortcuts import render
+from .models import Sensor, Recording
 
 
 def index(request):
     template = 'PhysioWat/index.html'
-    context = {'a': 1234, 'name':"txt"}
+    sensors = Recording.objects.all()
+    context = {'sensors': sensors, 'name': "txt"}
     return render(request, template, context)
 
 
@@ -15,6 +17,12 @@ def trialpage(request):
     """
     template = 'PhysioWat/index.html'
     context = {'l':['a','b','c']}
+    return render(request, template, context)
+
+
+def contact_view(request):
+    template = 'contact_form/contact_form.html'
+    context = {}
     return render(request, template, context)
 
 
