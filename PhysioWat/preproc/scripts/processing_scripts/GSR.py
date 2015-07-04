@@ -8,7 +8,7 @@ import pandas as pd
 
 import scipy.signal as spy
 from tools import peakdet, gen_bateman
-from PhysioWat.preproc.scripts.processing_scripts.filters import smoothGaussian
+from filters import smoothGaussian
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 

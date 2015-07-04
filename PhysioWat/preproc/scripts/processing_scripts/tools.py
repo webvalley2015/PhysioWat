@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import json
 import pandas as pd
 from pandas import DataFrame
-from PhysioWat.models import Recording, SensorData
-from StringIO import StringIO
+# from PhysioWat.models import Recording, SensorData
+# from StringIO import StringIO
 
 def peakdet(v, delta, x = None, startMax = True):
     '''
