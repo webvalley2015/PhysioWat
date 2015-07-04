@@ -4,9 +4,8 @@ Accelerometer, Gyroscope, Magnetometer
 '''
 from __future__ import division
 import numpy as np
-import pandas as pd
 
-def convert_units(data, labels, coeff = 1):
+def convert_units(data, coeff = 1):
     '''
     :param data: accelerometer, gyroscope OR magnetometer data as a pandas.DataFrame with x, y, z indexes. Do not
                  pass more than 1 sensor data at a time!!
@@ -15,7 +14,7 @@ def convert_units(data, labels, coeff = 1):
     :return: the converted data
     '''
     #TODO SCEGLI DEVICE
-    data[labels]*=coeff
+    data*=coeff
     return data
 
 def power_fmax(spec,freq,fmin,fmax):
@@ -26,10 +25,10 @@ def power_fmax(spec,freq,fmin,fmax):
     fmax=freq_band[np.argmax(psd_band)]
     return powerinband, fmax
 
-def extract_features_acc(data, windows, fsamp=100, col_acc=['accx','accy','accz']):
+def extract_features_acc(data_acc, t, col_acc, windows, fsamp=100):
     '''
     PASS COL_ACC IN ORDER X, Y, Z
-    :param data: data where to extract feats
+    :param data_acc: data where to extract feats
     :param WINLEN: window length
     :param WINSTEP: window step
     :param fsamp: sampling rate (Hz)
@@ -37,98 +36,97 @@ def extract_features_acc(data, windows, fsamp=100, col_acc=['accx','accy','accz'
     :return: feats
     '''
     col_mod=['acc_mod','acc_mod_plan']
-    col_all=col_acc+col_mod
+    col_all=np.r_[col_acc, np.array(col_mod)]
 
-    x=col_acc[0]
-    y=col_acc[1]
-    z=col_acc[2]
+    data_acc=np.column_stack((data_acc, np.sqrt(data_acc[:, 0]**2+data_acc[:,1]**2+data_acc[:,2]**2)))
+    data_acc=np.column_stack((data_acc, np.sqrt(data_acc[:, 0]**2+data_acc[:,2]**2)))
+    data_acc_more, col_all=get_differences(data_acc, col_all)
+    #===================================
+    samples, labels=windowing_and_extraction(data_acc_more, t, fsamp, windows, col_all)
+    return samples, labels
 
-    data['acc_mod'] = np.sqrt(data[x]**2+data[y]**2+data[z]**2)
-    data['acc_mod_plan']= np.sqrt(data[x]**2+data[z]**2)
+def extract_features_gyr(data, t, col_gyr, windows, fsamp=100):
+    data_more, col_gyr=get_differences(data, col_gyr)
+    #===================================
+    samples, labels=windowing_and_extraction(data_more, t, fsamp,windows, col_gyr)
+    return samples, labels
 
-    data=get_differences(data, col_all)
+def extract_features_mag(data, t, col_mag, windows, fsamp=100):
+    data_more, col_mag=get_differences(data, col_mag)
 
     #===================================
-    samples, labels=windowing_and_extraction(data, fsamp, windows)
-    samples2=pd.DataFrame(samples, columns=labels)
-    return samples2
-
-def extract_features_gyr(data, windows, fsamp=100, col_gyr=['gyrx','gyry','gyrz']):
-    data=get_differences(data, col_gyr)
-    #===================================
-    samples, labels=windowing_and_extraction(data, fsamp,windows)
-    samples2=pd.DataFrame(samples, columns=labels)
-    return samples2
-
-def extract_features_mag(data, windows, fsamp=100, col_mag=['magx','magy','magz']):
-    data=get_differences(data, col_mag)
-
-    #===================================
-    samples, labels=windowing_and_extraction(data, fsamp, windows)
-    samples2=pd.DataFrame(samples, columns=labels)
-    return samples2
+    samples, labels=windowing_and_extraction(data_more, t, fsamp, windows, col_mag)
+    return samples, labels
 
 
 def get_differences(data, col_all, n=[1,2,5,10]):
     #===================================
     # calculate the difference of vectors
+    result=np.array(data)
+    col_ret=np.array(col_all)
     for n_diff in n:
         suffix='_d'+str(n_diff)
+        #TODO NON SO SE SIA CORRETTO
+        subj=np.array(data)
+        subj=np.vstack([subj, subj[-n_diff:,:]])
+        diff=np.diff(subj, n=n_diff, axis=0)
+        for col in col_all:
+            col_ret=np.append(col_ret, col+suffix)
+        result=np.column_stack([result, diff])
+    return result, col_ret
 
-        diff=pd.DataFrame(np.diff(data[col_all], n=n_diff, axis=0), columns=data[col_all].columns+suffix)
-
-        data=data.join(diff)
-    return data
-
-def windowing_and_extraction(data, fsamp, windows):
+def windowing_and_extraction(data, t, fsamp, windows, col, ndiff=4):
     samples = []
 
     bands=np.linspace(0.1,25,11)
     # ciclo sulla sessione - finestratura
     for t_start, t_end in windows:
         feat=np.array([])
-        labels=np.array([])
-
-        ind_start=np.argmin(abs(data.timestamp-t_start))
-        ind_end=np.argmin(abs(data.timestamp-t_end))
+        columns=np.array([])
+        mask=(t>=t_start)&(t<t_end)
 
         #windowing
-        data_win = data.ix[ind_start:ind_end,3:data.shape[1]]
+        data_win = data[mask,:]
+        fmean=np.mean(data_win, axis=0)
 
         #max - mean
-        feat=np.hstack([feat, np.max(data_win)-np.mean(data_win)])
-        labels=np.hstack([labels, data.ix[ind_start:ind_end,3:data.shape[1]].columns+'_-_max_mean'])
-
+        feat=np.hstack([feat, np.max(data_win, axis=0)-fmean])
+        columns=np.hstack([columns, concat_string(col, "_-_max_mean")])
+        #print feat.shape, columns.shape
         #min - mean
-        feat=np.hstack([feat, np.min(data_win)-np.mean(data_win)])
-        labels=np.hstack([labels, data.ix[ind_start:ind_end,3:data.shape[1]].columns+'_-_min_mean'])
+        feat=np.hstack([feat, np.min(data_win, axis=0)-fmean])
+        columns=np.hstack([columns,concat_string(col, '_-_min_mean')])
+        #print feat.shape, columns.shape
 
         #max - min
-        feat=np.hstack([feat, np.max(data_win)-np.min(data_win)])
-        labels=np.hstack([labels, data.ix[ind_start:ind_end,3:data.shape[1]].columns+'_-_max_min'])
+        feat=np.hstack([feat, np.max(data_win, axis=0)-np.min(data_win, axis=0)])
+        columns=np.hstack([columns, concat_string(col, '_-_max_min')])
+        #print feat.shape, columns.shape
 
         #std
-        feat=np.hstack([feat, np.std(data_win)])
-        labels=np.hstack([labels, data.ix[ind_start:ind_end,3:data.shape[1]].columns+'_-_sd'])
+        feat=np.hstack([feat, np.std(data_win, axis=0)])
+        columns=np.hstack([columns, concat_string(col, '_-_sd')])
+        #print feat.shape, columns.shape
 
         #integral
-        feat=np.hstack([feat, np.sum(data_win-np.mean(data_win))])
-        labels=np.hstack([labels, data.ix[ind_start:ind_end,3:data.shape[1]].columns+'_-_integral'])
+        feat=np.hstack([feat, np.sum(data_win-fmean.reshape(1,fmean.shape[0]), axis=0)])
+        columns=np.hstack([columns, concat_string(col, '_-_integral')])
+        #print feat.shape, columns.shape
 
         #mean tipo diff
-        col_diff=data.ix[:,14:].columns
-        feat=np.hstack([feat, np.mean(data_win[col_diff])])
-        labels=np.hstack([labels, data.ix[ind_start:ind_end,col_diff].columns+'_-_mean_diff'])
+        feat=np.hstack([feat, np.mean(data_win[:,-ndiff:], axis=0)])
+        columns=np.hstack([columns, concat_string(col[-ndiff:], '_-_mean_diff')])
+        #print feat.shape, columns.shape
 
         #mean(abs) tipo diff
-        col_diff=data.ix[:,14:].columns
-        feat=np.hstack([feat, np.mean(np.abs(data_win[col_diff]))])
-        labels=np.hstack([labels, data.ix[ind_start:ind_end,col_diff].columns+'_-_mean_abs'])
+        feat=np.hstack([feat, np.mean(np.abs(data_win[:,-ndiff:]), axis=0)])
+        columns=np.hstack([columns, concat_string(col[-ndiff:], '_-_mean_abs')])
+        #print feat.shape, columns.shape
 
         # FD features
         for ind_col in range(data_win.shape[1]):
-            curr_col=data_win.ix[:,ind_col]
-            prefix=curr_col.name
+            curr_col=data_win[:,ind_col]
+            prefix=col[ind_col]
             curr_col_array=np.array(curr_col)
             psd=abs(np.fft.fft(curr_col_array))
             fqs=np.arange(0, fsamp, fsamp/len(psd))
@@ -136,8 +134,15 @@ def windowing_and_extraction(data, fsamp, windows):
             for j in range(0, len(bands)-1):
                 pw,fmx = power_fmax(psd, fqs, bands[j], bands[j+1])
                 feat=np.hstack([feat, pw, fmx])
-                labels=np.hstack([labels, prefix+'_-_power_'+str(bands[j])+'-'+str(bands[j+1]), prefix+'_-_fmax_'+str(bands[j])+'-'+str(bands[j+1])])
+                columns=np.hstack([columns, prefix+'_-_power_'+str(bands[j])+'-'+str(bands[j+1]), prefix+'_-_fmax_'+str(bands[j])+'-'+str(bands[j+1])])
+                #print feat.shape, columns.shape
 
         samples.append(feat)
+    samples_array=np.array(samples)
+    return samples_array, columns
 
-    return samples, labels
+def concat_string(array, str):
+    result=[]
+    for element in array:
+        result.append(element+str)
+    return np.array(result)

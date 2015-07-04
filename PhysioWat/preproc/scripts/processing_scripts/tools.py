@@ -1,11 +1,11 @@
 from __future__ import division
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import json
 import pandas as pd
 from pandas import DataFrame
-# from PhysioWat.models import Recording, SensorData
-# from StringIO import StringIO
+# from PhysioWat.models import Recording, SensorRawData
+from StringIO import StringIO
 
 def peakdet(v, delta, x = None, startMax = True):
     '''
@@ -104,13 +104,12 @@ def load_file(filename, header=1, sep=";"):
     :return: data as np.array
     '''
     data = np.genfromtxt(filename, delimiter=sep, skip_header=header)
-    data[:,0]-=data[0,0]
     return data
 
 def load_file_db(recordingID):
     # raw query for i csv line
     table = Recording.objects.get(id=recordingID)
-    data = SensorData.objects.filter(recording_id_id=recordingID)
+    data = SensorRawData.objects.filter(recording_id=recordingID)
     alldata = (','.join(table.dict_keys)+'\n').replace(' ','')
     for record in data:
         ll=[]
@@ -153,7 +152,7 @@ def load_file_pd(filename, sep=";", names=None):
 def load_file_pd_db(recordingID):
     # raw query for i csv line
     table = Recording.objects.get(id=recordingID)
-    data = SensorData.objects.filter(recording_id_id=recordingID)
+    data = SensorRawData.objects.filter(recording_id_id=recordingID)
     alldata = (','.join(table.dict_keys)+'\n').replace(' ','')
     for record in data:
         ll=[]
@@ -182,3 +181,12 @@ def downsampling(data, FSAMP, FS_NEW, switch=True):
 
     result = np.array(data[keep,:])
     return result
+
+def dict_to_csv(d, filename):
+    feats=[]
+    for key, value in d.items():
+        feats.append(value)
+    np.savetxt(filename, np.column_stack(feats), header=",".join(d.keys()))
+
+def array_labels_to_csv(array, labels, filename):
+    np.savetxt(filename, array, header=",".join(labels.tolist()))

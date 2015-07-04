@@ -11,7 +11,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 from PhysioWat.preproc.scripts.processing_scripts import filters as ourFilters
-import tools as ourTools
+from PhysioWat.PhysioWat.preproc.scripts.processing_scripts import tools as ourTools
 import IBI
 
 

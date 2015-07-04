@@ -8,7 +8,7 @@ Created on Wed Jul  1 17:10:50 2015
 #import libraries
 import pandas as pd
 
-from PhysioWat.preproc.scripts.processing_scripts import feat_script as f
+from processing_scripts import feat_script as f
 
 
 #define costants

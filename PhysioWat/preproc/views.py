@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from django.http.response import HttpResponseRedirect
+from django.http.response import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike, smoothGaussian
+from scripts.processing_scripts import tools
 
 
 def preproc_settings(request):
@@ -77,3 +78,7 @@ def show_chart(request):
 
     return render(request, template, context)
 
+def test(request):
+    gsr_data = tools.load_file_db(6)
+    print gsr_data
+    return HttpResponse("OK")

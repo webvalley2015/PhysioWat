@@ -1,8 +1,7 @@
 from __future__ import division
 import numpy as np
 from scipy import interpolate
-import tools as ourTools
-import matplotlib.pyplot as plt #DEBUG ONLY
+from PhysioWat.PhysioWat.preproc.scripts.processing_scripts import tools as ourTools
 import spectrum as spct
 
 #####################################
