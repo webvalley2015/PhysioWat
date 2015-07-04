@@ -2,7 +2,7 @@ __author__ = 'andrew'
 
 import csv
 
-from PhysioWat.models import PhysiowatRecording
+from PhysioWat.models import Recording
 from datetime import datetime
 from django.db import connection
 
