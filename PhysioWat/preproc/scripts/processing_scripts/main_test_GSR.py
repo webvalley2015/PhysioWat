@@ -28,11 +28,12 @@ gsr_data=tools.downsampling(gsr_data, FS, nFS)
 t_gsr, gsr = GSR.remove_spikes(gsr_data[:,1], nFS)
 # t_gsr = gsr_data[:,0]
 # gsr   = gsr_data[:,1]
+print gsr.shape
 # print t_gsr.shape, gsr.shape, gsr_data.shape
 t_driver, driver, phasic_d, tonic_d= GSR.estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA, FS=nFS)
 windows=win.generate_dummy_windows(t_driver, 20, 10)
 features = GSR.extract_features(phasic_d, t_driver, DELTA, windows)
-# print features
+print features
 features.to_csv("./output/feat_"+filename[7:-4]+".csv")
 # tools.prepare_json_to_plot_time(t_driver, [driver, phasic_d, tonic_d], ["Driver", "Phasic", "Tonic"])
 # plt.figure(2)

@@ -1,8 +1,9 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse
 from django.contrib import messages
 from .forms import experiments
 from PhysioWat.models import Experiment
+
 # Create your views here.
 
 def create_experiement(request):
@@ -17,15 +18,13 @@ def create_experiement(request):
                 if form.cleaned_data["token"] == form.cleaned_data["repeat_token"]:
                     form.save()
                     messages.success(request, 'Experiment created succesfully')
-                     #url = reverse('humanupload', args=(), kwargs={'devise': 'EURO'})
-                    return HttpResponseRedirect('/uploader/web')
                 else:
                     messages.error(request, 'Tokens dont match')
             else:
                 messages.error(request, 'Experiment already exists')
         else:
-            messages.error(request, 'Error while creating the experiment')
-
+            messages.error(request, 'Error while creating the experiment.')
+        #return HttpResponse("/")
     else:
         form = experiments()
     context = {'form': form}
