@@ -20,10 +20,11 @@
     <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet">
-    <link href="{% static 'js/move-top.js' %}" rel="stylesheet">
-    <link href="{% static 'js/easing.js' %}" rel="stylesheet">
-    <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet">="{% static 'js/easing.js' %}" rel="stylesheet">
-    <link href="{% static 'js/jquery-1.11.0.min.js' %}" rel="stylesheet">
+    <link href="{% static 'js/move-top.js' %}" rel="application/javascript">
+    <link href="{% static 'js/easing.js' %}" rel="application/javascript">
+    <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet">
+    <link href="{% static 'js/easing.js' %}" rel="application/javascript">
+    <link href="{% static 'js/jquery-1.11.0.min.js' %}" rel="application/javascript">
 
     <!-- including app specific CSS -->
     {% block app_specific_css %} {% endblock %}
@@ -58,7 +59,7 @@
                         <li><a href="{% url 'index' %}">Home</a></li>
                         <li><a href="{% url 'user_upload' %}">Upload</a></li>
                         <!-- <li><a href="{% url 'login' %}">Login</a></li> -->
-                        <li><a href="#">New Experiments</a></li>
+                        <li><a href="{% url 'experiment_creator' %}">New Experiments</a></li>
                         <li><a href="{% url 'contact' %}">Contact</a></li>
                     </ul>
                     <!-- <form class="navbar-form navbar-right">
