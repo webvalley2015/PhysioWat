@@ -29,7 +29,7 @@ class SensorRawData(models.Model):
 
 class Preprocessed_Recording(models.Model):
     recording = models.ForeignKey(Recording)
-    parameters = HStoreField()
+    parameters = HStoreField(null=True, default=None)
     dict_keys = ArrayField(
         models.CharField(max_length=50, blank=True, null=True)
     )
