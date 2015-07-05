@@ -6,7 +6,7 @@
         <br><h1>Upload File</h1><br>
         {% csrf_token %}
         <label for="experiment">Experiment </label>
-        <select name="experiment">
+        <select name="experiment"  class="form-control">
             {% for c in experiments %}
                 <option value="{{ c }}">{{ c }}</option>
             {% endfor %}
@@ -37,7 +37,7 @@ var parent = input_file.parent('div');
 input_file.remove();
 parent.append('<div class="col-xs-3 dz-default dz-message" id="dropzone-previews" style="height: 80px; border: 2px dashed; border-color:grey; color:white" >Drag&Drop your files to upload</div>');
 
-Dropzone.options.myAwesomeDropzone = { // The camelized version of the ID of the form element
+Dropzone.options.myAwesomeDropzone = 	{ // The camelized version of the ID of the form element
 
   // The configuration we've talked about above
   autoProcessQueue: false,
@@ -48,7 +48,7 @@ Dropzone.options.myAwesomeDropzone = { // The camelized version of the ID of the
 //parameter file name on site
 
   // The setting up of the dropzone
-  init: function() {
+  init: function() 			{
     var myDropzone = this;
 
     // First change the button to actually tell Dropzone to process the queue.
@@ -57,24 +57,53 @@ Dropzone.options.myAwesomeDropzone = { // The camelized version of the ID of the
       e.preventDefault();
       e.stopPropagation();
       myDropzone.processQueue();
-    });
+    												});
 
     // Listen to the sendingmultiple event. In this case, it's the sendingmultiple event instead
     // of the sending event because uploadMultiple is set to true.
-    this.on("sendingmultiple", function() {
+    this.on("sendingmultiple", function() 	{
       // Gets triggered when the form is actually being sent.
       // Hide the success button or the complete form.
-    });
-    this.on("successmultiple", function(files, response) {
+    						});
+    this.on("successmultiple", function(files, response) 	{
       // Gets triggered when the files have successfully been sent.
       // Redirect user or notify of success.
-    });
+    								});
     this.on("errormultiple", function(files, response) {
       
-    });
-  }
+    							});
+ 						}
 
 }
+//HAS TO BE CHECKED
+//to set the max of the uploadable elements to one
+Dropzone.options.myAwesomeDropzone = {
+  maxFiles: 1,
+  accept: function(file, done) {
+    console.log("uploaded");
+    done();
+  },
+  init: function() {
+    this.on("maxfilesexceeded", function(file){
+        alert("No more files please!");
+    });
+  }
+};
+/*
+Dropzone.options.myAwesomeDropzone = {
+  accept: function(file, done) {
+    console.log("uploaded");
+    done();
+  },
+  init: function() {
+    this.on("addedfile", function() {
+      if (this.files[1]!=null){
+        this.removeFile(this.files[0]);
+      }
+    });
+  }
+};
+*/
 
 })
 </script>
