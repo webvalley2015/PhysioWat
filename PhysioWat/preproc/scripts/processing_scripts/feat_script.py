@@ -689,3 +689,9 @@ def bestfit_RFC(fe_data, alg, metric):
     bestn_est, bestmax_f = np.unravel_index(my_met.argmax(), (len(NElist), len(MFlist)))
     clf = classifiers[alg](bestn_est, bestmax_f)
     return clf, my_met.max()
+
+
+
+if __name__ == '__main__':
+
+    
