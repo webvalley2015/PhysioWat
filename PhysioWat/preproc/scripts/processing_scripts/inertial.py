@@ -8,7 +8,7 @@ import numpy as np
 def convert_units(data, coeff = 1):
     '''
     :param data: accelerometer, gyroscope OR magnetometer data as a pandas.DataFrame with x, y, z indexes. Do not
-                 pass more than 1 sensor data at a time!!
+                 pass more than 1 sensor data at a time!! np.array
     :param coeff: coefficient to multiply to convert the units
     :param prefix: "acc", "gyr" or "mag" (accelerometer, gyroscope or magnetoscope
     :return: the converted data
@@ -27,13 +27,14 @@ def power_fmax(spec,freq,fmin,fmax):
 
 def extract_features_acc(data_acc, t, col_acc, windows, fsamp=100):
     '''
-    PASS COL_ACC IN ORDER X, Y, Z
-    :param data_acc: data where to extract feats
+    Extract features for acceleration
+    :param data_acc: data where to extract feats, as a np.array
+    :param t: timestamp
+    :param col_acc: labels
     :param WINLEN: window length
     :param WINSTEP: window step
     :param fsamp: sampling rate (Hz)
-    :param col_acc: labels (x, y, z in order!)
-    :return: feats
+    :return: feats as np 2d array and the relative labels (np 1d array)
     '''
     col_mod=['acc_mod','acc_mod_plan']
     col_all=np.r_[col_acc, np.array(col_mod)]
@@ -46,12 +47,32 @@ def extract_features_acc(data_acc, t, col_acc, windows, fsamp=100):
     return samples, labels
 
 def extract_features_gyr(data, t, col_gyr, windows, fsamp=100):
+    '''
+    Extract features for gyroscope
+    :param data: data where to extract feats, as a np.array
+    :param t: timestamp
+    :param col_gyr: labels
+    :param WINLEN: window length
+    :param WINSTEP: window step
+    :param fsamp: sampling rate (Hz)
+    :return: feats as np 2d array and the relative labels (np 1d array)
+    '''
     data_more, col_gyr=get_differences(data, col_gyr)
     #===================================
     samples, labels=windowing_and_extraction(data_more, t, fsamp,windows, col_gyr)
     return samples, labels
 
 def extract_features_mag(data, t, col_mag, windows, fsamp=100):
+    '''
+    Extract features for magnetometer
+    :param data: data where to extract feats, as a np.array
+    :param t: timestamp
+    :param col_mag: labels
+    :param WINLEN: window length
+    :param WINSTEP: window step
+    :param fsamp: sampling rate (Hz)
+    :return: feats as np array and the relative labels
+    '''
     data_more, col_mag=get_differences(data, col_mag)
 
     #===================================
