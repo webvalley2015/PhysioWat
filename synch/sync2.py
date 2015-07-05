@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import spearmanr
 import csv 
 '''
-correlation between GSR_F and GSR_M features extracted by pre-processing team
+correlation between GSR_F/EKG_F and GSR_M/EKG_M features extracted by pre-processing team
 '''
 
 def cut(df,df2):                                    #cutting array features to have two datasets of features with the same number of rows
@@ -23,11 +23,11 @@ def correlate_features(df, df2):                                      #correlate
 	df, df2 = cut(df,df2)
 	for i in range(4):                                                   
 		features.append(spearmanr(df[:, i], df2[:, i]))
-	print features
+	print np.array(features)
 	return features 
                               
 
 if __name__=="__main__":
-    cross_result = correlate_features("GSR__F.txt","GSR__m.txt")
+    cross_result = correlate_features(df,df2)
     print cross_result
 	
