@@ -1,4 +1,3 @@
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import spearmanr
@@ -10,7 +9,6 @@ correlation between GSR_F and GSR_M features extracted by pre-processing team
 def cut(df,df2):                                    #cutting array features to have two datasets of features with the same number of rows
     f1 = np.genfromtxt(df, delimiter=",")
     f2 = np.genfromtxt(df2,delimiter=",")
-    print " f1 è lungo= {0} f2 lungo {1} ".format(len(f1),len(f2)) 
     if len(f1) > len(f2):
         l = len(f2)
         f1 = f1[:l,:]
@@ -20,7 +18,7 @@ def cut(df,df2):                                    #cutting array features to h
     return f1, f2
         
         
-def correlate_features(df, df2):                                      #correlate of the features for synch
+def correlate_features(df, df2):                                      #correlate of the features for sync
 	features=[]
 	df, df2 = cut(df,df2)
 	for i in range(4):                                                   

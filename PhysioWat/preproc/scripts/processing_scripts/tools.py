@@ -1,9 +1,11 @@
 from __future__ import division
 import numpy as np
+# import matplotlib.pyplot as plt
 import json
-import pandas as pd 
-#DEBUG ONLY
-import matplotlib.pyplot as plt
+import pandas as pd
+from pandas import DataFrame
+# from PhysioWat.models import Recording, SensorRawData
+from StringIO import StringIO
 
 def peakdet(v, delta, x = None, startMax = True):
     '''
@@ -102,8 +104,23 @@ def load_file(filename, header=1, sep=";"):
     :return: data as np.array
     '''
     data = np.genfromtxt(filename, delimiter=sep, skip_header=header)
-    data[:,0]-=data[0,0]
     return data
+
+def load_file_db(recordingID):
+    # raw query for i csv line
+    table = Recording.objects.get(id=recordingID)
+    data = SensorRawData.objects.filter(recording_id=recordingID)
+    alldata = (','.join(table.dict_keys)+'\n').replace(' ','')
+    for record in data:
+        ll=[]
+        for key in table.dict_keys:
+            ll.append(record.store[key])
+        alldata+=','.join(ll)+'\n'
+    datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
+    datacsv[:,0]-=datacsv[0,0]
+    return datacsv
+    # results = cursor.fetchall()
+
 
 def prepare_json_to_plot(series, labels):
     '''
@@ -123,14 +140,30 @@ def prepare_json_to_plot(series, labels):
         file.write(json_string)
         file.close()
 
-def load_file_pd(filename, sep=";", names=None):
-    '''
-    Load data from file
-    :param filename: name of the file where data is stored
-    :return: data as pandas.DataFrame
-    '''
-    data = pd.read_csv(filename, sep=sep, names=names)
-    return data
+
+# def load_file_pd(filename, sep=";", names=None):
+#     '''
+#     Load data from file
+#     :param filename: name of the file where data is stored
+#     :return: data as pandas.DataFrame
+#     '''
+#     data = pd.read_csv(filename, sep=sep, names=names)
+#     return data
+#
+# def load_file_pd_db(recordingID):
+#     # raw query for i csv line
+#     table = Recording.objects.get(id=recordingID)
+#     data = SensorRawData.objects.filter(recording_id_id=recordingID)
+#     alldata = (','.join(table.dict_keys)+'\n').replace(' ','')
+#     for record in data:
+#         ll=[]
+#         for key in table.dict_keys:
+#             ll.append(record.store[key])
+#         alldata+=','.join(ll)+'\n'
+#     datacsv = pd.read_csv(StringIO(alldata), sep=',')
+#     return datacsv
+#     # results = cursor.fetchall()
+
 
 def downsampling(data, FSAMP, FS_NEW, switch=True):
     '''
@@ -159,3 +192,12 @@ def normalize(data):
     '''
     new_data = (data - np.mean(data))/np.std(data)
     return new_data
+
+def dict_to_csv(d, filename):
+    feats=[]
+    for key, value in d.items():
+        feats.append(value)
+    np.savetxt(filename, np.column_stack(feats), header=",".join(d.keys()))
+
+def array_labels_to_csv(array, labels, filename):
+    np.savetxt(filename, array, header=",".join(labels.tolist()))

@@ -249,3 +249,6 @@ vertical-align:top;
 div#fieldbottom {
 vertical-align:bottom;
 }
+
+.card:hover {
+  transform: rotateY(180deg);

@@ -34,7 +34,7 @@ names = ["Nearest Neighbors", "Support Vector Machine", "RBF SVM\t", "Decision T
 # use as " classifiers[alg](set_parameters) " once you have them
 classifiers = {
         'KNN': lambda nn: KNeighborsClassifier(n_neighbors=nn),
-        'SVM': lambda kernel, C, degree : SVC(kernel=kernel, C=C, degree=deg),
+        'SVM': lambda kernel, C, deg=0 : SVC(kernel=kernel, C=C, degree=deg),
         'DCT': lambda max_f: DecisionTreeClassifier(max_features=max_f),
         'RFC': lambda n_est, max_f: RandomForestClassifier(n_estimators=n_est, 
                                                            max_features=max_f),
@@ -402,7 +402,7 @@ def bestfit_KNN(fe_data, alg, metric):  # ok
             in_data = fe_data[fe_data.columns[:-1]]
             scores = cross_validation.cross_val_score(clf, in_data, in_tar, 
                                                       cv=10, n_jobs=1)
-            #in this array are saved the value, the 
+            #in this variables are saved the value of mean and error
             mean_sum += scores.mean()
             std_sum  += scores.std()
         in_vec = np.array([nn, (mean_sum/iterations), (std_sum/iterations)])
@@ -416,182 +416,235 @@ def bestfit_KNN(fe_data, alg, metric):  # ok
     plt.show()
 
     bestnn = NNlist[my_met[:,1].argmax()]
-    
     clf = classifiers[alg](bestnn)
     clf = clf.fit(in_data, in_tar)
     return clf
     
     
-def bestfit_SVC(fe_data, alg, metric):
-    Klist = ['linear', 'poly', 'rbf', 'sigmoid', 'precomputed']
-    iterations = 5 #20
+def bestfit_SVM(fe_data, alg, metric):
+    Klist = ['linear', 'rbf', 'sigmoid', 'precomputed', 'poly']
+    #can switch the order, but poly should be the last element
+    bestC = bestdeg = bestMet = 0.
+    bestkernel = bestmy_met = besterr_met = 0
     for i in range(len(Klist)):
+        my_met = np.matrix([[0,0,0]])
         kernel = Klist[i]
-        if kernel in ['linear', 'rbf', 'poly', 'sigmoid', 'precomputed']:
+        if kernel in ['linear', 'rbf', 'sigmoid', 'precomputed']:
             my_met = np.zeros(0)
             Clist = [ 10**i for i in range(-5,8) ]
             for C in Clist:
-                #clf = classifiers[alg](kernel=kernel, C=C) 
-                clf = SVC(kernel=kernel, C=C)                
-                mean_vec = 0.
+                clf = classifiers[alg](kernel, C)          
+                mean_sum = 0.
+                std_sum = 0.
                 for i in range(iterations):
                     fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
                     in_tar = fe_data.label
                     in_data = fe_data[fe_data.columns[:-1]]
                     scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=1)
-                    #print scores
-                    in_vec = np.array([C, scores.mean(), scores.std()*2])
-                    mean_vec += in_vec[1]
-                my_met = np.append(my_met, (mean_vec/iterations))
+                    #in this variables are saved the value of mean and error
+                    mean_sum += scores.mean()
+                    std_sum  += scores.std()
+                in_vec = np.array([C, (mean_sum/iterations), (std_sum/iterations)])
+                my_met = np.vstack((my_met, in_vec))
             #plot the my_met
             plt.figure()
-            plt.plot(Clist,my_met)
-            plt.title(kernel)
+            plt.plot(my_met[:,0], my_met[:,1])
+            plt.xscale('log') #just if a parameter is exponentially growing
             plt.show()
+            if ( my_met[:,1].max() > bestMet ):
+                bestMet = my_met[:,1].max()
+                bestC = Clist[my_met[:,1].argmax()]
+                bestkernel = kernel
+                bestmy_met = my_met.copy()
+                besterr_met = err_met.copy()
         elif kernel == 'poly':
             Clist = [ 10**i for i in range(-5,8) ]
             Dlist = [2,3]
+            #watch out... this is a particular matrix
             my_met = np.zeros((len(Clist), len(Dlist)))
+            err_met = np.zeros((len(Clist), len(Dlist)))
             for C in Clist:
                 for deg in Dlist:
-                    #clf = classifiers[alg](kernel=kernel, C=C, degree=deg)            
-                    clf = SVC(kernel=kernel, C=C, degree=deg)                    
-                    mean_vec = 0.
+                    clf = classifiers[alg](kernel, C, deg)             
+                    mean_sum = 0.
+                    std_sum = 0.
                     for i in range(iterations):
                         fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
                         in_tar = fe_data.label
                         in_data = fe_data[fe_data.columns[:-1]]
                         scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=5, n_jobs=1)
-                        #print scores
-                        in_vec = np.array([C, scores.mean(), scores.std()*2])
-                        mean_vec += in_vec[1]
-                    my_met_local = mean_vec/iterations
-                    my_met[Clist.index(C), Dlist.index(deg)] = my_met_local
+                        
+                        mean_sum += scores.mean()
+                        std_sum  += scores.std()
+                    mean_local = mean_sum/iterations
+                    err_local  = std_sum/iterations
+                    my_met[Clist.index(C), Dlist.index(deg)] = mean_local
+                    err_met[Clist.index(C), Dlist.index(deg)] = err_local
             #plot the my_met
             plt.figure()
             plt.imshow(my_met)
             plt.title(kernel)
             plt.show()
-    return my_met.argmax(), my_met.max()
+            if ( my_met.max() > bestMet ):
+                bestMet = my_met.max()
+                bestC, bestdeg = np.unravel_index(my_met.argmax(), (len(Clist), len(Dlist)))
+                bestkernel = kernel
+                bestmy_met = my_met.copy()
+                besterr_met = err_met.copy()
+          
+
+    clf = classifiers[alg](kernel, bestC, bestdeg)
+    clf = clf.fit(in_data, in_tar)      
+
+    return clf
     
 
-def bestfit_DCT(fe_data, alg, metric):
-    my_met = np.zeros(0)
+def bestfit_DCT(fe_data, alg, metric):  #ok
+    my_met = np.matrix([[0,0,0]])
     MFlist = [1, 1., 'sqrt', 'log2', None]
-    iterations = 20
     for max_f in MFlist:
-        clf = classifiers[alg](max_features=max_f)
-        mean_vec = 0.
+        clf = classifiers[alg](max_f)
+        mean_sum = 0.
+        std_sum = 0.
         for i in range(iterations):
             fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
             in_tar = fe_data.label
             in_data = fe_data[fe_data.columns[:-1]]
             scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=1)
             #print scores
-            in_vec = np.array([C, scores.mean(), scores.std()*2])
-            mean_vec += in_vec[1]
-        my_met = np.append(my_met, (mean_vec/iterations))
+            #in this variables are saved the value of mean and error
+            mean_sum += scores.mean()
+            std_sum  += scores.std()
+        in_vec = np.array([max_f, (mean_sum/iterations), (std_sum/iterations)])
+        my_met = np.vstack((my_met, in_vec))
+        
     #plot the my_met
     plt.figure()
-    plt.plot(MFlist,my_met)
-    #plt.xscale('log')
-    plt.show()    
-    return my_met.argmax(), my_met.max()
+    plt.plot(my_met[:,0], my_met[:,1])
+    #plt.xscale('log') #just if a parameter is exponentially growing
+    plt.show() 
+
+    bestmax_f = MFlist[my_met[:,1].argmax()]
+    clf = classifiers[alg](bestmax_f)
+    clf = clf.fit(in_data, in_tar)
+    return clf
     
-def bestfit_QDA(fe_data, alg, metric):
-    my_met = np.zeros(0)
+def bestfit_QDA(fe_data, alg, metric):  #ok
+    my_met = np.matrix([[0,0,0]])
     #just default parameters
-    iterations = 20
+    clf = classifiers[alg]()
     for i in range(iterations):
         fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
         in_tar = fe_data.label
         in_data = fe_data[fe_data.columns[:-1]]
         scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=1)
         #print scores
-        in_vec = np.array([C, scores.mean(), scores.std()*2])
-        mean_vec += in_vec[1]
-    my_met = float(mean_vec)/iterations
+        #in this variables are saved the value of mean and error
+        mean_sum += scores.mean()
+        std_sum  += scores.std()
+    in_vec = np.array([1, (mean_sum/iterations), (std_sum/iterations)])
+    my_met = np.vstack((my_met, in_vec))
+
     #plot the my_met
     plt.figure()
-    plt.plot(my_met)
-    #plt.xscale('log')
-    plt.show()    
-    return 0, my_met.max()
+    plt.plot(my_met[:,0], my_met[:,1])
+    #plt.xscale('log') #just if a parameter is exponentially growing
+    plt.show()
     
-#!!! solver
-def bestfit_LDA(fe_data, alg, metric):
-    my_met = np.zeros(0)
+    clf = clf.fit(in_data, in_tar)
+    return clf
+    
+    
+def bestfit_LDA(fe_data, alg, metric):  #ok
+    my_met = np.matrix([[0,0,0]])
     SRlist = ['svd', 'lsqr', 'eigen']
-    iterations = 20
     for solver in SRlist:
-        clf = classifiers[alg](solver=solver)
-        mean_vec = 0.
+        clf = classifiers[alg](solver)
+        mean_sum = 0.
+        std_sum = 0.
         for i in range(iterations):
             fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
             in_tar = fe_data.label
             in_data = fe_data[fe_data.columns[:-1]]
             scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=10, n_jobs=1)
             #print scores
-            in_vec = np.array([C, scores.mean(), scores.std()*2])
-            mean_vec += in_vec[1]
-        my_met = np.append(my_met, (mean_vec/iterations))
+            #in this variables are saved the value of mean and error
+            mean_sum += scores.mean()
+            std_sum  += scores.std()
+        in_vec = np.array([solver, (mean_sum/iterations), (std_sum/iterations)])
+        my_met = np.vstack((my_met, in_vec))
+
     #plot the my_met
     plt.figure()
-    plt.plot(SRlist,my_met)
-    #plt.xscale('log')
-    plt.show()    
-    return my_met.argmax(), my_met.max()
+    plt.plot(my_met[:,0], my_met[:,1])
+    #plt.xscale('log') #just if a parameter is exponentially growing
+    plt.show()
+
+    bestsolver = SRlist[my_met[:,1].argmax()]
+    clf = classifiers[alg](bestsolver)
+    clf = clf.fit(in_data, in_tar)
+    return clf
     
+#watch out... this is a particular matrix
 def bestfit_ADA(fe_data, alg, metric):
-    NElist = [i*50 for i in range(1,201)]
+    NElist = [i*50 for i in range(1,20)]#1)]
     LRlist = [i*0.25 for i in range(2,9) ]
     my_met = np.zeros((len(NElist), len(LRlist)))
-    iterations = 20
+    err_met = np.zeros((len(NElist), len(LRlist)))
     for n_est in NElist:
         for l_rate in LRlist:
-            clf = classifiers[alg](n_estimators = n_est, learning_rate=l_rate)
-            #clf = AdaBoostClassifier(n_estimators = n_est, learning_rate=l_rate)
-            mean_vec = 0.
+            clf = classifiers[alg](n_est, l_rate)
+            mean_sum = 0.
+            std_sum = 0.
             for i in range(iterations):
                 fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
                 in_tar = fe_data.label
                 in_data = fe_data[fe_data.columns[:-1]]
                 scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=5, n_jobs=1)
-                #print scores
-                in_vec = np.array([C, scores.mean(), scores.std()*2])
-                mean_vec += in_vec[1]
-            my_met_local = mean_vec/iterations
-            my_met[NElist.index(n_est), LRlist.index(l_rate)] = my_met_local
+                mean_sum += scores.mean()
+                std_sum  += scores.std()
+            mean_local = mean_sum/iterations
+            err_local  = std_sum/iterations
+            my_met[NElist.index(n_est), LRlist.index(l_rate)] = mean_local
+            err_met[NElist.index(n_est), LRlist.index(l_rate)] = err_local
     #plot the my_met
     plt.figure()
     plt.imshow(my_met)
     plt.show()    
+    
+    bestn_est, bestl_rate = np.unravel_index(my_met.argmax(), (len(NElist), len(LRlist)))
+    clf = classifiers[alg](bestn_est, bestl_rate)
+    clf = clf.fit(in_data, in_tar)
     return my_met.argmax(), my_met.max()
     
-    
+#watch out... this is a particular matrix    
 def bestfit_RFC(fe_data, alg, metric):
     NElist = [i*25 for i in range(1,20)]
     MFlist = [1, 1., 'sqrt', 'log2', None]
     my_met = np.zeros((len(NElist), len(MFlist)))
-    iterations = 10# 20
+    err_met = np.zeros((len(NElist), len(LRlist)))
     for n_est in NElist:
         for max_f in MFlist:
-            #clf = classifiers[alg](n_estimators = n_est, max_features=max_f)
-            #print(max_f)
-            clf = RandomForestClassifier(n_estimators=n_est, max_features=max_f)            
-            mean_vec = 0.
+            clf = classifiers[alg](n_est, max_f)           
+            mean_sum = 0.
+            std_sum = 0.
             for i in range(iterations):
                 fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
                 in_tar = fe_data.label
                 in_data = fe_data[fe_data.columns[:-1]]
                 scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=5, n_jobs=1)
-                #print scores
-                in_vec = np.array([C, scores.mean(), scores.std()*2])
-                mean_vec += in_vec[1]
-            my_met_local = mean_vec/iterations
-            my_met[NElist.index(n_est), MFlist.index(max_f)] = my_met_local
+                mean_sum += scores.mean()
+                std_sum  += scores.std()
+            mean_local = mean_sum/iterations
+            err_local  = std_sum/iterations
+            my_met[NElist.index(n_est), MFlist.index(max_f)] = mean_local
+            err_met[NElist.index(n_est), MFlist.index(max_f)] = err_local
     #plot the my_met
     plt.figure()
     plt.imshow(my_met)
     plt.show()    
+    
+    bestn_est, bestmax_f = np.unravel_index(my_met.argmax(), (len(NElist), len(MFlist)))
+    clf = classifiers[alg](bestn_est, bestmax_f)
+    clf = clf.fit(in_data, in_tar)
     return my_met.argmax(), my_met.max()
