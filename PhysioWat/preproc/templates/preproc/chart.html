@@ -55,7 +55,7 @@
         <form onsubmit="show_graph()">
             <fieldset>
                 {% for i in opt_list %}
-                    <input type="checkbox" name="{{ i }}" value="{{ i }}"/>{{ i }}
+                    <input type="checkbox" name="{{ i }}" value="{{ i }}" id="{{ i }}"/>{{ i }}
                 {% endfor %}
                 {% buttons %}
                     <button type="submit" id="select_submit" class="btn btn-success">Submit</button>
@@ -127,13 +127,16 @@
 
         hide();
 
-        show_graph(){
-            
-        }
-
         $.getJSON("{% url 'chart_getdata' %}", function (data) {
-            $('#temporary-processing').highcharts('StockChart', data);
+            show_graph()
         });
+
+        function show_graph(){
+            $("form").each(function(){
+                $(this).find(':input')
+            });
+            $('#temporary-processing').highcharts('StockChart', data);
+        }
 
     </script>
 
