@@ -7,43 +7,6 @@ from django.contrib import messages
 from django import forms
 
 
-def preproc_settings(request):
-    if request.method == "POST":
-        form = PreprocSettings(request.POST, request.FILES)
-        if form.is_valid():
-            return HttpResponseRedirect(reverse('humanupload'))
-    else:
-
-        formPick = None
-        if (True):
-            formDown = downsampling(initial={'switch': False})
-            formGau = smoothGaussian(initial={'sigma': 2})
-            formFilt = filterAlg(
-                initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType': 'cheby2'})
-            formSpec = BVP()
-        if (True):
-            formDown = downsampling(initial={'switch': False})
-            formGau = smoothGaussian(initial={'sigma': 2})
-            formFilt = filterAlg(initial={'filterType': 'none'})
-            formSpec = EKG()
-        if (True):
-            formDown = downsampling(initial={'switch': False})
-            formGau = smoothGaussian(initial={'sigma': 2})
-            formFilt = filterAlg(initial={'filterType': 'none'})
-            formSpec = inertial()
-        if (True):
-            formPick = remove_spike()
-            formDown = downsampling(initial={'switch': False})
-            formGau = smoothGaussian(initial={'sigma': 2})
-            formFilt = filterAlg(initial={'filterType': 'none'})
-            formSpec = GSR()
-
-    context = {'formFilt': formFilt, 'formDown': formDown, 'formPick': formPick, 'formSpec': formSpec,
-               'formGau': formGau}
-    return render(request, 'preproc/settings.html', context)
-
-#WE USE SHOW CHART
-
 def show_chart(request):
     template = "preproc/chart.html"
 
@@ -103,22 +66,6 @@ def getExperimentsNames():
 def getExperimentsList():
     return Experiment.objects.values_list('name', 'token').distinct()
 
-
-def select_experiment_no_use(request):
-
-    if (request.method == 'POST'):
-        form = choose_exp(request.POST)
-        if (form.is_valid()):
-            print form.cleandata	
-            #GET DATA FORM DB ::(GET THE LIST OF SUBJECTS , NAME, WHATEVER, given in inpyt THE ID OF THE EXPERIMENT)
-            subj_list = (('1','SOGG1'),('2','GIANLUCA ADELANTE'),('3','UN BARBONE A CASO'))
-            return HttpResponse('Ok')
-    else:
-        #GET DATA FROM DATABASE ::(GET THE LIST OF EXPERIMENTS: NAME, TIME, given in input THE ID OF RESEARCHER (you server have it!) )
-        form = choose_exp()
-        context = {'form':form}
-        template = ('preproc/select.html')
-        return render(request, template, context)
 
 
 
