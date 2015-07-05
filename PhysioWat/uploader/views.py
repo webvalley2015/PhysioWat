@@ -18,7 +18,6 @@ def upload(request):
             experimentName = request.POST.get('experiment')
             print experimentName
             actualPasscode = Experiment.objects.get(name=experimentName)
-
             actualPasscode = actualPasscode.token
             enteredPasscode = form.cleaned_data
             enteredPasscode = enteredPasscode["password"]
