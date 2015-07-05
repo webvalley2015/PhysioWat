@@ -10,6 +10,9 @@ from PhysioWat.models import Recording, SensorRawData, Experiment
 def putintodb(fname, dvname, desc, expName):
     csvreader = csv.reader(fname[0], delimiter=',')
     dictky = csvreader.next()
+    for index in range(len(dictky)):
+        dictky[index] = dictky[index].replace('#','').replace(' ','')
+        print(dictky[index])
 
     experimentRow = Experiment.objects.get(name=expName)
     print desc
