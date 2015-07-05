@@ -3,5 +3,5 @@ from django.conf.urls import url, patterns
 
 urlpatterns = patterns('uploader.views',
                        # human upload page
-                       url(r'^web/$', 'upload', name='humanupload'),
+                       url(r'^web/$', 'upload', name='user-upload'),
                        )
