@@ -19,7 +19,11 @@
     <!-- Custom styles for this template -->
     <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
-
+    <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet">
+    <link href="{% static 'js/move-top.js' %}" rel="stylesheet">
+    <link href="{% static 'js/easing.js' %}" rel="stylesheet">
+    <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet">="{% static 'js/easing.js' %}" rel="stylesheet">
+    <link href="{% static 'js/jquery-1.11.0.min.js' %}" rel="stylesheet">
 
     <!-- including app specific CSS -->
     {% block app_specific_css %} {% endblock %}
@@ -47,23 +51,24 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#">Project name</a>
+                    <a class="navbar-brand" href="{% url 'index' %}">PhysioWat</a>
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="#">Dashboard</a></li>
-                        <li><a href="#">Settings</a></li>
-                        <li><a href="#">Profile</a></li>
-                        <li><a href="#">Help</a></li>
+                        <li><a href="{% url 'index' %}">Home</a></li>
+                        <li><a href="{% url 'user_upload' %}">Upload</a></li>
+                        <!-- <li><a href="{% url 'login' %}">Login</a></li> -->
+                        <li><a href="#">New Experiments</a></li>
+                        <li><a href="{% url 'contact' %}">Contact</a></li>
                     </ul>
-                    <form class="navbar-form navbar-right">
+                    <!-- <form class="navbar-form navbar-right">
                         <input type="text" class="form-control" placeholder="Search...">
-                    </form>
+                    </form> -->
                 </div>
             </div>
         </nav>
 
-        <div class="container-fluid">
+        <!-- <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-3 col-md-2 sidebar">
                     <ul class="nav nav-sidebar">
@@ -86,7 +91,7 @@
                     </ul>
 
                 </div>
-                <div class="col-sm-9 col-sm-offset-3 col-md-offset-2 col-md-10 main">
+                <div class="col-sm-9 col-sm-offset-3 col-md-offset-2 col-md-10 main"> -->
                 <div id="egg"></div>
                     {% block container %} {% endblock %}
 

@@ -1,20 +1,13 @@
-__author__ = 'stephen'
 from django import forms
 from django.forms import ModelForm
 from PhysioWat.models import Experiment
 
 # FileUpload form class.
-class SensorDesignerForm(forms.Form):
-    Name = forms.CharField()
-    Sensors = forms.IntegerField(min_value=1, max_value=25, widget=forms.NumberInput(attrs={
-        'onClick': "getValue()",
-    }))
-
 class experiments(ModelForm):
-    name = forms.CharField(widget=forms.TextInput())
-    description = forms.CharField(widget=forms.Textarea())
-    token = forms.CharField(widget=forms.PasswordInput())
-    repeat_token = forms.CharField(widget=forms.PasswordInput())
+    name = forms.CharField(widget=forms.TextInput(), max_length=50)
+    description = forms.CharField(widget=forms.Textarea(), max_length=500)
+    token = forms.CharField(widget=forms.PasswordInput(), max_length=50)
+    repeat_token = forms.CharField(widget=forms.PasswordInput(), max_length=50)
     class Meta:
         model = Experiment
         fields = ['name', 'description', 'token']

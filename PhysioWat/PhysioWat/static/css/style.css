@@ -237,9 +237,10 @@ section.border button.active {
 /* DIV CENTERED; FIXED*/
 div#main{ 
 background-color:white;
+top:50px;
 padding:1%;
 left: 50%;
-margin-left: -40px;
+margin-left: -130px;
 position: fixed;
 }
 
@@ -248,4 +249,10 @@ vertical-align:top;
 }
 div#fieldbottom {
 vertical-align:bottom;
+}
+
+div#dropzone-previews:hover 
+{
+    border-style: solid;
+ /*transform: rotateY(180deg);*/ 
 }

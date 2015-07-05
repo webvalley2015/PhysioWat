@@ -1,7 +1,8 @@
- {% extends "PhysioWat/base.html" %}  
+{% extends "PhysioWat/base.html" %}
 {% load static %}
 {% load highcharts_tags %}
 {% block app_specific_css %}
+{% load bootstrap3 %}
 <script>
 /*console.log("esisto");
 var formlist=[];
@@ -32,25 +33,46 @@ console.log(formlist);
 		</div>
 
 	<div class="algorithms col-md-4">
-			<ul class="nav nav-tabs">
-		
+			<ul class="nav nav-tabs" id="setting_nav">
+			  {% csrf_token %}
 				{% for k,v in forms.items %}
 					 <li role="presentation" class="active"><a href="#" id="nav_id_{{ k }}">{{ k }}</a></li>
 					 {% endfor %}
 			</ul>
 			
+			{% csrf_token %}
+	<form action="page_to_which_send_the_form" method="post" enctype="multipart/form-data">	
+		
 			{% for k,v in forms.items %}		
-		<!-- in the end, this contains a form. wich tag is better? div, what?-->
-				<div id = "div_id_{{ k }}" style="display:none">
-			   
-				PARAGRAFO SHISH <br>
-				 {% include "includes/bootstrap_form.html" with form=v %} 
-				<br>
-				<br>
-				</div>
+						<div id = "div_id_{{ k }}" style="display:none">
+					   
+								 <br>
+								 		{% bootstrap_form v %}
+								<br>
+								<br>
+						</div>
              {% endfor %}
-
+        
+				<div>
+				{% buttons %}
+					<button type="submit" id="select_submit" class="btn btn-success" href="ciao.html">Submit</button>
+					<button type="reset" class="btn btn-danger">Reset</button>
+				{% endbuttons %}	
+			</div>
 	</div>
+
+</form>
+
+<form action="#" method="post">
+	  {% csrf_token %}
+	{% bootstrap_form lines %}
+	{% buttons %}
+	<button type="submit" id="select_submit" class="btn btn-success">Submit</button>
+	 <button 
+	 type="reset" class="btn btn-danger">Reset</button>
+				{% endbuttons %}	
+	
+</form>
 
 </div>	
 
@@ -69,7 +91,7 @@ console.log(formlist);
 var formlist=[];
 
 
-$(document).ready(function()){
+$(document).ready(function(){
 	console.log("esisto");
 
 var i = 0;
@@ -99,8 +121,8 @@ for (var i=0; i<formlist.length; i++)
 		//console.log(this);
 		hide();
 	//	divid = eventDAta{SELF}
-		//console.log(nav_id);
-		//console.log("drento "+eventData.divid);
+		console.log(nav_id);
+		console.log("drento "+eventData.divid);
 		$(this.getAttribute("target")).show();
 	}); 
 }
@@ -132,24 +154,25 @@ hide();
 	$.getJSON("{% url 'chart_getdata' 'graph1' %}", function(data) {
 		$('#processed-signal').highcharts('StockChart',data);
 	});
+	
+	//Second graph
 	$.getJSON("{% url 'chart_getdata' 'graph2' %}", function(data) {
 		$('#temporary-processing').highcharts('StockChart',data);
 	});
 
+
+
+
+
+/* not existing anymore
 	$("form#data-slice").submit(function (e) {
 				e.preventDefault(); //prevent default form submit
 				$.getJSON("{% url 'chart_getdata' %}" + [$("#title").val(), $("#begin").val(), $("#end").val()].join('/') + '/', function(data) {
 					$('#processed-signal').highcharts('StockChart',data);
 				});
 			});
-	
-	
-
-
-
-
-
-
+*/
+		
 /*
 $(function () {
 	$.getJSON("{% url 'chart_getdata' 'graph1' %}", function(data) {

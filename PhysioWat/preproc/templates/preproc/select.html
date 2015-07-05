@@ -1,12 +1,29 @@
 {% extends "PhysioWat/base.html" %}  
 {% load static %}
 {% load highcharts_tags %}
-
+{% load bootstrap3 %}
 {% block app_specific_css %}
 {% endblock %}
 
 
 {% block container %}
-{{ form }}
 
-{% endblock %}
+<form action="#" method="post" enctype="multipart/form-data">
+		{% csrf_token %}
+		{% bootstrap_form form %}
+
+<div>
+    {% buttons %}
+        <button type="submit" id="select_submit" class="btn btn-success" href="ciao.html">Submit</button>
+        <button type="reset" class="btn btn-danger">Reset</button>
+    {% endbuttons %}
+</div>
+
+</form>
+{% endblock container %}
+{% block app_specific_js %}
+<script>
+
+</script>
+{% endblock app_specific_js %}
+

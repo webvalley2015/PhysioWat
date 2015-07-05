@@ -4,7 +4,7 @@ Filters
 from scipy.signal import gaussian, convolve, filtfilt, filter_design, freqz
 import numpy as np
 #DEBUG ONLY
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 def smoothGaussian(X,sigma=5, switch=True):
     """
