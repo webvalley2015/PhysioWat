@@ -12,7 +12,6 @@ def putintodb(fname, dvname, desc, expName):
     dictky = csvreader.next()
     for index in range(len(dictky)):
         dictky[index] = dictky[index].replace('#','').replace(' ','')
-        print(dictky[index])
 
     experimentRow = Experiment.objects.get(name=expName)
 
