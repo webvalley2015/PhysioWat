@@ -24,6 +24,7 @@ def putintodbflex(fname, dvname, desc, expName):
     return 0
 
 def putintodb(fname, dvname, desc, expName):
+    print str(fname)
     csvreader = csv.reader(fname[0], delimiter=',')
     dictky = csvreader.next()
     for index in range(len(dictky)):
