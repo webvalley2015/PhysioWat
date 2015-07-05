@@ -1,14 +1,10 @@
 from __future__ import division
 import numpy as np
-# import matplotlib.pyplot as plt
 import json
-import pandas as pd
-from pandas import DataFrame
-# from PhysioWat.models import Recording, SensorRawData
+from PhysioWat.models import Recording, SensorRawData
 from StringIO import StringIO
 from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
 import csv
-
 
 def peakdet(v, delta, x=None, startMax=True):
     '''
@@ -206,7 +202,7 @@ def dict_to_csv(d, filename):
     feats = []
     for key, value in d.items():
         feats.append(value)
-    np.savetxt(filename, np.column_stack(feats), header=",".join(d.keys()))
+    np.savetxt(filename, np.column_stack(feats), delimiter=",", header=",".join(d.keys()))
 
 
 def array_labels_to_csv(array, labels, filename):
@@ -214,6 +210,7 @@ def array_labels_to_csv(array, labels, filename):
 
 
 def putArrayintodb(rec_id, preProcArray, preProcLabel):
+
     csvasstring = ",".join(preProcLabel.tolist()) + '\n'
     for dataarr in preProcArray:
         for dataval in dataarr:
@@ -224,10 +221,10 @@ def putArrayintodb(rec_id, preProcArray, preProcLabel):
     csvreader = csv.reader(StringIO(csvasstring), delimiter=',')
     dictky = csvreader.next()
 
-    pr = Preprocessed_Recording(recording=rec_id, dict_keys=dictky)
+    pr = Preprocessed_Recording(recording_id=rec_id, dict_keys=dictky)
     pr.save()
 
     for row in csvreader:
-        Preprocessed_Data(pp_recording=pr.id, store=dict(zip(dictky, row))).save()
+        Preprocessed_Data(pp_recording_id=pr.id, store=dict(zip(dictky, row))).save()
 
     return 0
