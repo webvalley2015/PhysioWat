@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
-from forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike, smoothGaussian, choose_exp
+from forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike, smoothGaussian, choose_exp, linein
 from PhysioWat.models import Experiment
 from django.contrib import messages
+from django import forms
 
 
 def preproc_settings(request):
@@ -41,6 +42,7 @@ def preproc_settings(request):
                'formGau': formGau}
     return render(request, 'preproc/settings.html', context)
 
+#WE USE SHOW CHART
 
 def show_chart(request):
     template = "preproc/chart.html"
@@ -77,8 +79,20 @@ def show_chart(request):
             formFilt = filterAlg(initial={'filterType': 'none'})
             formSpec = GSR()
 
-    context = {'forms': {'formFilt': formFilt, 'formDown': formDown,
-                         'formPick': formPick, 'formSpec': formSpec, 'formGau': formGau}}
+    
+    #here, my dear db guys, i want a variable (call it as u want, whic_lines i have called it) which is 
+    #a FORM of the type multiple choiche, which contains actually the """lines""" that you want to show
+    #, which is, contains, for example, magZ, accX, gyrY, things like that 
+    
+	#course you delete the lines of assignement after having done this
+	 
+	#NOTE!!: I'M IMPORTING THE FORM MODULE. IF U DON'T WANT IT, PUT IT SOMEWHERE ELSE. IT'S JUST FOR THE VARIABLIE OF TEST
+    print "quiiiI"
+    which_lines = linein()
+    print "CIAOOO"
+    context = {'forms': {'Filter': formFilt, 'Downpass': formDown,
+                         'Spike': formPick, 'Special': formSpec, 'Gaussian': formGau},
+               'lines':which_lines}
     return render(request, template, context)
 
 
@@ -95,7 +109,7 @@ def select_experiment_no_use(request):
     if (request.method == 'POST'):
         form = choose_exp(request.POST)
         if (form.is_valid()):
-            print form.selected()		
+            print form.cleandata	
             #GET DATA FORM DB ::(GET THE LIST OF SUBJECTS , NAME, WHATEVER, given in inpyt THE ID OF THE EXPERIMENT)
             subj_list = (('1','SOGG1'),('2','GIANLUCA ADELANTE'),('3','UN BARBONE A CASO'))
             return HttpResponse('Ok')
