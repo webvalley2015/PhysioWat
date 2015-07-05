@@ -19,6 +19,10 @@ def trialpage(request):
     context = {'l':['a','b','c']}
     return render(request, template, context)
 
+def login(request):
+    template = 'registration/login.html'
+    context = {}
+    return render(request, template, context)
 
 def contact_view(request):
     template = 'contact_form/contact_form.html'

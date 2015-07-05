@@ -62,6 +62,9 @@ class inertial(forms.Form):
 def get_my_choices():
 	#return something from db
 	choices_list = getavaliabledatavals(5);
+	#MODIFYING OUTPUT FORMAT 
+	choices_list = [(i,i) for i in choices_list]
+	print choices_list
 	return choices_list
 	
 	
