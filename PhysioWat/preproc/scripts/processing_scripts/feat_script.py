@@ -34,7 +34,7 @@ names = ["Nearest Neighbors", "Support Vector Machine", "RBF SVM\t", "Decision T
 # use as " classifiers[alg](set_parameters) " once you have them
 classifiers = {
         'KNN': lambda nn: KNeighborsClassifier(n_neighbors=nn),
-        'SVM': lambda kernel, C, degree : SVC(kernel=kernel, C=C, degree=deg),
+        'SVM': lambda kernel, C, deg=0 : SVC(kernel=kernel, C=C, degree=deg),
         'DCT': lambda max_f: DecisionTreeClassifier(max_features=max_f),
         'RFC': lambda n_est, max_f: RandomForestClassifier(n_estimators=n_est, 
                                                            max_features=max_f),
@@ -421,12 +421,15 @@ def bestfit_KNN(fe_data, alg, metric):  # ok
     return clf
     
     
-def bestfit_SVC(fe_data, alg, metric):
-    Klist = ['linear', 'poly', 'rbf', 'sigmoid', 'precomputed']
+def bestfit_SVM(fe_data, alg, metric):
+    Klist = ['linear', 'rbf', 'sigmoid', 'precomputed', 'poly']
+    #can switch the order, but poly should be the last element
+    bestC = bestdeg = bestMet = 0.
+    bestkernel = bestmy_met = besterr_met = 0
     for i in range(len(Klist)):
         my_met = np.matrix([[0,0,0]])
         kernel = Klist[i]
-        if kernel in ['linear', 'rbf', 'poly', 'sigmoid', 'precomputed']:
+        if kernel in ['linear', 'rbf', 'sigmoid', 'precomputed']:
             my_met = np.zeros(0)
             Clist = [ 10**i for i in range(-5,8) ]
             for C in Clist:
@@ -441,13 +444,19 @@ def bestfit_SVC(fe_data, alg, metric):
                     #in this variables are saved the value of mean and error
                     mean_sum += scores.mean()
                     std_sum  += scores.std()
-                in_vec = np.array([nn, (mean_sum/iterations), (std_sum/iterations)])
+                in_vec = np.array([C, (mean_sum/iterations), (std_sum/iterations)])
                 my_met = np.vstack((my_met, in_vec))
             #plot the my_met
             plt.figure()
             plt.plot(my_met[:,0], my_met[:,1])
             plt.xscale('log') #just if a parameter is exponentially growing
             plt.show()
+            if ( my_met[:,1].max() > bestMet ):
+                bestMet = my_met[:,1].max()
+                bestC = Clist[my_met[:,1].argmax()]
+                bestkernel = kernel
+                bestmy_met = my_met.copy()
+                besterr_met = err_met.copy()
         elif kernel == 'poly':
             Clist = [ 10**i for i in range(-5,8) ]
             Dlist = [2,3]
@@ -476,14 +485,18 @@ def bestfit_SVC(fe_data, alg, metric):
             plt.imshow(my_met)
             plt.title(kernel)
             plt.show()
-            bestC, bestdeg = np.unravel_index(my_met.argmax(), (len(Clist), len(Dlist)))
+            if ( my_met.max() > bestMet ):
+                bestMet = my_met.max()
+                bestC, bestdeg = np.unravel_index(my_met.argmax(), (len(Clist), len(Dlist)))
+                bestkernel = kernel
+                bestmy_met = my_met.copy()
+                besterr_met = err_met.copy()
           
 
-    # it remains to choose the best of the svm    
-    clf = classifiers[alg](bestC, bestdeg)
+    clf = classifiers[alg](kernel, bestC, bestdeg)
     clf = clf.fit(in_data, in_tar)      
 
-    return my_met.argmax(), my_met.max()
+    return clf
     
 
 def bestfit_DCT(fe_data, alg, metric):  #ok
@@ -502,7 +515,7 @@ def bestfit_DCT(fe_data, alg, metric):  #ok
             #in this variables are saved the value of mean and error
             mean_sum += scores.mean()
             std_sum  += scores.std()
-        in_vec = np.array([nn, (mean_sum/iterations), (std_sum/iterations)])
+        in_vec = np.array([max_f, (mean_sum/iterations), (std_sum/iterations)])
         my_met = np.vstack((my_met, in_vec))
         
     #plot the my_met
@@ -529,7 +542,7 @@ def bestfit_QDA(fe_data, alg, metric):  #ok
         #in this variables are saved the value of mean and error
         mean_sum += scores.mean()
         std_sum  += scores.std()
-    in_vec = np.array([nn, (mean_sum/iterations), (std_sum/iterations)])
+    in_vec = np.array([1, (mean_sum/iterations), (std_sum/iterations)])
     my_met = np.vstack((my_met, in_vec))
 
     #plot the my_met
@@ -558,7 +571,7 @@ def bestfit_LDA(fe_data, alg, metric):  #ok
             #in this variables are saved the value of mean and error
             mean_sum += scores.mean()
             std_sum  += scores.std()
-        in_vec = np.array([nn, (mean_sum/iterations), (std_sum/iterations)])
+        in_vec = np.array([solver, (mean_sum/iterations), (std_sum/iterations)])
         my_met = np.vstack((my_met, in_vec))
 
     #plot the my_met

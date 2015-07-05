@@ -140,28 +140,30 @@ def prepare_json_to_plot(series, labels):
         file.write(json_string)
         file.close()
 
-def load_file_pd(filename, sep=";", names=None):
-    '''
-    Load data from file
-    :param filename: name of the file where data is stored
-    :return: data as pandas.DataFrame
-    '''
-    data = pd.read_csv(filename, sep=sep, names=names)
-    return data
 
-def load_file_pd_db(recordingID):
-    # raw query for i csv line
-    table = Recording.objects.get(id=recordingID)
-    data = SensorRawData.objects.filter(recording_id_id=recordingID)
-    alldata = (','.join(table.dict_keys)+'\n').replace(' ','')
-    for record in data:
-        ll=[]
-        for key in table.dict_keys:
-            ll.append(record.store[key])
-        alldata+=','.join(ll)+'\n'
-    datacsv = pd.read_csv(StringIO(alldata), sep=',')
-    return datacsv
-    # results = cursor.fetchall()
+# def load_file_pd(filename, sep=";", names=None):
+#     '''
+#     Load data from file
+#     :param filename: name of the file where data is stored
+#     :return: data as pandas.DataFrame
+#     '''
+#     data = pd.read_csv(filename, sep=sep, names=names)
+#     return data
+#
+# def load_file_pd_db(recordingID):
+#     # raw query for i csv line
+#     table = Recording.objects.get(id=recordingID)
+#     data = SensorRawData.objects.filter(recording_id_id=recordingID)
+#     alldata = (','.join(table.dict_keys)+'\n').replace(' ','')
+#     for record in data:
+#         ll=[]
+#         for key in table.dict_keys:
+#             ll.append(record.store[key])
+#         alldata+=','.join(ll)+'\n'
+#     datacsv = pd.read_csv(StringIO(alldata), sep=',')
+#     return datacsv
+#     # results = cursor.fetchall()
+
 
 def downsampling(data, FSAMP, FS_NEW, switch=True):
     '''
