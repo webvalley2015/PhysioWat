@@ -3,17 +3,33 @@
 {% block container %}
 
     <form action="#" method="post" enctype="multipart/form-data" class="form-cnt dropzone"  id="my-awesome-dropzone" >
+
         <br><h1>Upload File</h1><br>
+
+<!-- FIRST -->
+
         {% csrf_token %}
-        <label for="experiment">Experiment </label>
-        <select name="experiment"  class="form-control">
+<div id="Experiment_schifo">
+        <label for="experiment"><font color="#BDBDBD">Experiment </font></label>
+
+        <select name="experiment"  class="form-control" id="sel">
             {% for c in experiments %}
                 <option value="{{ c }}">{{ c }}</option>
             {% endfor %}
         </select><br><br>
+</div>
+<!-- perche non solo un bottone?
+		<form onsubmit="confirmInput()" action="http://www.w3schools.com/">
+			<input type="submit">
+		
+		</form>-->
+		
+<br>
         <!-- buttons submit and reset -->
         {% include "includes/bootstrap_fordbgroup.html" %}
+
     </form>
+	<button id="button1" class="btn btn-success" onclick="increase_passage()">Next passage</button>
     
     {% if messages %}
         <ul class="messages">
@@ -26,6 +42,15 @@
 {% endblock %}
 
 
+
+
+
+
+
+
+
+
+
 {% block app_specific_js %}
 <script src="{% static 'js/dropzone.js' %}"></script>
 <script>
@@ -35,9 +60,10 @@ $(document).ready(function(){
 var input_file = $('#id_file');
 var parent = input_file.parent('div');
 input_file.remove();
-parent.append('<div class="col-xs-3 dz-default dz-message" id="dropzone-previews" style="height: 80px; border: 2px dashed; border-color:grey; color:white" >Drag&Drop your files to upload</div>');
+parent.append('<div class="col-xs-3 dz-default dz-message" id="dropzone-previews" style="height: 80px; border: 2px dashed; border-color:grey; color:#BDBDBD" >Drag&Drop your files </div>');
 
-Dropzone.options.myAwesomeDropzone = 	{ // The camelized version of the ID of the form element
+
+Dropzone.options.myAwesomeDropzone = { // The camelized version of the ID of the form element
 
   // The configuration we've talked about above
   autoProcessQueue: false,
@@ -75,7 +101,7 @@ Dropzone.options.myAwesomeDropzone = 	{ // The camelized version of the ID of th
  						}
 
 }
-//HAS TO BE CHECKED
+//WORKING
 //to set the max of the uploadable elements to one
 Dropzone.options.myAwesomeDropzone = {
   maxFiles: 1,
