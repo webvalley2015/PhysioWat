@@ -5,8 +5,5 @@ django-braces==1.8.0
 psycopg2==2.6.1
 six==1.9.0
 wsgiref==0.1.2
-<<<<<<< HEAD
 pandas==0.16.2
-=======
 git+https://github.com/ernestoarbitrio/django-highcharts.git
->>>>>>> 8f38345ea1d205d9173d4ee27ce0f0539dc3cc30
