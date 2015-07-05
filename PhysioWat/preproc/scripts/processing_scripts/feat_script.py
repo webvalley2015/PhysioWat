@@ -664,7 +664,7 @@ def bestfit_RFC(fe_data, alg, metric):
     NElist = [i*25 for i in range(1,5)]#20)] TRY
     MFlist = [1, 1., 'sqrt']#, 'log2', None] TRY
     my_met = np.zeros((len(NElist), len(MFlist)))
-    err_met = np.zeros((len(NElist), len(LRlist)))
+    err_met = np.zeros((len(NElist), len(MFlist)))
     for n_est in NElist:
         for max_f in MFlist:
             clf = classifiers[alg](n_est, max_f)           
@@ -689,3 +689,9 @@ def bestfit_RFC(fe_data, alg, metric):
     bestn_est, bestmax_f = np.unravel_index(my_met.argmax(), (len(NElist), len(MFlist)))
     clf = classifiers[alg](bestn_est, bestmax_f)
     return clf, my_met.max()
+
+
+
+if __name__ == '__main__':
+
+    
