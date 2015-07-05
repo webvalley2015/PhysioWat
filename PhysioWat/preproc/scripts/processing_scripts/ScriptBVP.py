@@ -60,3 +60,7 @@ if __name__ == '__main__':
     winds, lbls = windowing.get_windows_contiguos(ibi[:,0], lbls, 100, 50)
 
     feat, lbls = IBI.extract_IBI_features(ibi, winds, lbls)
+
+    feat_col=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
+
+    tools.array_labels_to_csv(feat, feat_col, "./output/feat_"+fileName[7:-4]+".csv")
