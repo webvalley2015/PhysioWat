@@ -136,7 +136,7 @@
         
 		var allVals = [];
         function show_graph(){
-         $('#options :input:checked').each(function (i, elem){console.log(elem.value);});
+         $('#options :input:checked').each(function (i, elem){allVals.push(elem.value);});
 		console.log(allVals);
     }
 //        $('#temporary-processing').highcharts('StockChart', data);
