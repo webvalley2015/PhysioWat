@@ -26,7 +26,7 @@ def loadEKG(filename):
 if __name__ == '__main__':
     #user insertion, the path is substituted with database source
     # path = "/home/flavio/Work/PhysioWat/robaNoGit/data/Nicolasdata/"
-    fileName = "./data/EKG_F01_F.txt"
+    fileName = "./data/EKG_F01_M.txt"
     SAMP_F = 256
     
     #load data from the file
