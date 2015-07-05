@@ -23,19 +23,22 @@ class Sensor(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)
     description = models.CharField(max_length=50, blank=True, null=True)
 
-
 class SensorRawData(models.Model):
     recording = models.ForeignKey(Recording)
     store = HStoreField()
 
+class Preprocessed_Recording(models.Model):
+    recording = models.ForeignKey(Recording)
+    parameters = HStoreField(null=True, default=None)
+    dict_keys = ArrayField(
+        models.CharField(max_length=50, blank=True, null=True)
+    )
 
-class PreprocessedData(models.Model):
-    raw_data = models.ForeignKey(SensorRawData)
-    parameters = HStoreField()
+class Preprocessed_Data(models.Model):
+    pp_recording = models.ForeignKey(Preprocessed_Recording)
     store = HStoreField()
 
-
 class FeatExtractedData(models.Model):
-    preprocessed = models.ForeignKey(PreprocessedData)
+    pp_recording = models.ForeignKey(Preprocessed_Recording)
     parameters = HStoreField()
     path_to_file = models.CharField(max_length=500)

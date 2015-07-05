@@ -201,3 +201,4 @@ def dict_to_csv(d, filename):
 
 def array_labels_to_csv(array, labels, filename):
     np.savetxt(filename, array, header=",".join(labels.tolist()))
+

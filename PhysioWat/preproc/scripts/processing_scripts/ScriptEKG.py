@@ -26,7 +26,7 @@ def loadEKG(filename):
 if __name__ == '__main__':
     #user insertion, the path is substituted with database source
     # path = "/home/flavio/Work/PhysioWat/robaNoGit/data/Nicolasdata/"
-    fileName = "./data/EKG_F01_M.txt"
+    fileName = "./data/EKG_F01_F.txt"
     SAMP_F = 256
     
     #load data from the file
@@ -66,7 +66,9 @@ if __name__ == '__main__':
     winds, lbls = windowing.get_windows_contiguos(ibi[:,0], lbls, 100, 50)
 
     feat, lbls = IBI.extract_IBI_features(ibi, winds, lbls)
-    
+    feat_col=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
+
+    ourTools.array_labels_to_csv(feat, feat_col, "./output/feat_"+fileName[7:-4]+".csv")
     '''    
     #DEBUG output
     print 'IBI:'

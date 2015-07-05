@@ -1,13 +1,13 @@
 __author__ = 'andrew'
 
-from PhysioWat.models import Recording,SensorRawData,PreprocessedData
+from PhysioWat.models import Recording,SensorRawData,Preprocessed_Data
 
 
 def makejson(modelname,recordingID, vals):
     if modelname == "raw":
         data = SensorRawData.objects.filter(recording_id=recordingID)
     elif modelname == "proc":
-        data = PreprocessedData.objects.filter(recording_id=recordingID)
+        data = Preprocessed_Data.objects.filter(recording_id=recordingID)
     jsonstring = "{\"series\":["
     if hasattr(vals, '__iter__'):
         for valu in vals:
@@ -29,4 +29,5 @@ def makejson(modelname,recordingID, vals):
 
 def getavaliabledatavals(recordingID):
     keys = Recording.objects.get(id=recordingID).dict_keys
+
     return keys

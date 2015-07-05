@@ -15,7 +15,6 @@ def putintodb(fname, dvname, desc, expName):
         print(dictky[index])
 
     experimentRow = Experiment.objects.get(name=expName)
-    print desc
 
     r = Recording(experiment_id=experimentRow.id, device_name=dvname, dict_keys=dictky, description=desc)
     r.save()
