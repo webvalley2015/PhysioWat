@@ -34,28 +34,28 @@ names = ["Nearest Neighbors", "Support Vector Machine", "RBF SVM\t", "Decision T
 # use as " classifiers[alg](set_parameters) " once you have them
 classifiers = {
         'KNN': lambda nn: KNeighborsClassifier(n_neighbors=nn),
-        'SVM': lambda kernel, C, deg=0 : SVC(kernel=kernel, C=C, degree=deg),
+        #'SVM': lambda kernel, C, deg=0 : SVC(kernel=kernel, C=C, degree=deg),
         'DCT': lambda max_f: DecisionTreeClassifier(max_features=max_f),
         'RFC': lambda n_est, max_f: RandomForestClassifier(n_estimators=n_est, 
                                                            max_features=max_f),
         'ADA': lambda n_est, l_rate: AdaBoostClassifier(n_estimators = n_est, 
                                                         learning_rate=l_rate),
-        'LDA': lambda solver: LDA(solver=solver),
+        'LDA': lambda solver: LDA(solver),
         'QDA': lambda : QDA()
         }
         
 
 classifiersDefaultParameters = {
         'KNN': KNeighborsClassifier(),
-        'SVM': SVC(kernel='linear'),
+        #'SVM': SVC(kernel='linear'),
         'DCT': DecisionTreeClassifier(),
         'RFC': RandomForestClassifier(),
         'ADA': AdaBoostClassifier(),
-        'LDA': LDA(),
+        #'LDA': LDA(),
         'QDA': QDA()
         }
     
-iterations = 5 #20
+iterations = 5 #20 TRY
 
 def feat_boxplot(x):
     '''
@@ -320,12 +320,48 @@ def get_report(y_true, y_pred):
     
     return report, conf_mat
     
+def bestAlg(fe_data, metric):
+    '''
+    Given the dataframe of the extracted features and the metric to
+    maximize it returns the clf ready to be used for the classification
+    trying all the algotithms
     
+    -- Disclaimer --
+    It is very slow to execute
+      
+    Params:
+        fe_data (pd.DataFrame)
+            the feature dataframe to fit your data
+        metric (string)
+            string of three upcase characters to identify the metric.
+            To have the list see the metrics dictionary
+
+    Return:
+        clf (classificators' object)
+            the classificator fit on the given dataframe
+            
+    FIXME : misses the metrics option. Now it's just accuracy (and not global)
+
+
+    '''
+   
+    the_metric = 0
+    metric = 0 #just for debugging
+    for a in classifiers.keys():
+        loc_clf, loc_metric = bestfit(fe_data, a, metric)
+        if loc_metric > the_metric:
+            the_metric = loc_metric
+            the_clf = loc_clf
+        print the_clf, the_metric        
+    in_tar = fe_data.label
+    in_data = fe_data[fe_data.columns[:-1]]
+    
+    return the_clf.fit(in_data, in_tar)
     
 def bestfit(fe_data, alg, metric):
     '''
     If you have some parameters to fit this is the right function.
-    Given the dataframe of the extracted features and the metric to
+    Given the dataframe of the extracted features, the algs and the metric to
     maximize it returns the clf ready to be used for the classification.
     
     -- Disclaimer --
@@ -350,22 +386,26 @@ def bestfit(fe_data, alg, metric):
 
     '''
        
-    if   alg == 'KNN': clf = bestfit_KNN(fe_data, alg, metric)
-    elif alg == 'SVM': clf = bestfit_SVM(fe_data, alg, metric)
-    elif alg == 'DCT': clf = bestfit_DCT(fe_data, alg, metric)
-    elif alg == 'RFC': clf = bestfit_RFC(fe_data, alg, metric)
-    elif alg == 'ADA': clf = bestfit_ADA(fe_data, alg, metric)
-    elif alg == 'LDA': clf = bestfit_LDA(fe_data, alg, metric)
-    elif alg == 'QDA': clf = bestfit_QDA(fe_data, alg, metric)
+    if   alg == 'KNN': clf, loc_metric = bestfit_KNN(fe_data, alg, metric)
+    elif alg == 'SVM': clf, loc_metric = bestfit_SVM(fe_data, alg, metric)
+    elif alg == 'DCT': clf, loc_metric = bestfit_DCT(fe_data, alg, metric)
+    elif alg == 'RFC': clf, loc_metric = bestfit_RFC(fe_data, alg, metric)
+    elif alg == 'ADA': clf, loc_metric = bestfit_ADA(fe_data, alg, metric)
+    elif alg == 'LDA': clf, loc_metric = bestfit_LDA(fe_data, alg, metric)
+    elif alg == 'QDA': clf, loc_metric = bestfit_QDA(fe_data, alg, metric)
+        
+        
+    in_tar = fe_data.label
+    in_data = fe_data[fe_data.columns[:-1]]
     
-    return clf
+    return clf.fit(in_data, in_tar), loc_metric
 
 
 
 
 '''
     --------------------------------------------------------------------
-    - Now begins the sequence of subfucions.                           -
+    - Now begins the sequence of subfunctions.                           -
     - They all work in the same way and all return the same parameters -
     - So this is the general description for them                      -
     --------------------------------------------------------------------
@@ -381,8 +421,10 @@ def bestfit(fe_data, alg, metric):
             To have the list see the metrics dictionary
 
     Return:
-        clf (classificators' object)
-            the classificator ready already fit on the given dataframe
+        clf (classificators' object - not fit)
+            the classificator ready to be fit on the given dataframe
+        metric (float)
+            the max value of the metric
 '''
 
 
@@ -390,7 +432,7 @@ def bestfit(fe_data, alg, metric):
 
 def bestfit_KNN(fe_data, alg, metric):  # ok
     my_met = np.matrix([[0,0,0]])
-    NNlist = [1, 3, 5, 7, 9, 11]
+    NNlist = [1, 3, 5] #, 7, 9, 11]  TRY
     
     for nn in NNlist:
         clf = classifiers[alg](nn)
@@ -417,8 +459,7 @@ def bestfit_KNN(fe_data, alg, metric):  # ok
 
     bestnn = NNlist[my_met[:,1].argmax()]
     clf = classifiers[alg](bestnn)
-    clf = clf.fit(in_data, in_tar)
-    return clf
+    return clf, my_met[:,1].max()
     
     
 def bestfit_SVM(fe_data, alg, metric):
@@ -429,9 +470,9 @@ def bestfit_SVM(fe_data, alg, metric):
     for i in range(len(Klist)):
         my_met = np.matrix([[0,0,0]])
         kernel = Klist[i]
-        if kernel in ['linear', 'rbf', 'sigmoid', 'precomputed']:
+        if kernel in ['linear', 'rbf']: #, 'sigmoid', 'precomputed']: TRY
             my_met = np.zeros(0)
-            Clist = [ 10**i for i in range(-5,8) ]
+            Clist = [ 10**i for i in range(-2,2)]#range(-5,8) ] TRY
             for C in Clist:
                 clf = classifiers[alg](kernel, C)          
                 mean_sum = 0.
@@ -458,10 +499,10 @@ def bestfit_SVM(fe_data, alg, metric):
                 bestmy_met = my_met.copy()
                 besterr_met = err_met.copy()
         elif kernel == 'poly':
-            Clist = [ 10**i for i in range(-5,8) ]
+            Clist = [ 10**i for i in range(-2,2)]#range(-5,8) ] TRY
             Dlist = [2,3]
             #watch out... this is a particular matrix
-            my_met = np.zeros((len(Clist), len(Dlist)))
+            q_met = np.zeros((len(Clist), len(Dlist)))
             err_met = np.zeros((len(Clist), len(Dlist)))
             for C in Clist:
                 for deg in Dlist:
@@ -478,30 +519,28 @@ def bestfit_SVM(fe_data, alg, metric):
                         std_sum  += scores.std()
                     mean_local = mean_sum/iterations
                     err_local  = std_sum/iterations
-                    my_met[Clist.index(C), Dlist.index(deg)] = mean_local
+                    q_met[Clist.index(C), Dlist.index(deg)] = mean_local
                     err_met[Clist.index(C), Dlist.index(deg)] = err_local
-            #plot the my_met
+            #plot the q_met
             plt.figure()
-            plt.imshow(my_met)
+            plt.imshow(q_met)
             plt.title(kernel)
             plt.show()
-            if ( my_met.max() > bestMet ):
-                bestMet = my_met.max()
-                bestC, bestdeg = np.unravel_index(my_met.argmax(), (len(Clist), len(Dlist)))
+            if (q_met.max() > bestMet ):
+                bestMet = q_met.max()
+                bestC, bestdeg = np.unravel_index(q_met.argmax(), (len(Clist), len(Dlist)))
                 bestkernel = kernel
-                bestmy_met = my_met.copy()
+                bestmy_met = q_met.copy()
                 besterr_met = err_met.copy()
           
 
     clf = classifiers[alg](kernel, bestC, bestdeg)
-    clf = clf.fit(in_data, in_tar)      
-
-    return clf
+    return clf, max(my_met[:,1].max(), q_met.max())
     
 
-def bestfit_DCT(fe_data, alg, metric):  #ok
+def bestfit_DCT(fe_data, alg, metric):
     my_met = np.matrix([[0,0,0]])
-    MFlist = [1, 1., 'sqrt', 'log2', None]
+    MFlist = [1, 1., 'sqrt']#, 'log2', None] TRY
     for max_f in MFlist:
         clf = classifiers[alg](max_f)
         mean_sum = 0.
@@ -526,13 +565,14 @@ def bestfit_DCT(fe_data, alg, metric):  #ok
 
     bestmax_f = MFlist[my_met[:,1].argmax()]
     clf = classifiers[alg](bestmax_f)
-    clf = clf.fit(in_data, in_tar)
-    return clf
+    return clf, my_met[:,1].max()
     
 def bestfit_QDA(fe_data, alg, metric):  #ok
     my_met = np.matrix([[0,0,0]])
     #just default parameters
     clf = classifiers[alg]()
+    mean_sum = 0.
+    std_sum = 0.
     for i in range(iterations):
         fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
         in_tar = fe_data.label
@@ -549,13 +589,12 @@ def bestfit_QDA(fe_data, alg, metric):  #ok
     plt.figure()
     plt.plot(my_met[:,0], my_met[:,1])
     #plt.xscale('log') #just if a parameter is exponentially growing
-    plt.show()
+    plt.show()    
+    #print  my_met[:,1].max()
+    return clf, my_met[:,1].max()
     
-    clf = clf.fit(in_data, in_tar)
-    return clf
     
-    
-def bestfit_LDA(fe_data, alg, metric):  #ok
+def bestfit_LDA(fe_data, alg, metric):
     my_met = np.matrix([[0,0,0]])
     SRlist = ['svd', 'lsqr', 'eigen']
     for solver in SRlist:
@@ -575,20 +614,24 @@ def bestfit_LDA(fe_data, alg, metric):  #ok
         my_met = np.vstack((my_met, in_vec))
 
     #plot the my_met
-    plt.figure()
-    plt.plot(my_met[:,0], my_met[:,1])
+    X = np.arange(len(SRlist)+1)
+    plt.plot(X, my_met[:,1])
+    plt.xticks(X, SRlist, rotation=90)
+    plt.show()        
+    #plt.figure()
+    #plt.plot(my_met[:,0], my_met[:,1])
     #plt.xscale('log') #just if a parameter is exponentially growing
-    plt.show()
+    #plt.show()
 
     bestsolver = SRlist[my_met[:,1].argmax()]
     clf = classifiers[alg](bestsolver)
-    clf = clf.fit(in_data, in_tar)
-    return clf
+    print  my_met[:,1].max()
+    return clf, my_met[:,1].max()
     
-#watch out... this is a particular matrix
+#watch out... this is a particular matrix... 65s for 75cvs
 def bestfit_ADA(fe_data, alg, metric):
-    NElist = [i*50 for i in range(1,20)]#1)]
-    LRlist = [i*0.25 for i in range(2,9) ]
+    NElist = [i*50 for i in range(1,5)]#201)] TRY
+    LRlist = [i*0.25 for i in range(2,5)]#9) ] TRY
     my_met = np.zeros((len(NElist), len(LRlist)))
     err_met = np.zeros((len(NElist), len(LRlist)))
     for n_est in NElist:
@@ -614,13 +657,12 @@ def bestfit_ADA(fe_data, alg, metric):
     
     bestn_est, bestl_rate = np.unravel_index(my_met.argmax(), (len(NElist), len(LRlist)))
     clf = classifiers[alg](bestn_est, bestl_rate)
-    clf = clf.fit(in_data, in_tar)
-    return my_met.argmax(), my_met.max()
+    return clf, my_met.max()
     
-#watch out... this is a particular matrix    
+#watch out... this is a particular matrix    6m for 300cvs
 def bestfit_RFC(fe_data, alg, metric):
-    NElist = [i*25 for i in range(1,20)]
-    MFlist = [1, 1., 'sqrt', 'log2', None]
+    NElist = [i*25 for i in range(1,5)]#20)] TRY
+    MFlist = [1, 1., 'sqrt']#, 'log2', None] TRY
     my_met = np.zeros((len(NElist), len(MFlist)))
     err_met = np.zeros((len(NElist), len(LRlist)))
     for n_est in NElist:
@@ -646,5 +688,4 @@ def bestfit_RFC(fe_data, alg, metric):
     
     bestn_est, bestmax_f = np.unravel_index(my_met.argmax(), (len(NElist), len(MFlist)))
     clf = classifiers[alg](bestn_est, bestmax_f)
-    clf = clf.fit(in_data, in_tar)
-    return my_met.argmax(), my_met.max()
+    return clf, my_met.max()
