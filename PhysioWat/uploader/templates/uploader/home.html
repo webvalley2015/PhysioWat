@@ -1,20 +1,21 @@
 {% extends 'PhysioWat/base.html' %}
 {% load static %}
 {% block container %}
+    <form action="#" method="post" enctype="multipart/form-data" class="form-cnt"> <!--class="form-cnt dropzone" id="my-awesome-dropzone">-->
+        <br>
 
-    <form action="#" method="post" enctype="multipart/form-data" class="form-cnt dropzone"  id="my-awesome-dropzone" >
-        <br><h1>Upload File</h1><br>
+        <h1>Upload File</h1><br>
         {% csrf_token %}
         <label for="experiment">Experiment </label>
-        <select name="experiment">
+        <select name="experiment" class="form-control">
             {% for c in experiments %}
                 <option value="{{ c }}">{{ c }}</option>
-            {% endfor %}
+            {% endfor %}c
         </select><br><br>
         <!-- buttons submit and reset -->
         {% include "includes/bootstrap_fordbgroup.html" %}
     </form>
-    
+
     {% if messages %}
         <ul class="messages">
             {% for message in messages %}
@@ -22,60 +23,88 @@
             {% endfor %}
         </ul>
     {% endif %}
-
 {% endblock %}
 
+<!--
 
-{% block app_specific_js %}
-<script src="{% static 'js/dropzone.js' %}"></script>
-<script>
-$(document).ready(function(){
+    <script src="{--% static 'js/dropzone.js' %}"></script>
+    <script>
+        $(document).ready(function () {
 
 //removed browsing, added drag&drop
-var input_file = $('#id_file');
-var parent = input_file.parent('div');
-input_file.remove();
-parent.append('<div class="col-xs-3 dz-default dz-message" id="dropzone-previews" style="height: 80px; border: 2px dashed; border-color:grey; color:white" >Drag&Drop your files to upload</div>');
+            var input_file = $('#id_file');
+            var parent = input_file.parent('div');
+            input_file.remove();
+            parent.append('<div class="col-xs-3 dz-default dz-message" id="dropzone-previews" style="height: 80px; border: 2px dashed; border-color:grey; color:white" >Drag&Drop your files to upload</div>');
 
-Dropzone.options.myAwesomeDropzone = { // The camelized version of the ID of the form element
+            Dropzone.options.myAwesomeDropzone = { // The camelized version of the ID of the form element
 
-  // The configuration we've talked about above
-  autoProcessQueue: false,
-  uploadMultiple: true,
-  parallelUploads: 100,
-  maxFiles: 100,
-  previewsContainer: '#dropzone-previews',
+                // The configuration we've talked about above
+                autoProcessQueue: false,
+                uploadMultiple: true,
+                parallelUploads: 100,
+                maxFiles: 100,
+                previewsContainer: '#dropzone-previews',
 //parameter file name on site
 
-  // The setting up of the dropzone
-  init: function() {
-    var myDropzone = this;
+                // The setting up of the dropzone
+                init: function () {
+                    var myDropzone = this;
 
-    // First change the button to actually tell Dropzone to process the queue.
-    this.element.querySelector("button[type=submit]").addEventListener("click", function(e) {
-      // Make sure that the form isn't actually being sent.
-      e.preventDefault();
-      e.stopPropagation();
-      myDropzone.processQueue();
-    });
+                    // First change the button to actually tell Dropzone to process the queue.
+                    this.element.querySelector("button[type=submit]").addEventListener("click", function (e) {
+                        // Make sure that the form isn't actually being sent.
+                        e.preventDefault();
+                        e.stopPropagation();
+                        myDropzone.processQueue();
+                    });
 
-    // Listen to the sendingmultiple event. In this case, it's the sendingmultiple event instead
-    // of the sending event because uploadMultiple is set to true.
-    this.on("sendingmultiple", function() {
-      // Gets triggered when the form is actually being sent.
-      // Hide the success button or the complete form.
-    });
-    this.on("successmultiple", function(files, response) {
-      // Gets triggered when the files have successfully been sent.
-      // Redirect user or notify of success.
-    });
-    this.on("errormultiple", function(files, response) {
-      
-    });
-  }
+                    // Listen to the sendingmultiple event. In this case, it's the sendingmultiple event instead
+                    // of the sending event because uploadMultiple is set to true.
+                    this.on("sendingmultiple", function () {
+                        // Gets triggered when the form is actually being sent.
+                        // Hide the success button or the complete form.
+                    });
+                    this.on("successmultiple", function (files, response) {
+                        // Gets triggered when the files have successfully been sent.
+                        // Redirect user or notify of success.
+                    });
+                    this.on("errormultiple", function (files, response) {
 
-}
+                    });
+                }
 
-})
-</script>
- {% endblock %}
+            }
+//HAS TO BE CHECKED
+//to set the max of the uploadable elements to one
+            Dropzone.options.myAwesomeDropzone = {
+                maxFiles: 1,
+                accept: function (file, done) {
+                    console.log("uploaded");
+                    done();
+                },
+                init: function () {
+                    this.on("maxfilesexceeded", function (file) {
+                        alert("No more files please!");
+                    });
+                }
+            };
+            /*
+             Dropzone.options.myAwesomeDropzone = {
+             accept: function(file, done) {
+             console.log("uploaded");
+             done();
+             },
+             init: function() {
+             this.on("addedfile", function() {
+             if (this.files[1]!=null){
+             this.removeFile(this.files[0]);
+             }
+             });
+             }
+             };
+             */
+
+        })
+    </script>
+{--% endblock %}-->

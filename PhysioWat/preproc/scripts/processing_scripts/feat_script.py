@@ -714,6 +714,7 @@ def bestfit_RFC(fe_data, alg, metric):
     #plt.draw()  
     
     bestn_est, bestmax_f = np.unravel_index(my_met.argmax(), (len(NElist), len(MFlist)))
+<<<<<<< HEAD
     clf = classifiers[alg](NElist[bestn_est], MFlist[bestmax_f])
     return clf, my_met.max()
     
@@ -740,3 +741,13 @@ if __name__ == '__main__':
     print conf_mat
     
 !!! Before continue you have to fix the zeros.matrix problem
+=======
+    clf = classifiers[alg](bestn_est, bestmax_f)
+    return clf, my_met.max()
+
+
+
+if __name__ == '__main__':
+
+    
+>>>>>>> 4ca1910459e0b80bd04c193caea833cf40fb2c32

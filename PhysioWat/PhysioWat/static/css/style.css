@@ -251,5 +251,8 @@ div#fieldbottom {
 vertical-align:bottom;
 }
 
-.card:hover {
-  transform: rotateY(180deg);
+div#dropzone-previews:hover 
+{
+    border-style: solid;
+ /*transform: rotateY(180deg);*/ 
+}
