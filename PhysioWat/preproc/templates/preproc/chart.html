@@ -33,13 +33,15 @@ console.log(formlist);
 		</div>
 
 	<div class="algorithms col-md-4">
-			<ul class="nav nav-tabs">
+			<ul class="nav nav-tabs" id="setting_nav">
 			  {% csrf_token %}
 				{% for k,v in forms.items %}
 					 <li role="presentation" class="active"><a href="#" id="nav_id_{{ k }}">{{ k }}</a></li>
 					 {% endfor %}
 			</ul>
-	<form action="asjpsjdf.com" method="post" enctype="multipart/form-data">	
+			
+			{% csrf_token %}
+	<form action="page_to_which_send_the_form" method="post" enctype="multipart/form-data">	
 		
 			{% for k,v in forms.items %}		
 			<!-- in the end, this contains a form. wich tag is better? div, what?-->
@@ -56,13 +58,18 @@ console.log(formlist);
 				{% buttons %}
 					<button type="submit" id="select_submit" class="btn btn-success" href="ciao.html">Submit</button>
 					<button type="reset" class="btn btn-danger">Reset</button>
-				{% endbuttons %}
-				
-				{{ lines }}
-				
+				{% endbuttons %}	
 			</div>
 	</div>
 
+</form>
+
+<form action="#" method="post">
+	{% bootstrap_form lines %}
+	{% buttons %}
+	<button type="submit" id="select_submit" class="btn btn-success">Submit</button>
+	 type="reset" class="btn btn-danger">Reset</button>
+				{% endbuttons %}	
 	
 </form>
 
