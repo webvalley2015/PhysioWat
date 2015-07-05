@@ -44,7 +44,6 @@ console.log(formlist);
 	<form action="page_to_which_send_the_form" method="post" enctype="multipart/form-data">	
 		
 			{% for k,v in forms.items %}		
-			<!-- in the end, this contains a form. wich tag is better? div, what?-->
 						<div id = "div_id_{{ k }}" style="display:none">
 					   
 								 <br>
@@ -65,9 +64,11 @@ console.log(formlist);
 </form>
 
 <form action="#" method="post">
+	  {% csrf_token %}
 	{% bootstrap_form lines %}
 	{% buttons %}
 	<button type="submit" id="select_submit" class="btn btn-success">Submit</button>
+	 <button 
 	 type="reset" class="btn btn-danger">Reset</button>
 				{% endbuttons %}	
 	
@@ -153,24 +154,25 @@ hide();
 	$.getJSON("{% url 'chart_getdata' 'graph1' %}", function(data) {
 		$('#processed-signal').highcharts('StockChart',data);
 	});
+	
+	//Second graph
 	$.getJSON("{% url 'chart_getdata' 'graph2' %}", function(data) {
 		$('#temporary-processing').highcharts('StockChart',data);
 	});
 
+
+
+
+
+/* not existing anymore
 	$("form#data-slice").submit(function (e) {
 				e.preventDefault(); //prevent default form submit
 				$.getJSON("{% url 'chart_getdata' %}" + [$("#title").val(), $("#begin").val(), $("#end").val()].join('/') + '/', function(data) {
 					$('#processed-signal').highcharts('StockChart',data);
 				});
 			});
-	
-	
-
-
-
-
-
-
+*/
+		
 /*
 $(function () {
 	$.getJSON("{% url 'chart_getdata' 'graph1' %}", function(data) {

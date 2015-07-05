@@ -1,5 +1,6 @@
 __author__ = 'federico'
 from django import forms
+from  .jsongen import getavaliabledatavals 
 
 # FileUpload form class.
 
@@ -59,10 +60,11 @@ class inertial(forms.Form):
 
 
 def get_my_choices():
-	#ritorna una roba dal db
-	choices_list = [('1','ESPERIMENTO1'),
-	('2','QUELLO DEL BABBUINO'),
-	('3','ESPERIMENTO 3')];
+	#return something from db
+	choices_list = getavaliabledatavals(5);
+	#MODIFYING OUTPUT FORMAT 
+	choices_list = [(i,i) for i in choices_list]
+	print choices_list
 	return choices_list
 	
 	
@@ -75,4 +77,13 @@ class choose_exp(forms.Form):
 		self.fields['experiment'].choices = get_my_choices()
 		self.fields['asd'].choices = [('ciao', 'Hello')]
 	
+class lineinout(forms.Form):
+	
+	lines = forms.ChoiceField()
+	def __init__(self, *args, **kwargs):
+		super(linein, self).__init__(*args, **kwargs)
+		self.fields['lines'].choices = get_my_choices()
+		
+class linein(forms.Form):
+	lines = forms.ChoiceField(choices=get_my_choices(), widget=forms.CheckboxSelectMultiple())
 
