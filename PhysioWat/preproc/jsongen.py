@@ -29,4 +29,7 @@ def makejson(modelname,recordingID, vals):
 
 def getavaliabledatavals(recordingID):
     keys = Recording.objects.get(id=recordingID).dict_keys
-    return keys
+    #MODIFYING OUTPUT FORMAT 
+    mykey = [(i,i) for i in keys]
+    print mykey
+    return mykey
