@@ -8,10 +8,11 @@ function for extract IBI from BVP
 '''
 
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import filters as ourFilters
 import IBI
 import windowing
+import tools
 
 def loadBVP(filename):
     '''
@@ -23,12 +24,12 @@ def loadBVP(filename):
 #Simulate users app
 if __name__ == '__main__':
     #user insertion, the path is substituted with database source
-    path = '/home/flavio/Work/PhysioWat/robaNoGit/data/SUB100/SUB100/Empatica_E4/'
-    fileName = 'BVP.csv'
+    # path = '/home/flavio/Work/PhysioWat/robaNoGit/data/SUB100/SUB100/Empatica_E4/'
+    fileName = './data/BVP.csv'
     SAMP_F = 64
 
     #load data from the file
-    rawdata = loadBVP(path + fileName)
+    rawdata = loadBVP(fileName)
     
     #filter the signal
     #the user selects the parameters, with default suggested
@@ -39,7 +40,7 @@ if __name__ == '__main__':
     IATT = 40
     filtered_signal = ourFilters.filterSignal(rawdata, SAMP_F, passFr = F_PASS, stopFr = F_STOP, LOSS = ILOSS, ATTENUATION = IATT, filterType = filterType)
     #filtered_signal = rawdata
-    
+
     #extraction peaks from the signal
     #the user selects the parameters, with default suggested
     delta = 1
@@ -50,6 +51,10 @@ if __name__ == '__main__':
     minFr = 40
     maxFr = 200
     ibi = IBI.max2interval(peaks[:,0], minFr, maxFr)
+
+    tools.array_labels_to_csv(ibi, np.array(["timestamp", "IBI"]), "./output/preproc_"+fileName[7:-4]+".csv")
+
+    #-----FEATURES EXTRACTION-----
 
     lbls = np.array([0 for i in ibi[:,0]])
     winds, lbls = windowing.get_windows_contiguos(ibi[:,0], lbls, 100, 50)
