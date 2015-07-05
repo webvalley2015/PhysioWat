@@ -24,6 +24,7 @@ def login(request):
     context = {}
     return render(request, template, context)
 
+
 def contact_view(request):
     template = 'contact_form/contact_form.html'
     context = {}
