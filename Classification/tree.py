@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt # for understanding the data- testing
 from sklearn import tree # for decision tree
 
 # data from processing team- data_mean & data_var are extracted features, we may add more
-data_mean = np.load('data_mean.npy') 
+data_mean = np.load('data_mean.npy')
 data_var = np.load('data_var.npy')
 
 # for plotting
@@ -17,9 +17,9 @@ for i in range(nClass): # for the number of features
 	nFeatures.append(len(data_mean[i])) # add the length of the feature data to the nFeatures
 
 N = min(nFeatures) # N is the minimum length of the feature data
-nTrain = N / 5 # divide the minimum length of the feature data by five, BUT WHY
+nTrain = N / 5 # divide the minimum length of the feature data by five to set increments for training/testing sets
 
-#initialize training and testing data arrays
+# initialize training and testing data arrays
 data_rnd = []
 dataTrain = [0,0,0,0,0,0]
 labelsTrain = [0]
@@ -31,19 +31,20 @@ for i in range(nClass):
 	idx = np.arange(N) # idx is an array 0 to the minimum length of data points minus 1
 	np.random.seed(13) # use a random seed for improved randomness
 	np.random.shuffle(idx) # shuffle the array idx
-
-	tmp = np.hstack([data_mean[i][0:N,:], data_var[i][0:N,:]]) # combine the var and mean arrays column-wise
-	data_rnd.append(tmp[idx]) 
-
+	# combine the var and mean arrays column-wise
+	tmp = np.hstack([data_mean[i][0:N,:], data_var[i][0:N,:]])
+	data_rnd.append(tmp[idx])
 	labels.append(np.ones((N)) * (i+1))
-
+		
 	dataTrain = np.vstack([dataTrain, data_rnd[i][0:nTrain,:]])
 	#labelsTrain = np.vstack([labelsTrain, labels[i][0:nTrain]])
 	labelsTrain = np.append(labelsTrain, labels[i][0:nTrain])
-	
+		
 	dataTest = np.vstack([dataTest, data_rnd[i][nTrain+1:-1,:]])
 	#labelsTest = np.vstack([labelsTest, labels[i][nTrain+1:-1]])
 	labelsTest = np.append(labelsTest, labels[i][nTrain+1:-1])
+
+# end
 
 dataTrain = dataTrain[1:-1,:]
 labelsTrain = labelsTrain[1:-1]
@@ -75,4 +76,3 @@ plt.figure()
 plt.plot(range(len(labelsTest)), labelsTest, range(len(labelsPredict)), labelsPredict)
 
 plt.show()
-
