@@ -18,6 +18,8 @@ class linegraph(HighChartsLineView):
 
         # if title was provided requesting the url, use it as chart
         # title, otherwise hope to find title in json
+        
+        
         if 'title' in self.kwargs:
             data['title'] = {}
             data['title']['text'] = self.kwargs['title']
