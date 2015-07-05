@@ -1,9 +1,6 @@
 from __future__ import division
 import numpy as np
-# import matplotlib.pyplot as plt
 import json
-import pandas as pd
-from pandas import DataFrame
 from PhysioWat.models import Recording, SensorRawData
 from StringIO import StringIO
 from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
@@ -205,7 +202,7 @@ def dict_to_csv(d, filename):
     feats = []
     for key, value in d.items():
         feats.append(value)
-    np.savetxt(filename, np.column_stack(feats), header=",".join(d.keys()))
+    np.savetxt(filename, np.column_stack(feats), delimiter=",", header=",".join(d.keys()))
 
 
 def array_labels_to_csv(array, labels, filename):

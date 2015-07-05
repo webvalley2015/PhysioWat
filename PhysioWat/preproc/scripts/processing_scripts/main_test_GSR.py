@@ -19,7 +19,7 @@ DELTA=0.02
 FS=256
 nFS=16
 
-gsr_data = tools.load_file(filename, header=8, sep=",") # 8 ","
+gsr_data = tools.load_file(filename, header=1, sep=";") # 8 ","
 #TODO GAUSSIANA
 
 gsr_data= tools.downsampling(gsr_data, FS, nFS)
@@ -41,9 +41,9 @@ tools.array_labels_to_csv(np.column_stack([t_driver, driver, phasic_d, tonic_d])
 
 #-----FEATURES-----
 
-# windows=win.generate_dummy_windows(t_driver, 20, 10)
-# features = GSR.extract_features(phasic_d, t_driver, DELTA, windows)
-# tools.dict_to_csv(features, "./output/feat_"+filename[7:-4]+".csv")
+windows=win.generate_dummy_windows(t_driver, 20, 10)
+features = GSR.extract_features(phasic_d, t_driver, DELTA, windows)
+tools.dict_to_csv(features, "./output/feat_"+filename[7:-4]+".csv")
 
 # tools.prepare_json_to_plot_time(t_driver, [driver, phasic_d, tonic_d], ["Driver", "Phasic", "Tonic"])
 # plt.figure(2)
