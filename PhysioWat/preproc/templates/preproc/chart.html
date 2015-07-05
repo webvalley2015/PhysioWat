@@ -127,13 +127,20 @@
 
         hide();
 
+		
+		
         $.getJSON("{% url 'chart_getdata' %}", function (data) {
+            var global_data = data;
             show_graph()
         });
 
         function show_graph(){
             $("form").each(function(){
-                $(this).find(':input')
+                console.log($(this).find(':input'))
+				data['series'] = {};
+				
+                
+                
             });
             $('#temporary-processing').highcharts('StockChart', data);
         }
