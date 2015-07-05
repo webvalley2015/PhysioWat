@@ -1,15 +1,20 @@
 from highcharts.views import * #SEE WHICH GRAPHS TO IMPORT
 import json
+import jsongen
+import StringIO
 import os
 from django.conf import settings
 
 
 class linegraph(HighChartsLineView):
     def get_data(self):
-        myfile=os.path.join(settings.BASE_DIR, "preproc/graph.json") #filename
-        f = open(myfile, "r")
-        data = json.load(f)
-        f.close()
+        print jsongen.getavaliabledatavals(5)
+        str = jsongen.makejson("raw","5"," GyrX")
+        data = json.loads(str)
+        #myfile=os.path.join(settings.BASE_DIR, "preproc/graph.json") #filename
+        #f = open(myfile, "r")
+        #data = json.load(f)
+        #f.close()
 
         # if title was provided requesting the url, use it as chart
         # title, otherwise hope to find title in json

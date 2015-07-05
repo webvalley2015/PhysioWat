@@ -1,6 +1,6 @@
 from __future__ import division
 import inertial
-import tools
+from PhysioWat.PhysioWat.preproc.scripts.processing_scripts import tools
 import windowing as win
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -20,7 +20,7 @@ sensGyrCoeff=2000/32768
 sensMagCoeff=0.007629
 sensfsamp=100
 
-data=tools.load_file_pd(filename, sep=",", names=lables)
+data= tools.load_file_pd(filename, sep=",", names=lables)
 
 data=inertial.convert_units(data, lables_acc, coeff=sensAccCoeff)
 data=inertial.convert_units(data, lables_gyr, coeff=sensGyrCoeff)

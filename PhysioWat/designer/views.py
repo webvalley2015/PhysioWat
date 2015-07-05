@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 from django.contrib import messages
 from .forms import experiments
 from PhysioWat.models import Experiment
@@ -17,7 +17,7 @@ def create_experiement(request):
             if errCount:
                 if form.cleaned_data["token"] == form.cleaned_data["repeat_token"]:
                     form.save()
-                    messages.success(request, 'Experiment created succesfully')
+                    return HttpResponseRedirect('/uploader/web')
                 else:
                     messages.error(request, 'Tokens dont match')
             else:
@@ -32,6 +32,3 @@ def create_experiement(request):
 
 def getExperimentsNames():
     return Experiment.objects.values_list('name', flat=True).distinct()
-
-# def getAvaliableSensors():
-#     return Sensordevices.objects.values_list('sensortype', flat=True).distinct().order_by('sensortype')
