@@ -4,9 +4,9 @@ from PhysioWat.models import Recording,SensorRawData,Preprocessed_Data
 
 def makejson(modelname,recordingID, vals):
     if modelname == "raw":
-        data = SensorRawData.objects.filter(recording_id=recordingID)
+        data = SensorRawData.objects.filter(recording_id=recordingID).order_by('id')
     elif modelname == "proc":
-        data = Preprocessed_Data.objects.filter(recording_id=recordingID)
+        data = Preprocessed_Data.objects.filter(recording_id=recordingID).order_by('id')
     jsonstring = "{\"series\":["
     if hasattr(vals, '__iter__'):
         for valu in vals:
