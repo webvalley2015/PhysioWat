@@ -7,15 +7,21 @@ from django.contrib import messages
 from .jsongen import getavaliabledatavals
 from scripts.processing_scripts import tools, inertial, filters, IBI
 import numpy as np
+from StringIO import StringIO
 
 
 
-def QueryDb(recId):
-    table = SensorRawData.objects.get(recording=recId)
-
-
-
-
+def QueryDb(recordingID):
+    table = Recording.objects.get(id=recordingID)
+    data = SensorRawData.objects.filter(recording_id=recordingID)
+    alldata = (','.join(table.dict_keys) + '\n').replace(' ', '')
+    for record in data:
+        ll = []
+        for key in table.dict_keys:
+            ll.append(record.store[key])
+        alldata += ','.join(ll) + '\n'
+    datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
+    return datacsv
 
 
 def show_chart(request, id_num, alg_type=""):
