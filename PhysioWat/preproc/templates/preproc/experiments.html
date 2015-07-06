@@ -8,9 +8,11 @@
             {% for c in name_list %}
                 <option value="{{ c }}">{{ c }}</option>
             {% endfor %}
-        </select><br><br>
-        <input type="password" name="password" required="true">
-        <input type="submit" value="Select">
+        </select><br>
+        <div class="btn-fix">
+            <input type="password" name="password" required="true">
+            <input type="submit" value="Select">
+        </div>
     </form>
     {% if messages %}
         <ul class="messages">
