@@ -2,7 +2,7 @@
 {% load static %}
 {% load highcharts_tags %}
 {% block app_specific_css %}
-    {% load bootstrap3 %}
+{% load bootstrap3 %}
 {% endblock %}
 
 {% block container %}
@@ -27,17 +27,25 @@
             </ul>
 
             {% csrf_token %}
-            <form action="page_to_which_send_the_form" method="post" enctype="multipart/form-data">
+            <form action="page_to_which_send_the_form" method="post" enctype="multipart/form-data"> <!--RETURN TO DB? IT CONTAINS THE SETTING FOR THE ALGORITHM -->
 
+            {% for i in alg_select %}
+                <a href='{% url 'chart_show' id_num i %}'>{{ i }}</a>
+            {% endfor %}
+
+            <form action="#" name="preproc" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
                 {% for k,v in forms.items %}
                     <!-- in the end, this contains a form. wich tag is better? div, what?-->
-                    <div id="div_id_{{ k }}" style="display:none">
+                    {% if v %}
+                        <div id="div_id_{{ k }}" style="display:none">
 
-                        <br>
-                        {% bootstrap_form v %}
-                        <br>
-                        <br>
-                    </div>
+                            <br>
+                            {% bootstrap_form v %}
+                            <br>
+                            <br>
+                        </div>
+                    {% endif %}
                 {% endfor %}
 
                 <div>
@@ -51,6 +59,7 @@
         </div>
 
         </form>
+
         {{ opt_list }}
 
         <div id="options">
@@ -146,7 +155,7 @@
                     }
                 }
             }
-            $('#temporary-processing').highcharts('StockChart', dataTmp);
+            $('#temporary-processing').highcharts('StockChart',dataTmp);
         }
 
         //prevent page from reload on submit

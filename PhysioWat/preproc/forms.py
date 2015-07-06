@@ -78,3 +78,10 @@ class lineinout(forms.Form):
         super(linein, self).__init__(*args, **kwargs)
         self.fields['lines'].choices = get_my_choices()
 
+
+class windowing(forms.Form):
+    get_windows = forms.ChoiceField(choices=['get windows contiguous', 'get windows no mix', 'get windows full label'])
+    wlen = forms.IntegerField(min_value=0)
+    wstep = forms.IntegerField(min_value=0)
+
+
