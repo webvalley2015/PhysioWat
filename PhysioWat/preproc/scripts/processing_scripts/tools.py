@@ -1,9 +1,9 @@
 from __future__ import division
 import numpy as np
 import json
-from PhysioWat.models import Recording, SensorRawData
+# from PhysioWat.models import Recording, SensorRawData
 from StringIO import StringIO
-from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
+# from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
 import csv
 
 
@@ -183,7 +183,7 @@ def prepare_json_to_plot(series, labels):
 #     # results = cursor.fetchall()
 
 
-def downsampling(data, FSAMP, FS_NEW, switch=True):
+def downsampling(data, FS_NEW, switch=True, t_col=0):
     '''
     Downsamples the signals (too much data is long to extract!)
     :param data: The data to downsample
@@ -192,8 +192,13 @@ def downsampling(data, FSAMP, FS_NEW, switch=True):
     :param off: Do not downsample
     :return: The downsampled data
     '''
-    if FSAMP <= FS_NEW or FSAMP % FS_NEW != 0 or not switch:
+    FSAMP=int(round(1/(data[1,t_col]-data[0,t_col])))
+
+    if not switch:
         return data
+
+    if FSAMP <= FS_NEW or FSAMP % FS_NEW != 0:
+        raise ValueError("FS_NEW should be lower than FSAMP and one of its divisors #illy")
     N_SAMP = FSAMP / FS_NEW
 
     indexes = np.arange(len(data))
@@ -263,3 +268,29 @@ def get_row_for_col(mat, indexes):
         if row[0] in indexes:
             result.append(row)
     return np.array(result)
+
+def selectCol(vect, head, cols):
+    '''
+    Select the cols columns from vector, given its header
+    :param vect: the array to slice
+    :param head: the header of the array (either as np.ndarray or list)
+    :param cols: the columns to select (either as np.ndarray, list or str)
+    :return: the slice of the array
+    '''
+    if type(head) is list:
+        head=np.array(head)
+    elif type(head) is not np.ndarray:
+        raise ValueError("head is neither a np.ndarray or a list")
+
+    if type(cols) is str:
+        cols=[cols]
+    elif type(cols) is not list and type(cols) is not np.ndarray:
+        raise ValueError("\"Che cazzo ti sei fumato?\" cols must be a str, list or np.ndarray #droga #ilfumouccide #illy")
+    mask=np.zeros(len(head), dtype=bool)
+
+    for col in cols:
+        mask = (mask) | (head==col)
+    result=vect[:, mask]
+    if result.shape[1]==1 :
+        result=result.flatten()
+    return result

@@ -37,7 +37,7 @@ if __name__ == '__main__':
     #the user selects the parameters, with default suggested
     downsampling_ratio = 1
     new_f = SAMP_F / float(downsampling_ratio)
-    downsampled_data = ourTools.downsampling(rawdata, SAMP_F, new_f)
+    downsampled_data = ourTools.downsampling(rawdata, new_f)
     
     #filter
     #the user selects the parameters, with default suggested
