@@ -29,10 +29,14 @@ urlpatterns = [
     url(r'^contact_form/$', views.contact_view, name='contact'),
     # redirect to preproc
     url(r'^preproc/', include('preproc.urls'), name='preproc'),
+    # redirect to view_data
+    url(r'^preproc/', include('preproc.urls'), name='view_data'),
     # redirect to uploader
     url(r'^uploader/', include('uploader.urls'), name='uploader'),
     # redirect to designer
     url(r'^designer/', include('designer.urls'), name='designer'),
     # redirect to login
     url(r'^/', views.login, name='login'),
+    #redirect to feature extraction
+    url(r'^extfeat/', include('extfeat.urls'), name='exfeat'),
 ]
