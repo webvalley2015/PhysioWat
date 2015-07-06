@@ -1,9 +1,9 @@
 from __future__ import division
 import numpy as np
 import json
-# from PhysioWat.models import Recording, SensorRawData
+from PhysioWat.models import Recording, SensorRawData
 from StringIO import StringIO
-# from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
+from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
 import csv
 
 
@@ -11,9 +11,9 @@ def peakdet(v, delta, x=None, startMax=True):
     '''
     Functions for detecting peaks
     return: two nparrays (N,2), containing the time (in s) in the first column and the height of the peak in the second column
-    v: function in which search the peaks
+    v: np.array (N,) containing the signal in which search the peaks
     delta: minimum peak height
-    x: (default None) the "timeline"
+    x: (default None) the timestamp
     startMax: (default True)
     '''
 
@@ -121,9 +121,23 @@ def load_raw_db(recordingID):
             ll.append(record.store[key])
         alldata += ','.join(ll) + '\n'
     datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
-    datacsv[:, 0] -= datacsv[0, 0]
     return datacsv
     # results = cursor.fetchall()
+
+def load_preproc_db(recordingID):
+    # raw query for i csv line
+    table = Preprocessed_Recording.objects.get(id=recordingID)
+    data = Preprocessed_Data.objects.filter(recording_id=recordingID)
+    alldata = (','.join(table.dict_keys) + '\n').replace(' ', '')
+    for record in data:
+        ll = []
+        for key in table.dict_keys:
+            ll.append(record.store[key])
+        alldata += ','.join(ll) + '\n'
+    datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
+    return datacsv
+    # results = cursor.fetchall()
+
 
 
 def prepare_json_to_plot(series, labels):
@@ -209,7 +223,7 @@ def dict_to_csv(d, filename):
 
 
 def array_labels_to_csv(array, labels, filename):
-    np.savetxt(filename, array, delimiter=",", header=",".join(labels.tolist()))
+    np.savetxt(filename, array, delimiter=",", header=",".join(labels.tolist()), comments="")
 
 #Puts data int the preprocessed array into the database
 def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
@@ -236,3 +250,16 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
     print csvreader
 
     return 0
+
+def get_row_for_col(mat, indexes):
+    '''
+    extract the rows of mat that has an element of indexes in their first position
+    return: np.array that contains the rows of mat required
+    mat: np.array (N,M)
+    indexes: np.array (A,)
+    '''
+    result = []
+    for row in mat:
+        if row[0] in indexes:
+            result.append(row)
+    return np.array(result)
