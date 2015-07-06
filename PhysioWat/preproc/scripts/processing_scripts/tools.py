@@ -121,9 +121,23 @@ def load_raw_db(recordingID):
             ll.append(record.store[key])
         alldata += ','.join(ll) + '\n'
     datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
-    datacsv[:, 0] -= datacsv[0, 0]
     return datacsv
     # results = cursor.fetchall()
+
+def load_preproc_db(recordingID):
+    # raw query for i csv line
+    table = Preprocessed_Recording.objects.get(id=recordingID)
+    data = Preprocessed_Data.objects.filter(recording_id=recordingID)
+    alldata = (','.join(table.dict_keys) + '\n').replace(' ', '')
+    for record in data:
+        ll = []
+        for key in table.dict_keys:
+            ll.append(record.store[key])
+        alldata += ','.join(ll) + '\n'
+    datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
+    return datacsv
+    # results = cursor.fetchall()
+
 
 
 def prepare_json_to_plot(series, labels):
