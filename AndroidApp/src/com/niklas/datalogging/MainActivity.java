@@ -186,7 +186,7 @@ public class MainActivity extends Activity implements
 	        return MainActivity.context;
 	    }
 	    
-	    
+	    static TextView sampleText;
 	    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -194,6 +194,8 @@ public class MainActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		MainActivity.context = getApplicationContext();
 		setContentView(R.layout.activity_main);
+		
+		MainActivity.sampleText = (TextView) findViewById(R.id.textView2); 
 		
 		
 		
@@ -273,9 +275,8 @@ public class MainActivity extends Activity implements
         Log.e(TAG, "+++ ON PAUSE +++");
     }
     
-    public void updateSample(long number) {
-    	TextView sampleText = (TextView) findViewById(R.id.textView2); 
-    	sampleText.setText("Samples: " + number);
+    public static void updateSample(long number) {
+    	MainActivity.sampleText.setText("Samples: " + MainActivity.sampleCount);
     }
     /*
     public void updateCallback(long result) {   
@@ -522,8 +523,6 @@ public class MainActivity extends Activity implements
                 String message = new String(ConfigVals.stopStr);
                 sendMessage(message);
                 redrawer.pause();
-        		getApplicationContext().stopService(new Intent(getApplicationContext(),
-        				com.niklas.datalogging.GPSLoggerService.class));
         		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
         });
