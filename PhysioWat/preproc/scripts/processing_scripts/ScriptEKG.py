@@ -1,14 +1,8 @@
-"""
-Created on Wed Jul 1 15:42:22 2015
-
-@author: flavio
-"""
 '''
 function for extract IBI from EKG
 '''
 
 import numpy as np
-# import matplotlib.pyplot as plt
 import filters as ourFilters
 import tools as ourTools
 import IBI
@@ -32,12 +26,12 @@ if __name__ == '__main__':
     
     #load data from the file
     rawdata = loadEKG(fileName)
+    #SAMP_F = int(round(1/(rawdata[1,0]-rawdata[0,0]))) se i dati di Nicola non avessero il timestamp buggato
     
     #downsampling
     #the user selects the parameters, with default suggested
-    downsampling_ratio = 1
-    new_f = SAMP_F / float(downsampling_ratio)
-    downsampled_data = ourTools.downsampling(rawdata, new_f)
+    new_f = SAMP_F
+    downsampled_data = ourTools.downsampling(rawdata, SAMP_F, new_f)
     
     #filter
     #the user selects the parameters, with default suggested
@@ -49,7 +43,9 @@ if __name__ == '__main__':
     filtered_signal = ourFilters.filterSignal(downsampled_data[:,1], SAMP_F, passFr = F_PASS, stopFr = F_STOP, LOSS = ILOSS, ATTENUATION = IATT, filterType = filterType)
     
     #compact timestamp, signal and labels for the next processes
+    #DEBUG ONLY, create a new ideal timestamp
     temp_ts = np.arange(0, rawdata.shape[0]/SAMP_F, 1.0/SAMP_F)
+
     total_signal = np.column_stack((temp_ts, filtered_signal, downsampled_data[:,2]))
 
     
