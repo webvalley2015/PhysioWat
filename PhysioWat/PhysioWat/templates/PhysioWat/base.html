@@ -20,11 +20,7 @@
     <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet">
-    <link href="{% static 'js/move-top.js' %}" rel="application/javascript">
-    <link href="{% static 'js/easing.js' %}" rel="application/javascript">
     <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet">
-    <link href="{% static 'js/easing.js' %}" rel="application/javascript">
-    <link href="{% static 'js/jquery-1.11.0.min.js' %}" rel="application/javascript">
 
     <!-- including app specific CSS -->
     {% block app_specific_css %} {% endblock %}
@@ -32,8 +28,7 @@
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="{% static 'js/ie8-responsive-file-warning.js' %}"></script><![endif]-->
     <script src="{% static 'js/ie-emulation-modes-warning.js' %}"></script>
-    
-  
+
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -96,11 +91,13 @@
                 <div id="egg"></div>
                     {% block container %} {% endblock %}
 
+{% comment %}
                 </div>
 
             </div>
 
         </div>
+{% endcomment %}
 
 
 <!-- Bootstrap core JavaScript
@@ -108,6 +105,9 @@
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="{% static 'js/jquery.min.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
+<!-- FIXME pleas add comment describing the fucntion of these scripts -->
+<script src="{% static 'js/move-top.js' %}" type="test/javascript"></script>
+<script src="{% static 'js/easing.js' %}" type="test/javascript"></script>
 <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 <script src="{% static 'js/ie10-viewport-bug-workaround.js' %}"></script>
 <!-- including javascript for the form style -->

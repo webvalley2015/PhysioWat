@@ -41,9 +41,9 @@ def extract_features_acc(data_acc, t, col_acc, windows, fsamp=100):
 
     data_acc=np.column_stack((data_acc, np.sqrt(data_acc[:, 0]**2+data_acc[:,1]**2+data_acc[:,2]**2)))
     data_acc=np.column_stack((data_acc, np.sqrt(data_acc[:, 0]**2+data_acc[:,2]**2)))
-    data_acc_more, col_all=get_differences(data_acc, col_all)
+    # data_acc_more, col_all=get_differences(data_acc, col_all)
     #===================================
-    samples, labels=windowing_and_extraction(data_acc_more, t, fsamp, windows, col_all)
+    samples, labels=windowing_and_extraction(data_acc, t, fsamp, windows, col_all)
     return samples, labels
 
 def extract_features_gyr(data, t, col_gyr, windows, fsamp=100):
@@ -57,9 +57,9 @@ def extract_features_gyr(data, t, col_gyr, windows, fsamp=100):
     :param fsamp: sampling rate (Hz)
     :return: feats as np 2d array and the relative labels (np 1d array)
     '''
-    data_more, col_gyr=get_differences(data, col_gyr)
+    # data_more, col_gyr=get_differences(data, col_gyr)
     #===================================
-    samples, labels=windowing_and_extraction(data_more, t, fsamp,windows, col_gyr)
+    samples, labels=windowing_and_extraction(data, t, fsamp,windows, col_gyr)
     return samples, labels
 
 def extract_features_mag(data, t, col_mag, windows, fsamp=100):
@@ -73,10 +73,10 @@ def extract_features_mag(data, t, col_mag, windows, fsamp=100):
     :param fsamp: sampling rate (Hz)
     :return: feats as np array and the relative labels
     '''
-    data_more, col_mag=get_differences(data, col_mag)
+    # data_more, col_mag=get_differences(data, col_mag)
 
     #===================================
-    samples, labels=windowing_and_extraction(data_more, t, fsamp, windows, col_mag)
+    samples, labels=windowing_and_extraction(data, t, fsamp, windows, col_mag)
     return samples, labels
 
 
@@ -96,8 +96,9 @@ def get_differences(data, col_all, n=[1,2,5,10]):
         result=np.column_stack([result, diff])
     return result, col_ret
 
-def windowing_and_extraction(data, t, fsamp, windows, col, ndiff=4):
+def windowing_and_extraction(data, t, fsamp, windows, col):
     samples = []
+    columns=np.array([])
 
     bands=np.linspace(0.1,25,11)
     # ciclo sulla sessione - finestratura
@@ -134,15 +135,15 @@ def windowing_and_extraction(data, t, fsamp, windows, col, ndiff=4):
         columns=np.hstack([columns, concat_string(col, '_-_integral')])
         #print feat.shape, columns.shape
 
-        #mean tipo diff
-        feat=np.hstack([feat, np.mean(data_win[:,-ndiff:], axis=0)])
-        columns=np.hstack([columns, concat_string(col[-ndiff:], '_-_mean_diff')])
-        #print feat.shape, columns.shape
-
-        #mean(abs) tipo diff
-        feat=np.hstack([feat, np.mean(np.abs(data_win[:,-ndiff:]), axis=0)])
-        columns=np.hstack([columns, concat_string(col[-ndiff:], '_-_mean_abs')])
-        #print feat.shape, columns.shape
+        # #mean tipo diff
+        # feat=np.hstack([feat, np.mean(data_win[:,-ndiff:], axis=0)])
+        # columns=np.hstack([columns, concat_string(col[-ndiff:], '_-_mean_diff')])
+        # #print feat.shape, columns.shape
+        #
+        # #mean(abs) tipo diff
+        # feat=np.hstack([feat, np.mean(np.abs(data_win[:,-ndiff:]), axis=0)])
+        # columns=np.hstack([columns, concat_string(col[-ndiff:], '_-_mean_abs')])
+        # #print feat.shape, columns.shape
 
         # FD features
         for ind_col in range(data_win.shape[1]):
@@ -157,7 +158,6 @@ def windowing_and_extraction(data, t, fsamp, windows, col, ndiff=4):
                 feat=np.hstack([feat, pw, fmx])
                 columns=np.hstack([columns, prefix+'_-_power_'+str(bands[j])+'-'+str(bands[j+1]), prefix+'_-_fmax_'+str(bands[j])+'-'+str(bands[j+1])])
                 #print feat.shape, columns.shape
-
         samples.append(feat)
     samples_array=np.array(samples)
     return samples_array, columns
