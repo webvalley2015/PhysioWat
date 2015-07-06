@@ -26,10 +26,12 @@
                 {% endfor %}
             </ul>
 
+            {% csrf_token %}
+            <form action="page_to_which_send_the_form" method="post" enctype="multipart/form-data"> <!--RETURN TO DB? IT CONTAINS THE SETTING FOR THE ALGORITHM -->
+
             {% for i in alg_select %}
                 <a href='{% url 'chart_show' id_num i %}'>{{ i }}</a>
             {% endfor %}
-
 
             <form action="#" name="preproc" method="post" enctype="multipart/form-data">
             {% csrf_token %}
