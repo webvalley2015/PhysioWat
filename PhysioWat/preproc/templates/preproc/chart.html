@@ -52,7 +52,9 @@
 
         </form>
     {{ opt_list }}
-        <form onsubmit="show_graph()">
+    
+       <div id ="options">
+        <form onsubmit="show_graph()" id="options_form" action="#">
             <fieldset>
                 {% for i in opt_list %}
                     <input type="checkbox" name="{{ i }}" value="{{ i }}" id="{{ i }}"/>{{ i }}
@@ -62,7 +64,8 @@
                 {% endbuttons %}
             </fieldset>
         </form>
-    </div>
+	</div>
+</div>
 {% endblock %}
 
 
@@ -126,20 +129,21 @@
         }
 
         hide();
-
         $.getJSON("{% url 'chart_getdata' %}", function (data) {
+            var global_data = data;
             show_graph()
-        });
-
+        }); 
+        
+		var allVals = [];
         function show_graph(){
-            $("form").each(function(){
-                $(this).find(':input')
-            });
-            $('#temporary-processing').highcharts('StockChart', data);
-        }
-
+         $('#options :input:checked').each(function (i, elem){allVals.push(elem.value);});
+		console.log(allVals);
+    }
+//        $('#temporary-processing').highcharts('StockChart', data);
+  //      }     
     </script>
 
 {% endblock app_specific_js %}
+
 
 
