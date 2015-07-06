@@ -22,7 +22,7 @@ def estimate_drivers(t_gsr, gsr, T1=0.75, T2=2, MX=1, DELTA_PEAK=0.02, FS=None, 
     s= t in seconds of gaussian smoothing
     """
     if FS==None:
-        FS = 1/( t_gsr[1] - t_gsr[0])
+        FS = int(round(1/( t_gsr[1] - t_gsr[0])))
 
     #======================
     # step 1: DECONVOLUTION
