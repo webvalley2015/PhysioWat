@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">PhysioWAT</string>
+    <string name="title_section1">Show Status</string>
+    <string name="title_section2">Clear Pairing</string>
+    <string name="title_section3">Disconnect All</string>
+     <string name="title_section4">Connect All</string>
+    <string name="action_settings">Node Settings</string>
+
+    
+    
+        <!--  BUttons -->
+    <string name="send_Start">Start</string>
+    <string name="send_StartLog">Start Log</string>
+    <string name="send_Stop">STOP</string>
+    <string name="StairsUp">Stair Up</string>
+    <string name="StairsDown">Stair Down</string>
+    <string name="StartLie">Lain</string>
+    <string name="StartSit">Siting</string>
+    <string name="StartWalk">Start + GPS</string>
+    <string name="StartRun">Running</string>
+    <string name="StartBycicling">Bycicling</string>
+    <string name="StartVacuum">Vacuuing</string>
+    
+    <!--  BluetoothChat -->
+    <string name="not_connected">You are not connected to a device</string>
+    <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Chat.</string>
+    <string name="title_connecting">connecting...</string>
+    <string name="action_connect">connected: </string>
+    <string name="title_not_connected">not connected</string>
+    <string name="LostPCKT">Packet lost</string>
+
+
+    <!--  DeviceListActivity -->
+    <string name="scanning">scanning for devices...</string>
+    <string name="select_device">select a device to connect</string>
+    <string name="none_paired">No devices have been paired</string>
+    <string name="none_found">No devices found</string>
+    <string name="title_paired_devices">Paired Devices</string>
+    <string name="title_other_devices">Other Available Devices</string>
+    <string name="button_scan">Scan for devices</string>
+
+    <!-- Options Menu -->
+    <string name="secure_connect">Connect a device - Secure</string>
+    <string name="insecure_connect">Connect a CUPID node</string>
+    <string name="SaveDevices">Save Connection List</string>
+    <string name="discoverable">Make discoverable</string>
+    <string name="AccFullScale">Accelermoeter Full Scale</string>
+    <string name="GyrFullScale">Gyroscope Full Scale</string>
+    <string name="ConnNodes">Connected Nodes</string>
+    <string name="SampleRate">Sensor Sampling Rate</string>
+    <string name="title_activity_settings">Cupid Node Settinggs</string>
+    <string name="Gps_service_name">GPS_LoggerService</string>
+    <string name="ButtonServerLabel">Send Data to Server</string>
+   
+    
+
+</resources>

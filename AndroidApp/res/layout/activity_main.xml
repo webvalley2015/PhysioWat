@@ -1,0 +1,231 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.niklas.datalogging.MainActivity"
+    tools:ignore="MergeRootFrame" 
+       >
+       
+
+     <ScrollView
+       android:id="@+id/scrollView1"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent" >
+    
+      	<TableLayout
+           android:layout_width="match_parent"
+           android:layout_height="match_parent" 
+           android:stretchColumns="*">
+
+           <TableRow
+               android:id="@+id/tableRow1"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content" >
+
+               <Button
+                   android:id="@+id/buttonStartWalk"
+                   android:layout_width="wrap_content"
+                   android:layout_gravity="center_horizontal|top"
+                   android:text="@string/StartWalk" />
+
+               <Button
+                   android:id="@+id/buttonStartRun"
+                   android:text="@string/send_Start" />
+		
+		       <Button
+		           android:id="@+id/buttonSendStop"
+		           android:layout_gravity="center_horizontal|top"
+		           android:text="@string/send_Stop" />
+
+           </TableRow>
+
+           <TableRow
+               android:id="@+id/tableRow2"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content" >
+		       <ImageView
+		           android:id="@+id/imageNode1"
+		           android:layout_width="100dp"
+		           android:layout_height="100dp"
+		           android:layout_column="0"
+		           android:layout_gravity="center_horizontal|top"
+		           android:layout_row="1"
+		           android:clickable="true"
+		           android:src="@drawable/bluetooth_gray" />
+		
+		       <ImageView
+		           android:id="@+id/imageNode2"
+		           android:layout_width="100dp"
+		           android:layout_height="100dp"
+		           android:layout_column="1"
+		           android:layout_gravity="center_horizontal|top"
+		           android:layout_row="1"
+		           android:clickable="true"
+		           android:src="@drawable/bluetooth_gray" />
+		
+		       <ImageView
+		           android:id="@+id/imageNode3"
+		           android:layout_width="100dp"
+		           android:layout_height="100dp"
+		           android:layout_column="2"
+		           android:layout_gravity="center_horizontal|top"
+		           android:layout_row="1"
+		           android:clickable="true"
+		           android:src="@drawable/bluetooth_gray" />
+		       
+		       
+
+		               
+               
+           </TableRow>
+
+           <TableRow
+               android:id="@+id/tableRow3"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content" >
+		       
+               <TextView
+                   android:id="@+id/textNode1"
+                   android:layout_column="0"
+                   android:layout_gravity="center_horizontal|top"
+                   android:layout_row="2"
+                   android:ellipsize="end"
+                   android:maxWidth="100dp"
+                   android:text="TextView"
+                   android:singleLine="true" />
+		
+		       <TextView
+		           android:id="@+id/textNode2"
+		           android:layout_column="1"
+		           android:layout_gravity="center_horizontal|top"
+		           android:layout_row="2"
+		           android:text="TextView" />
+		
+		       <TextView
+		           android:id="@+id/textNode3"
+		           android:layout_column="2"
+		           android:layout_gravity="center_horizontal|top"
+		           android:layout_row="2"
+		           android:text="TextView" />
+           </TableRow>
+
+           <TableRow
+               android:id="@+id/tableRow4"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content" >
+		        <ImageView
+		           android:id="@+id/imageNode4"
+		           android:layout_width="100dp"
+		           android:layout_height="100dp"
+		           android:layout_column="0"
+		           android:layout_gravity="center_horizontal|top"
+		           android:layout_row="3"
+		           android:clickable="true"
+		           android:src="@drawable/bluetooth_gray" />
+		
+		       <ImageView
+		           android:id="@+id/imageNode5"
+		           android:layout_width="100dp"
+		           android:layout_height="100dp"
+		           android:layout_column="1"
+		           android:layout_gravity="center_horizontal|top"
+		           android:layout_row="3"
+		           android:clickable="true"
+		           android:src="@drawable/bluetooth_gray" />
+		
+		       <ImageView
+		           android:id="@+id/imageNode6"
+		           android:layout_width="100dp"
+		           android:layout_height="100dp"
+		           android:layout_column="2"
+		           android:layout_gravity="center_horizontal|top"
+		           android:layout_row="3"
+		           android:clickable="true"
+		           android:src="@drawable/bluetooth_gray" />
+           </TableRow>
+           
+           <TableRow
+               android:id="@+id/tableRow5"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content" >
+		       
+               <TextView
+		           android:id="@+id/textNode4"
+		           android:layout_column="0"
+		           android:layout_gravity="center_horizontal|top"
+		           android:layout_row="4"
+		           android:text="TextView" />
+		
+		       <TextView
+		           android:id="@+id/textNode5"
+		           android:layout_column="1"
+		           android:layout_gravity="center_horizontal|top"
+		           android:layout_row="4"
+		           android:text="TextView" />
+		
+		       <TextView
+		           android:id="@+id/textNode6"
+		           android:layout_column="2"
+		           android:layout_gravity="center_horizontal|top"
+		           android:layout_row="4"
+		           android:text="TextView" />
+		   </TableRow>
+
+           <com.androidplot.xy.XYPlot
+               android:id="@+id/aprHistoryPlot"
+               android:layout_width="fill_parent"
+               android:layout_height="225dp"
+               android:layout_margin="0dp"
+               android:layout_marginLeft="10px"
+               android:layout_marginRight="10px"
+               android:layout_marginTop="10px" />
+           
+           
+        
+
+
+
+           
+           
+
+           <Button
+               android:id="@+id/buttonSendToServer"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:text="@string/ButtonServerLabel" />
+           
+                 	    
+  
+           
+           
+           
+       </TableLayout>
+       
+
+       
+
+
+
+   </ScrollView>
+   
+            	<FrameLayout
+        android:id="@+id/FlashBarLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="250dp">
+        
+
+      	            <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="fill_parent"
+            android:layout_height="150dp"
+            android:layout_margin="5dp"
+            android:visibility="gone"
+            android:src="@drawable/image1" />
+    </FrameLayout>
+
+   
+
+    </FrameLayout>
