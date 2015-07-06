@@ -2,8 +2,7 @@
 {% block container %}
     <h1>Select Record</h1>
     <br>
-    <form action="#" method="post" enctype="multipart/form-data" class="form-cnt">
-        <br><br>
+    <form action="#" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <select name="rec_name">
             {% for c in name_list %}
