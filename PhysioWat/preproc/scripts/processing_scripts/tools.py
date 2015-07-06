@@ -1,19 +1,19 @@
 from __future__ import division
 import numpy as np
 import json
-from PhysioWat.models import Recording, SensorRawData
-from StringIO import StringIO
-from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
-import csv
+#from PhysioWat.models import Recording, SensorRawData
+#from StringIO import StringIO
+#from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
+#import csv
 
 
 def peakdet(v, delta, x=None, startMax=True):
     '''
     Functions for detecting peaks
     return: two nparrays (N,2), containing the time (in s) in the first column and the height of the peak in the second column
-    v: function in which search the peaks
+    v: np.array (N,) containing the signal in which search the peaks
     delta: minimum peak height
-    x: (default None) the "timeline"
+    x: (default None) the timestamp
     startMax: (default True)
     '''
 
@@ -234,3 +234,16 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
     print csvreader
 
     return 0
+
+def get_row_for_col(mat, indexes):
+    '''
+    extract the rows of mat that has an element of indexes in their first position
+    return: np.array that contains the rows of mat required
+    mat: np.array (N,M)
+    indexes: np.array (A,)
+    '''
+    result = []
+    for row in mat:
+        if row[0] in indexes:
+            result.append(row)
+    return np.array(result)
