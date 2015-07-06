@@ -37,4 +37,6 @@ urlpatterns = [
     url(r'^designer/', include('designer.urls'), name='designer'),
     # redirect to login
     url(r'^/', views.login, name='login'),
+    #redirect to feature extraction
+    url(r'^extfeat/', include('extfeat.urls'), name='exfeat'),
 ]

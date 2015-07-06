@@ -1,17 +1,21 @@
 {% extends 'PhysioWat/base.html' %}
 {% block container %}
-    <h1>Select Record</h1>
-    <br>
-    <form action="#" method="post" enctype="multipart/form-data" class="form-cnt">
-        <br><br>
-        {% csrf_token %}
-        <select name="rec_name">
-            {% for c in name_list %}
-                <option value="{{ c }}">{{ c }}</option>
-            {% endfor %}
-        </select><br>
-        <div class="btn-fix">
-            <input type="submit" value="Select">
-        </div>
-    </form>
+	<h1>Select Record</h1>
+	<br>
+
+<div id="div_selection">
+	<form action="#" method="post" enctype="multipart/form-data" class="form-cnt">
+		<br><br>
+		  <h4>Select the number of the record</h4>
+		{% csrf_token %}
+		<select name="rec_name">
+			{% for c in name_list %}
+            <option value="{{ c }}">{{ c }}</option>
+			  {% endfor %}
+		 </select><br>
+		<div class="btn-fix">
+			<input type="submit" value="Select">
+		</div>
+	</form>
+</div>
 {% endblock %}
