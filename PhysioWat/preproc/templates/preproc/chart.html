@@ -27,7 +27,7 @@
             </ul>
 
             {% csrf_token %}
-            <form action="page_to_which_send_the_form" method="post" enctype="multipart/form-data">
+            <form action="page_to_which_send_the_form" method="post" enctype="multipart/form-data"> <!--RETURN TO DB? IT CONTAINS THE SETTING FOR THE ALGORITHM -->
 
                 {% for k,v in forms.items %}
                     <!-- in the end, this contains a form. wich tag is better? div, what?-->
