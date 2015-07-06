@@ -44,7 +44,7 @@ if True:
     fs = 50.0;
     dT = 1.0 / fs;
     
-    filenames = ['claire_ASD.txt', 'claire_control.txt']
+    filenames = ['claire_ASD.txt', 'standing.txt']
     labels = ['ASD', 'control']
 
     N = len(filenames)
@@ -54,9 +54,9 @@ if True:
     data_all = []
     data_mean = []
     data_var = []
-    data_combined = [0, 0, 0]
-    data_mean_combined = [0, 0, 0]
-    data_var_combined = [0, 0, 0]
+    data_combined = [0,0,0]
+    data_mean_combined = [0,0,0]
+    data_var_combined = [0,0,0]
 
     for i in range(N):
         data_all.append(np.loadtxt(filenames[i], delimiter=',', usecols=(2, 3, 4)))
@@ -77,7 +77,6 @@ if True:
                 # compute mean of window elements
                 _var[ind, i_col] = newfunc(data_all[i][i_row:i_row + WINDOW_SIZE-1, i_col], i_row, i_row + WINDOW_SIZE-1)
                 _mean[ind, i_col] = np.mean(data_all[i][i_row:i_row + WINDOW_SIZE-1, i_col])
-                ind += 1
             # end for i_row
 		
         # end for i_col
