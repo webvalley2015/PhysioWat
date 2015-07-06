@@ -25,7 +25,7 @@ def power_fmax(spec,freq,fmin,fmax):
     fmax=freq_band[np.argmax(psd_band)]
     return powerinband, fmax
 
-def extract_features_acc(data_acc, t, col_acc, windows, fsamp=100):
+def extract_features_acc(data_acc, t, col_acc, windows):
     '''
     Extract features for acceleration
     :param data_acc: data where to extract feats, as a np.array
@@ -36,6 +36,8 @@ def extract_features_acc(data_acc, t, col_acc, windows, fsamp=100):
     :param fsamp: sampling rate (Hz)
     :return: feats as np 2d array and the relative labels (np 1d array)
     '''
+    fsamp=int(round(1/(t[1]-t[0])))
+
     col_mod=['acc_mod','acc_mod_plan']
     col_all=np.r_[col_acc, np.array(col_mod)]
 
@@ -46,7 +48,7 @@ def extract_features_acc(data_acc, t, col_acc, windows, fsamp=100):
     samples, labels=windowing_and_extraction(data_acc, t, fsamp, windows, col_all)
     return samples, labels
 
-def extract_features_gyr(data, t, col_gyr, windows, fsamp=100):
+def extract_features_gyr(data, t, col_gyr, windows):
     '''
     Extract features for gyroscope
     :param data: data where to extract feats, as a np.array
@@ -58,11 +60,12 @@ def extract_features_gyr(data, t, col_gyr, windows, fsamp=100):
     :return: feats as np 2d array and the relative labels (np 1d array)
     '''
     # data_more, col_gyr=get_differences(data, col_gyr)
+    fsamp=int(round(1/(t[1]-t[0])))
     #===================================
     samples, labels=windowing_and_extraction(data, t, fsamp,windows, col_gyr)
     return samples, labels
 
-def extract_features_mag(data, t, col_mag, windows, fsamp=100):
+def extract_features_mag(data, t, col_mag, windows):
     '''
     Extract features for magnetometer
     :param data: data where to extract feats, as a np.array
@@ -74,12 +77,12 @@ def extract_features_mag(data, t, col_mag, windows, fsamp=100):
     :return: feats as np array and the relative labels
     '''
     # data_more, col_mag=get_differences(data, col_mag)
-
+    fsamp=int(round(1/(t[1]-t[0])))
     #===================================
     samples, labels=windowing_and_extraction(data, t, fsamp, windows, col_mag)
     return samples, labels
 
-
+#Deprecated
 def get_differences(data, col_all, n=[1,2,5,10]):
     #===================================
     # calculate the difference of vectors

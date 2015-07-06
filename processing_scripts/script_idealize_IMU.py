@@ -5,7 +5,7 @@ filenames=sys.argv
 fs=100
 filenames=filenames[1:]
 
-head=0
+head=2
 
 columns_in=["timeStamp","packetCounter", "AccX","AccY","AccZ", "GyrX","GyrY","GyrZ", "MagX","MagY","MagZ"]
 columns_out=["TIME", "ACCX","ACCY","ACCZ", "GYRX","GYRY","GYRZ", "MAGX","MAGY","MAGZ", "LAB"]
@@ -22,4 +22,4 @@ data_out=np.delete(data_out, 0, 0)
 for i in range(data_out.shape[0]):
     data_out[i,0]=i/fs
 
-np.savetxt(raw_input("Filename: ./output/"), data_out, delimiter=",", header=",".join(columns_out), comments="")
+np.savetxt(raw_input("Filename: "), data_out, delimiter=",", header=",".join(columns_out), comments="")

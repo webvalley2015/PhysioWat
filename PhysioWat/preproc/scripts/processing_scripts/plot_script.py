@@ -1,7 +1,7 @@
 import numpy as np
 
 def scatter_error_bar_creator(mat):
-    """Given a Numpy array with columns (x,y,error), returns two Numpy arrays: one with columns (x,y) called "mat_data" and the other with columns (y-error,y+error) called "mat_error""""
+    """Given a Numpy array with columns (x,y,error), returns two Numpy arrays: one with columns (x,y) called "mat_data" and the other with columns (y-error,y+error) called "mat_error"""
     mat_data = mat[:,0:2] #extracts first two columns (x,y)
     mat_error = np.empty((mat.shape)) #initialises array mat_error
     for i in mat: #for every row

@@ -108,7 +108,7 @@ tools.downsampling(data, FSAMP, FS_NEW)
     #param data: the data to downsample
     #param FSAMP: the sampling frequency of the data
     #param FS_NEW: the frequency of the downsampled data
-    notes: the algorithm returns data with FS_NEW >= FSAMP. The algorithm DOES NOT return error if FS_NEW doesn't divide FSAMP, but doesn't work well
+    notes: the algorithm returns data with FS_NEW >= FSAMP or if FS_NEW doesn't divide FSAMP
 
 IBI.getPeaksIBI(signal, SAMP_F, peakDelta)
     get the peaks for the ibi calculation

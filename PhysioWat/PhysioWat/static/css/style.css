@@ -266,22 +266,28 @@ color:white;
 border-right:2px solid #6699FF; 
 height:100%;
 text-align: center; 
-padding-top:3.8%
+line-height: 0; 
+padding-top:3.8%;
+vertical-align:middle;
 }
 
 #div_step_2{
 border-right:2px solid #6699FF; 
 height:100%; 
 text-align:center; 
-padding-top:3.8%
+line-height: 0; 
+padding-top:3.8%;
+vertical-align:middle;
 }
 
 #div_step_3{
 border-top-right-radius:10px; 
 border-bottom-right-radius:10px;
 text-align:center;
+line-height: 0; 
 height:100%; 
-padding-top:3.8%
+padding-top:3.8%;
+vertical-align:middle;
 }
 
 
