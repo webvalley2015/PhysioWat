@@ -20,6 +20,7 @@ def show_chart(request, id_num):
         if form.is_valid():
             return HttpResponseRedirect(reverse('humanupload'))
     else:
+
         formPick = None
         if (True):
             formDown = downsampling(initial={'switch': False})
@@ -36,7 +37,7 @@ def show_chart(request, id_num):
             formDown = downsampling(initial={'switch': False})
             formGau = smoothGaussian(initial={'sigma': 2})
             formFilt = filterAlg(initial={'filterType': 'none'})
-            formSpec = inertial()
+            #formSpec = inertial()
         if (True):
             formPick = remove_spike()
             formDown = downsampling(initial={'switch': False})
@@ -45,7 +46,7 @@ def show_chart(request, id_num):
             formSpec = GSR()
 
         opt_temp = getavaliabledatavals(id_num)
-        opt_list = opt_temp[1:]
+        opt_list = opt_temp#[1:]
 
         context = {'forms': {'Filter': formFilt, 'Downpass': formDown,
                      'Spike': formPick, 'Special': formSpec, 'Gaussian': formGau},
