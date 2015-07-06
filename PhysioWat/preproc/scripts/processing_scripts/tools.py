@@ -1,12 +1,9 @@
 from __future__ import division
 import numpy as np
-# import matplotlib.pyplot as plt
 import json
-import pandas as pd
-from pandas import DataFrame
 # from PhysioWat.models import Recording, SensorRawData
 from StringIO import StringIO
-from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
+# from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
 import csv
 
 
@@ -113,7 +110,7 @@ def load_file(filename, header=1, sep=";"):
     return data
 
 
-def load_file_db(recordingID):
+def load_raw_db(recordingID):
     # raw query for i csv line
     table = Recording.objects.get(id=recordingID)
     data = SensorRawData.objects.filter(recording_id=recordingID)
@@ -206,14 +203,16 @@ def dict_to_csv(d, filename):
     feats = []
     for key, value in d.items():
         feats.append(value)
-    np.savetxt(filename, np.column_stack(feats), header=",".join(d.keys()))
+        print key
+    print d.keys()
+    np.savetxt(filename, np.column_stack(feats), delimiter=",", header=",".join(d.keys()))
 
 
 def array_labels_to_csv(array, labels, filename):
     np.savetxt(filename, array, delimiter=",", header=",".join(labels.tolist()))
 
 #Puts data int the preprocessed array into the database
-def putArrayintodb(rec_id, preProcArray, preProcLabel):
+def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
 
     #Andrew's crazy method to convert array to CSV-ish string??? IDK what it means, but IT WORKS!!!
     csvasstring = ",".join(preProcLabel.tolist()) + '\n'
