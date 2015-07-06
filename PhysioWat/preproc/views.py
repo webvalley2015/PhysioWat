@@ -2,11 +2,20 @@ from django.shortcuts import render
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from .forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike, smoothGaussian
-from PhysioWat.models import Experiment, Recording
+from PhysioWat.models import Experiment, Recording, SensorRawData
 from django.contrib import messages
 from .jsongen import getavaliabledatavals
 from scripts.processing_scripts import tools, inertial, filters, IBI
 import numpy as np
+
+
+
+def QueryDb(recId):
+    table = SensorRawData.objects.get(recording=recId)
+
+
+
+
 
 
 def show_chart(request, id_num, alg_type=""):
@@ -15,6 +24,11 @@ def show_chart(request, id_num, alg_type=""):
     # TODO discuss a way to obtain all the form dinamically
     if request.method == "POST":
         # PreprocSettings does not exists here will have an error!!!!
+
+
+
+
+
 
         return HttpResponseRedirect(reverse('user_upload'))
     else:
