@@ -23,6 +23,30 @@ def QueryDb(recordingID):
     datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
     return datacsv
 
+def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
+
+    #Andrew's crazy method to convert array to CSV-ish string??? IDK what it means, but IT WORKS!!!
+    csvasstring = ",".join(preProcLabel.tolist()) + '\n'
+    for dataarr in preProcArray:
+        for dataval in dataarr:
+            csvasstring += str(dataval)+','
+        csvasstring = csvasstring[:-1]
+        csvasstring += '\n'
+
+    #Initiate the CSV Reader
+    csvreader = csv.reader(StringIO(csvasstring), delimiter=',')
+    dictky = csvreader.next()
+
+    #Submit data to model and thus the database table
+    pr = Preprocessed_Recording(recording_id=rec_id, dict_keys=dictky)
+    pr.save()
+
+    for row in csvreader:
+        Preprocessed_Data(pp_recording=pr.id, store=dict(zip(dictky, row))).save()
+
+    return 0
+
+
 
 def show_chart(request, id_num, alg_type=""):
     template = "preproc/chart.html"
