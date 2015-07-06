@@ -33,3 +33,6 @@ def create_experiement(request):
 def getExperimentsNames():
     return Experiment.objects.values_list('name', flat=True).distinct()
 
+
+
+

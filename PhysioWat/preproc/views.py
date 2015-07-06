@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike, smoothGaussian
-from PhysioWat.models import Experiment
+from PhysioWat.models import Experiment, Recording
 from django.contrib import messages
 from .jsongen import getavaliabledatavals
 from scripts.processing_scripts import tools, inertial, filters, IBI
@@ -16,6 +16,7 @@ def show_chart(request, id_num):
     # TODO discuss a way to obtain all the form dinamically
 
     if request.method == "POST":
+        # PreprocSettings does not exists here will have an error!!!!
         form = PreprocSettings(request.POST, request.FILES)
         if form.is_valid():
             return HttpResponseRedirect(reverse('humanupload'))
@@ -49,34 +50,53 @@ def show_chart(request, id_num):
         opt_list = opt_temp#[1:]
 
         context = {'forms': {'Filter': formFilt, 'Downpass': formDown,
-                     'Spike': formPick, 'Special': formSpec, 'Gaussian': formGau},
-           'opt_list': opt_list, 'id_num':id_num}
+                    'Spike': formPick, 'Special': formSpec, 'Gaussian': formGau},
+                    'opt_list': opt_list, 'id_num':id_num}
         return render(request, template, context)
+
 
 def getExperimentsNames():
     return Experiment.objects.values_list('name', flat=True).distinct()
 
 
 def getExperimentsList():
-    return Experiment.objects.values_list('name', 'token').distinct()
+    return Experiment.objects.values_list('id', 'name', 'token').distinct()
 
 
 def select_experiment(request):
+    name_list = getExperimentsNames()
+    context = {'name_list': name_list}
     if request.method == 'POST':
         exp_name = request.POST.get('exp_name')
         password = request.POST.get('password')
         err_log = False
         for i in getExperimentsList():
-            if exp_name == i[0] and password == i[1]:
+            if exp_name == i[1] and password == i[2]:
                 err_log = True
+                num_exp = i[0]
         if err_log:
-            return HttpResponseRedirect('/preproc/recording')
+            return HttpResponseRedirect(reverse('record_selector', kwargs={'id_num': num_exp}))
         else:
             messages.error(request, 'Error wrong password')
+            return render(request, 'preproc/experiments.html', context)
     else:
-        name_list = getExperimentsNames()
-        context = {'name_list': name_list}
         return render(request, 'preproc/experiments.html', context)
+
+
+def getRecordsList(experimentId):
+    return Recording.objects.filter(experiment=experimentId).values_list('id', flat=True)
+
+
+def select_record(request, id_num):
+    print(id_num)
+    if request.method == 'POST':
+        record_id = request.POST.get('rec_name')
+        return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': record_id}))
+    else:
+        name_list = getRecordsList(id_num)
+        context = {'name_list': name_list}
+        return render(request, 'preproc/records.html', context)
+
 
 def test(request):
     print "OK"
@@ -110,3 +130,4 @@ def test(request):
     tools.putPreprocArrayintodb(ID, ibi, np.array(["timestamp", "IBI"]))
 
     return render(request,'preproc/experiments.html', {'name_list':["exp1"]})
+
