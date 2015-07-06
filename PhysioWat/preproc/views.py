@@ -84,7 +84,7 @@ def select_experiment(request):
 
 
 def getRecordsList(experimentId):
-    return Recording.objects.filter(experiment=experimentId)
+    return Recording.objects.filter(experiment=experimentId).values_list('id', flat=True)
 
 
 def select_record(request, id_num):
