@@ -223,7 +223,7 @@ def dict_to_csv(d, filename):
 
 
 def array_labels_to_csv(array, labels, filename):
-    np.savetxt(filename, array, delimiter=",", header=",".join(labels.tolist()))
+    np.savetxt(filename, array, delimiter=",", header=",".join(labels.tolist()), comments="")
 
 #Puts data int the preprocessed array into the database
 def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
