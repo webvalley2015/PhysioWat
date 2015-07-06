@@ -6,9 +6,9 @@ from .views import show_chart,select_experiment, test
 
 urlpatterns = patterns('preproc.views',
     url(r'^experiments/$', view=select_experiment, name='experiment_selector'),
-    url(regex='^linegraph_getdata/$', view=linegraph.as_view(), name="chart_getdata" ),
-    url( regex='^linegraph_getdata/(?P<title>\w+)/$', view=linegraph.as_view(), name="chart_getdata" ),
-    url( regex='^linegraph_getdata/(?P<title>\w+)/(?P<begin>\d+)/(?P<end>\d+)/$', view=linegraph.as_view(), name="chart_getdata" ),
-    url( regex='^chart/$', view=show_chart, name="chart_show" ),
+    url( regex='^linegraph_getdata/$', view=linegraph.as_view(), name="chart_getdata" ),
+    url( regex='^chart/(?P<id_num>\d+)/$', view=show_chart, name="chart_show" ),
+    #url( regex='^select/$', view=select_experiment_no_use, name="exp_selection")
     url( regex="^test$", view=test, name="Test")
+
 )
