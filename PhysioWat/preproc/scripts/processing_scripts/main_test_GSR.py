@@ -19,7 +19,7 @@ DELTA=0.02
 FS=256
 nFS=16
 
-gsr_data = tools.load_file(filename, header=1, sep=";") # 8 ","
+gsr_data = tools.load_file(filename, header=8, sep=",") # 8 ","
 #TODO GAUSSIANA
 
 gsr_data= tools.downsampling(gsr_data, FS, nFS)
@@ -28,9 +28,9 @@ gsr_data= tools.downsampling(gsr_data, FS, nFS)
 # plt.xlabel("Time (s)")
 # plt.ylabel("GSR (uS)")
 # plt.title("Raw GSR")
-t_gsr, gsr = GSR.remove_spikes(gsr_data[:,1], nFS)
-# t_gsr = gsr_data[:,0]
-# gsr   = gsr_data[:,1]
+# t_gsr, gsr = GSR.remove_spikes(gsr_data[:,1], nFS)
+t_gsr = gsr_data[:,0]
+gsr   = gsr_data[:,1]
 print gsr.shape
 # print t_gsr.shape, gsr.shape, gsr_data.shape
 t_driver, driver, phasic_d, tonic_d= GSR.estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA, FS=nFS)
