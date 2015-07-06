@@ -79,8 +79,8 @@ def select_experiment(request):
         context = {'name_list': name_list}
         return render(request, 'preproc/experiments.html', context)
 
-def getRecordsList(id_num):
-    return Experiment.objects.values_list('id', flat=True).distinct()
+def getRecordsList(experimentId):
+    return Recording.objects.filter(experiment=experimentId)
 
 def select_record(request, id_num):
     print(id_num)
@@ -125,5 +125,3 @@ def test(request):
 
     return render(request,'preproc/experiments.html', {'name_list':["exp1"]})
 
-def getRecordsByExperimentID(experimentId):
-    return Recording.objects.filter(experiment=experimentId)
