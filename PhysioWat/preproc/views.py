@@ -16,6 +16,7 @@ def show_chart(request, id_num):
     # TODO discuss a way to obtain all the form dinamically
 
     if request.method == "POST":
+        # PreprocSettings does not exists here will have an error!!!!
         form = PreprocSettings(request.POST, request.FILES)
         if form.is_valid():
             return HttpResponseRedirect(reverse('humanupload'))
@@ -49,9 +50,10 @@ def show_chart(request, id_num):
         opt_list = opt_temp#[1:]
 
         context = {'forms': {'Filter': formFilt, 'Downpass': formDown,
-                     'Spike': formPick, 'Special': formSpec, 'Gaussian': formGau},
-           'opt_list': opt_list, 'id_num':id_num}
+                    'Spike': formPick, 'Special': formSpec, 'Gaussian': formGau},
+                    'opt_list': opt_list, 'id_num':id_num}
         return render(request, template, context)
+
 
 def getExperimentsNames():
     return Experiment.objects.values_list('name', flat=True).distinct()
@@ -62,6 +64,8 @@ def getExperimentsList():
 
 
 def select_experiment(request):
+    name_list = getExperimentsNames()
+    context = {'name_list': name_list}
     if request.method == 'POST':
         exp_name = request.POST.get('exp_name')
         password = request.POST.get('password')
@@ -71,26 +75,28 @@ def select_experiment(request):
                 err_log = True
                 num_exp = i[0]
         if err_log:
-            return HttpResponseRedirect('/preproc/records/'+str(num_exp))
+            return HttpResponseRedirect(reverse('record_selector', kwargs={'id_num': num_exp}))
         else:
-            messages.error(request, 'Error wrong password')
+            messages.add_message(request, messages.ERROR, 'Error wrong password')
+            return render(request, 'preproc/experiments.html', context)
     else:
-        name_list = getExperimentsNames()
-        context = {'name_list': name_list}
         return render(request, 'preproc/experiments.html', context)
+
 
 def getRecordsList(experimentId):
     return Recording.objects.filter(experiment=experimentId).values_list('id', flat=True)
+
 
 def select_record(request, id_num):
     print(id_num)
     if request.method == 'POST':
         record_id = request.POST.get('rec_name')
-        return HttpResponseRedirect('/preproc/chart/'+str(record_id))
+        return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': record_id}))
     else:
         name_list = getRecordsList(id_num)
         context = {'name_list': name_list}
         return render(request, 'preproc/records.html', context)
+
 
 def test(request):
     print "OK"
