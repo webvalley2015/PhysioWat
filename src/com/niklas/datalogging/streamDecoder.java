@@ -5,8 +5,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+
+//import com.niklas.datalogging.MainActivity.ConnectServer;
 import com.unibo.cupidnodelogging.R;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -309,7 +312,7 @@ public class streamDecoder {
 		}
 
 	}
-		
+	public long lastupdate = 0;
 
 	private void decodeCupidRaw() throws IOException{
 			// ExelSx node, raw data type
@@ -366,6 +369,7 @@ public class streamDecoder {
 				
 				MainActivity.sampleCount = MainActivity.sampleCount + 1;
 				
+				
 				//if (listener != null)
                   // listener.updataListenerCount(MainActivity.sampleCount); // <---- fire listener here
 
@@ -391,7 +395,39 @@ public class streamDecoder {
 
 			}
 
+			
+			
+			if (MainActivity.sampleCount >= lastupdate + 10)
+			{
+				lastupdate = MainActivity.sampleCount;
+				  updateText connectServer = new updateText();
+	    		  connectServer.execute();
+			}
+			
+			
+			
+			
+
 		}
+	
+	private class updateText extends AsyncTask<Void, String, Void> {
+
+	    @Override
+	    protected Void doInBackground(Void... params) {
+	    	
+	    	try {
+	    	MainActivity.updateSample(999);
+	    	
+	    	}
+	    	
+	    	catch (Exception e)
+	    	{
+	    		
+	    		
+	    	}
+	        return null;
+	    }
+	    }
 	
 	private void decodeCupidCalib() throws IOException{
 			// ExelSx node, raw data type
