@@ -24,6 +24,8 @@ var pass_form_input = document.getElementById("id_password");
 
 
 
+
+/* TO ADD AGAIN IN THE FINAL PAGE
 $(document).ready(function()  {
 
 var pass_form_input = document.getElementById("id_device");
@@ -85,6 +87,11 @@ var pass_form_input = document.getElementById("BuRe");
 
 
 });
+*/
+
+
+
+
 /*
 $(document).ready(function()  {
 
@@ -98,13 +105,17 @@ var usr_form_input = document.getElementById("id_username");
 });
 */
 
+
+
+
+/*TO ADD AGAIN IN THE FINAL PAGE
 function show_hide_upload(passage){
 	if(passage==0){
 		document.getElementById("sel").style.display = 'block';
-		document.getElementById("dropzone-previews").style.display = 'block';
+		document.getElementById("id_file").style.display = 'block';
 		document.getElementById("Experiment_schifo").style.display = 'block';
 	} else{
-		document.getElementById("dropzone-previews").style.display = 'none';
+		document.getElementById("id_file").style.display = 'none';
 		document.getElementById("sel").style.display = 'none';
 		document.getElementById("Experiment_schifo").style.display = 'none';
 	}
@@ -129,8 +140,11 @@ function show_hide_upload(passage){
 }
 
 passage=0
-function increase_passage(){
+function increase_passage()
+{
 	passage +=1
 	show_hide_upload(passage)
 }
 
+
+*/
