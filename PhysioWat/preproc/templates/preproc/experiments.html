@@ -1,17 +1,25 @@
 {% extends 'PhysioWat/base.html' %}
 {% block container %}
-    <h1>Select Experiment</h1>
-    <br>
-    <form action="#" method="post" enctype="multipart/form-data">
+
+    <form action="#" method="post" enctype="multipart/form-data" class="form-cnt">
         {% csrf_token %}
+    <br><br>
+    <h1>Select Experiment</h1>
+    <br><br>
         <select name="exp_name">
             {% for c in name_list %}
                 <option value="{{ c }}">{{ c }}</option>
             {% endfor %}
-        </select><br><br>
-        <input type="password" name="password" required="true">
-        <input type="submit" value="Select">
+        </select>
+
+        <br><br>
+        <div class="btn-fix">
+            <input type="password" name="password" required="true">
+            <input type="submit" value="Select">
+        </div>
+
     </form>
+
     {% if messages %}
         <ul class="messages">
             {% for message in messages %}
@@ -19,4 +27,5 @@
             {% endfor %}
         </ul>
     {% endif %}
+
 {% endblock %}

@@ -12,30 +12,23 @@ def upload(request):
     if request.method == "POST":
 
         form = UploadForm(request.POST, request.FILES)
-
         if form.is_valid():
-
             experimentName = request.POST.get('experiment')
-            print experimentName
             actualPasscode = Experiment.objects.get(name=experimentName)
             actualPasscode = actualPasscode.token
             enteredPasscode = form.cleaned_data
             enteredPasscode = enteredPasscode["password"]
 
             if enteredPasscode == actualPasscode:
-                csvtodb.putintodb(request.FILES.getlist('file'), request.POST.get('device'), request.POST.get('description'), request.POST.get('experiment'))
+                csvtodb.putintodbflex(request.FILES.getlist('file'), request.POST.get('device'), request.POST.get('description'), request.POST.get('experiment'))
                 messages.success(request, 'Successfully Uploaded File')
-                print 'sucess'
             else:
                 messages.error(request, 'Invalid Password')
-                print 'error'
 
         return HttpResponseRedirect(reverse('user_upload'))
-
     else:
         form = UploadForm()
         context = {'form': form, 'experiments': getExperiments()}
-
     return render(request, 'uploader/home.html', context)
 
 

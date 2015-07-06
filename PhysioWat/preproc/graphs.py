@@ -4,11 +4,12 @@ import json
 
 class linegraph(HighChartsLineView):
     def get_data(self):
+        #read parameters from url
         urlTmp = self.kwargs
+        #get data type list
         vals = getavaliabledatavals(urlTmp['id_num'])
-        vals = vals[1:]
+        #vals = vals[1:]
         data = makejson("raw", urlTmp['id_num'], vals)
         data = json.loads(data)
-
         data['chart'] = {"renderTo":"#temporary-processing"}
         return data
