@@ -1,9 +1,9 @@
 from __future__ import division
 import numpy as np
 import json
-from PhysioWat.models import Recording, SensorRawData
+# from PhysioWat.models import Recording, SensorRawData
 from StringIO import StringIO
-from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
+# from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
 import csv
 
 
@@ -217,6 +217,8 @@ def dict_to_csv(d, filename):
     feats = []
     for key, value in d.items():
         feats.append(value)
+        print key
+    print d.keys()
     np.savetxt(filename, np.column_stack(feats), delimiter=",", header=",".join(d.keys()))
 
 

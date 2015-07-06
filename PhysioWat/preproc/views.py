@@ -5,7 +5,7 @@ from forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike
 from PhysioWat.models import Experiment
 from django.contrib import messages
 from .jsongen import getavaliabledatavals
-from scripts.processing_scripts import tools, inertial
+from scripts.processing_scripts import tools, inertial, filters, IBI
 import numpy as np
 
 
@@ -80,19 +80,33 @@ def select_experiment(request):
 
 def test(request):
     print "OK"
-    data = tools.load_raw_db(8)
-    sensAccCoeff=8*9.81/32768
-    sensGyrCoeff=2000/32768
-    sensMagCoeff=0.007629
-    t=data[:,1]
-    acc=data[:,3:6]
-    gyr=data[:,6:9]
-    mag=data[:,9:12]
+    ID=10
+    SAMP_F = 64
 
-    acc= inertial.convert_units(acc, coeff=sensAccCoeff)
-    gyr= inertial.convert_units(gyr, coeff=sensGyrCoeff)
-    mag= inertial.convert_units(mag, coeff=sensMagCoeff)
-    output_columns=["timeStamp","AccX","AccY","AccZ","GyrX","GyrY","GyrZ","MagX","MagY","MagZ"]
-    tools.putPreprocArrayintodb(8, np.column_stack([t, acc, gyr, mag]), np.array(output_columns))
+    #load data from the file
+    rawdata = tools.load_raw_db(ID)
+
+    #filter the signal
+    #the user selects the parameters, with default suggested
+    filterType = 'butter'
+    F_PASS = 2
+    F_STOP = 6
+    ILOSS = 0.1
+    IATT = 40
+    filtered_signal = filters.filterSignal(rawdata, SAMP_F, passFr = F_PASS, stopFr = F_STOP, LOSS = ILOSS, ATTENUATION = IATT, filterType = filterType)
+    #filtered_signal = rawdata
+
+    #extraction peaks from the signal
+    #the user selects the parameters, with default suggested
+    delta = 1
+    peaks = IBI.getPeaksIBI(filtered_signal,SAMP_F, delta)
+
+    #calculation of the IBI
+    #the user selects the parameters, with default suggested
+    minFr = 40
+    maxFr = 200
+    ibi = IBI.max2interval(peaks[:,0], minFr, maxFr)
+
+    tools.putPreprocArrayintodb(ID, ibi, np.array(["timestamp", "IBI"]))
 
     return render(request,'preproc/experiments.html', {'name_list':["exp1"]})
