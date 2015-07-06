@@ -6,6 +6,7 @@ from .forms import windowing
 def getAlgorithm(request):
     if(request.method=='POST'):
         print("I HAVE A POST!!!")
+
     else:
         form = windowing()
         template = "extfeat/choose_alg.html"

@@ -9,37 +9,40 @@ from scripts.processing_scripts import tools, inertial, filters, IBI
 import numpy as np
 
 
-def show_chart(request, id_num):
+def show_chart(request, id_num, alg_type=""):
     template = "preproc/chart.html"
-
     # load all the algorithms forms
     # TODO discuss a way to obtain all the form dinamically
-
     if request.method == "POST":
         # PreprocSettings does not exists here will have an error!!!!
-        form = PreprocSettings(request.POST, request.FILES)
-        if form.is_valid():
-            return HttpResponseRedirect(reverse('humanupload'))
-    else:
+        
 
-        formPick = None
-        if (True):
+        return HttpResponseRedirect(reverse('humanupload'))
+    else:
+        formFilt, formDown, formPick, formSpec, formGau, alg_select = None, None, None, None, None, None
+        if alg_type == "":
+            res = searchInDesc(id_num)
+            if res:
+                return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': id_num, 'alg_type': res}))
+            else:
+                alg_select = ["BVP", "EKG", "inertial", "GSR"]
+        elif alg_type == "BVP":
             formDown = downsampling(initial={'switch': False})
             formGau = smoothGaussian(initial={'sigma': 2})
             formFilt = filterAlg(
                 initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType': 'cheby2'})
             formSpec = BVP()
-        if (True):
+        elif alg_type == "EKG":
             formDown = downsampling(initial={'switch': False})
             formGau = smoothGaussian(initial={'sigma': 2})
             formFilt = filterAlg(initial={'filterType': 'none'})
             formSpec = EKG()
-        if (True):
+        elif alg_type == "inertial":
             formDown = downsampling(initial={'switch': False})
             formGau = smoothGaussian(initial={'sigma': 2})
             formFilt = filterAlg(initial={'filterType': 'none'})
-            #formSpec = inertial()
-        if (True):
+            formSpec = inertial()
+        elif alg_type == "GSR":
             formPick = remove_spike()
             formDown = downsampling(initial={'switch': False})
             formGau = smoothGaussian(initial={'sigma': 2})
@@ -47,12 +50,33 @@ def show_chart(request, id_num):
             formSpec = GSR()
 
         opt_temp = getavaliabledatavals(id_num)
-        opt_list = opt_temp[1:]
+        opt_list = opt_temp  # [1:]
 
         context = {'forms': {'Filter': formFilt, 'Downpass': formDown,
-                    'Spike': formPick, 'Special': formSpec, 'Gaussian': formGau},
-                    'opt_list': opt_list, 'id_num':id_num}
+                             'Spike': formPick, 'Special': formSpec, 'Gaussian': formGau},
+                   'opt_list': opt_list, 'id_num': id_num, 'alg_select': alg_select}
         return render(request, template, context)
+
+
+def searchInDesc(id_num):
+    desc = str(Recording.objects.filter(id=id_num).values_list('description', flat=True)[0]).lower()
+    found = ""
+    if "bvp" in desc:
+        if found == "": found = "BVP"
+        else: found = False
+    if "ekg" in desc:
+        if found == "": found = "EKG"
+        else: found = False
+    if "inertial" in desc:
+        if found == "": found = "inertial"
+        else: found = False
+    if "gsr" in desc:
+        if found == "": found = "GSR"
+        else: found = False
+    if not found and found != "":
+        return found
+    else:
+        return False
 
 
 def getExperimentsNames():
@@ -88,7 +112,6 @@ def getRecordsList(experimentId):
 
 
 def select_record(request, id_num):
-    print(id_num)
     if request.method == 'POST':
         record_id = request.POST.get('rec_name')
         return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': record_id}))
@@ -99,35 +122,34 @@ def select_record(request, id_num):
 
 
 def test(request):
-    print "OK"
-    ID=10
+    ID = 10
     SAMP_F = 64
 
-    #load data from the file
+    # load data from the file
     rawdata = tools.load_raw_db(ID)
 
-    #filter the signal
-    #the user selects the parameters, with default suggested
+    # filter the signal
+    # the user selects the parameters, with default suggested
     filterType = 'butter'
     F_PASS = 2
     F_STOP = 6
     ILOSS = 0.1
     IATT = 40
-    filtered_signal = filters.filterSignal(rawdata, SAMP_F, passFr = F_PASS, stopFr = F_STOP, LOSS = ILOSS, ATTENUATION = IATT, filterType = filterType)
-    #filtered_signal = rawdata
+    filtered_signal = filters.filterSignal(rawdata, SAMP_F, passFr=F_PASS, stopFr=F_STOP, LOSS=ILOSS, ATTENUATION=IATT,
+                                           filterType=filterType)
+    # filtered_signal = rawdata
 
-    #extraction peaks from the signal
-    #the user selects the parameters, with default suggested
+    # extraction peaks from the signal
+    # the user selects the parameters, with default suggested
     delta = 1
-    peaks = IBI.getPeaksIBI(filtered_signal,SAMP_F, delta)
+    peaks = IBI.getPeaksIBI(filtered_signal, SAMP_F, delta)
 
-    #calculation of the IBI
-    #the user selects the parameters, with default suggested
+    # calculation of the IBI
+    # the user selects the parameters, with default suggested
     minFr = 40
     maxFr = 200
-    ibi = IBI.max2interval(peaks[:,0], minFr, maxFr)
+    ibi = IBI.max2interval(peaks[:, 0], minFr, maxFr)
 
     tools.putPreprocArrayintodb(ID, ibi, np.array(["timestamp", "IBI"]))
 
-    return render(request,'preproc/experiments.html', {'name_list':["exp1"]})
-
+    return render(request, 'preproc/experiments.html', {'name_list': ["exp1"]})

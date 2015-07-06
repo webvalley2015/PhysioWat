@@ -29,15 +29,23 @@
             {% csrf_token %}
             <form action="page_to_which_send_the_form" method="post" enctype="multipart/form-data"> <!--RETURN TO DB? IT CONTAINS THE SETTING FOR THE ALGORITHM -->
 
+            {% for i in alg_select %}
+                <a href='{% url 'chart_show' id_num i %}'>{{ i }}</a>
+            {% endfor %}
+
+            <form action="#" name="preproc" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
                 {% for k,v in forms.items %}
                     <!-- in the end, this contains a form. wich tag is better? div, what?-->
-                    <div id="div_id_{{ k }}" style="display:none">
+                    {% if v %}
+                        <div id="div_id_{{ k }}" style="display:none">
 
-                        <br>
-                        {% bootstrap_form v %}
-                        <br>
-                        <br>
-                    </div>
+                            <br>
+                            {% bootstrap_form v %}
+                            <br>
+                            <br>
+                        </div>
+                    {% endif %}
                 {% endfor %}
 
                 <div>
@@ -51,6 +59,7 @@
         </div>
 
         </form>
+
         {{ opt_list }}
 
         <div id="options">
