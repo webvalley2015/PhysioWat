@@ -109,7 +109,7 @@ def load_file(filename, header=1, sep=";"):
     return data
 
 
-def load_file_db(recordingID):
+def load_raw_db(recordingID):
     # raw query for i csv line
     table = Recording.objects.get(id=recordingID)
     data = SensorRawData.objects.filter(recording_id=recordingID)
@@ -209,7 +209,7 @@ def array_labels_to_csv(array, labels, filename):
     np.savetxt(filename, array, delimiter=",", header=",".join(labels.tolist()))
 
 
-def putArrayintodb(rec_id, preProcArray, preProcLabel):
+def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
 
     csvasstring = ",".join(preProcLabel.tolist()) + '\n'
     for dataarr in preProcArray:
