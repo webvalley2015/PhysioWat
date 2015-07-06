@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import com.unibo.cupidnodelogging.R;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.widget.TextView;
 
 public class streamDecoder {
 	private InputStream mmInStream = null;
@@ -18,6 +21,35 @@ public class streamDecoder {
 	private byte[] buffer = new byte[512];
 	private int cnt = 0;
 	private long DataReceivedTime = 0;
+	
+	
+	
+	
+	
+	
+	
+	
+	public interface MyCustomObjectListener {
+        public void updataListenerCount(long number);
+     }
+		
+	private MyCustomObjectListener listener;
+
+    public void registerListener (MyCustomObjectListener listener) {
+        this.listener = listener;
+    }
+	
+	    
+	    
+	    
+	    
+	       
+	    
+	    
+	    
+	    
+	    
+
 	
 	streamDecoder(InputStream iStream,OutputStream oStream, Handler appHandler ){
 		mmInStream = iStream;
@@ -177,8 +209,8 @@ public class streamDecoder {
 			//Verify checksum
 			for (int j=0; j<packetSize-1; j++)
 				checksum = checksum ^ ((int)buffer[j]& 0xFF);
-
-
+			
+			
 			out_log.write(DataReceivedTime+" ;"+contaT+";"+ax+";"+ay+";"+az+";"+gx+";"+gy+";"+gz+";"+mx+";"+my+";"+mz+";"+q1+";"+q2+";"+q3+";"+q4+";\n");
 			out_log.flush();
 			if (checksum_received==checksum){
@@ -236,6 +268,8 @@ public class streamDecoder {
 
 
 			checksum_received = ((int)buffer[packetSize-1]&0xFF);
+			
+			
 			
 			//necessary to avoid that newer version of Android (4.3+) closes the connection 
 			if (contaT % 100 == 43) 
@@ -328,6 +362,13 @@ public class streamDecoder {
 				 	contaT_prev=contaT;
 				}
 				checksum=0;
+
+				
+				MainActivity.sampleCount = MainActivity.sampleCount + 1;
+				
+				//if (listener != null)
+                  // listener.updataListenerCount(MainActivity.sampleCount); // <---- fire listener here
+
 
 			
 			// Send the obtained bytes to the UI Activity
@@ -453,6 +494,7 @@ public class streamDecoder {
 			mz = (short)((buffer[19]&0xFF) +((buffer[20]&0xFF)*256));
 
 			checksum_received = ((int)buffer[packetSize-1]&0xFF);
+
 			
 			//necessary to avoid that newer version of Android (4.3+) closes the connection 
 			if (contaT % 100 == 43) 
@@ -528,6 +570,8 @@ public class streamDecoder {
 			// Ch9 = (short)((buffer[19]&0xFF) +((buffer[20]&0xFF)*256));
 
 			checksum_received = ((int)buffer[packetSize-1]&0xFF);
+			
+
 			
 			//necessary to avoid that newer version of Android (4.3+) closes the connection 
 			if (contaT % 100 == 0) 

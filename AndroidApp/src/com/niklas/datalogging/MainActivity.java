@@ -1,12 +1,22 @@
 package com.niklas.datalogging;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.EventObject;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -16,6 +26,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
@@ -24,21 +35,32 @@ import com.niklas.datalogging.DeviceListActivity;
 import com.niklas.datalogging.SettingsActivity;
 import com.unibo.cupidnodelogging.R;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Debug;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.StrictMode;
+import android.provider.ContactsContract.CommonDataKinds.Event;
+import android.support.v4.app.NotificationCompat;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -53,12 +75,15 @@ import android.view.animation.RotateAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androidplot.util.Redrawer;
 
+@SuppressLint("NewApi")
 public class MainActivity extends Activity implements
-		ActionBar.OnNavigationListener {
+		ActionBar.OnNavigationListener, streamDecoder.MyCustomObjectListener {
 
 	/**
 	 * The serialization (saved instance state) Bundle key representing the
@@ -76,6 +101,8 @@ public class MainActivity extends Activity implements
 	    public static final int MESSAGE_WRITE = 3;
 	    public static final int MESSAGE_DEVICE_NAME = 4;
 	    public static final int MESSAGE_TOAST = 5;
+	    
+	    public static long sampleCount = 42;
 
 	    // Key names received from the BluetoothChatService Handler
 	    public static final String DEVICE_NAME = "device_name";
@@ -89,11 +116,17 @@ public class MainActivity extends Activity implements
 	   
 
 	    // Layout Views
-	    private Button mSendStartWalkButton;
 	    private Button mSendStartRunButton;
 
 	    private Button mSendStopButton;
 	    public int ConnectedDevices;
+	   
+	    public static ArrayList<String> sysLogList = new ArrayList<String>();  
+	    public static ArrayAdapter<String> listAdapter;  
+	    public static ListView mainlogList1;
+	    
+
+
 
 	    // Name of the connected device
 	    private String mConnectedDeviceName = null;
@@ -123,12 +156,52 @@ public class MainActivity extends Activity implements
 	    //private static int ConnectedDevices = 0;
 	    private Time now = new Time(); 
 	    private final Handler[] mHandler = new Handler[MaxNodes];
-
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    private streamDecoder mTextUpdate;
+	    
+	    @Override
+	    public void updataListenerCount(long number) {
+	            updateSample(number);
+	    }
+	    
+	    
+	    
+	    
+	    
+	    private static Context context;
+	    
+	    private static final int NOTIFY_ME_ID=1337;
+	    
+	    public static Context getAppContext() {
+	        return MainActivity.context;
+	    }
+	    
+	    
 	    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+
 		super.onCreate(savedInstanceState);
+		MainActivity.context = getApplicationContext();
 		setContentView(R.layout.activity_main);
+		
+		
+		
+		
+        mTextUpdate = new streamDecoder(null, null, null);
+        mTextUpdate.registerListener(this);
+		
+		
 		
         if(D) Log.e(TAG, "+++ ON CREATE +++");
 
@@ -151,6 +224,8 @@ public class MainActivity extends Activity implements
 		// Set up the action bar to show a dropdown list.
 		final ActionBar actionBar = getActionBar();
 		
+		
+		
 		actionBar.setDisplayShowTitleEnabled(false);
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 
@@ -166,7 +241,17 @@ public class MainActivity extends Activity implements
 								getString(R.string.title_section4),}), this);
 		
 		setupHandler();
+		mainlogList1 = (ListView) findViewById(R.id.logList1); 
 		
+		listAdapter = new ArrayAdapter<String>(this, R.layout.simplerow, sysLogList);
+		mainlogList1.setAdapter(listAdapter); 
+	      
+	    // Add more planets. If you passed a String[] instead of a List<String>   
+	    // into the ArrayAdapter constructor, you must not add more items.   
+	    // Otherwise an exception will occur.   
+		
+		writeLogMessage.writeLogMessage("System startup", false);
+	    
         // If BT is not on, request that it be enabled.
         // setupChat() will then be called during onActivityResult
         if (!mBluetoothAdapter.isEnabled()) {
@@ -187,8 +272,26 @@ public class MainActivity extends Activity implements
         super.onPause();
         Log.e(TAG, "+++ ON PAUSE +++");
     }
-
-
+    
+    public void updateSample(long number) {
+    	TextView sampleText = (TextView) findViewById(R.id.textView2); 
+    	sampleText.setText("Samples: " + number);
+    }
+    /*
+    public void updateCallback(long result) {   
+    	TextView sampleText = (TextView) findViewById(R.id.textView2); 
+    	sampleText.setText("Samples: " + result);
+    }
+    
+    
+    
+    
+    public static void updateSample(long number) {
+    	TextView sampleText = (TextView) getActivity().findViewById(R.id.textView2);
+    	sampleText.setText("Samples: " + number);
+    }   
+    */
+    
     
     
     @Override
@@ -364,7 +467,7 @@ public class MainActivity extends Activity implements
         Log.d(TAG, "setupChat()");
 
         // Initialize the array adapter for the conversation thread
-        
+        /*
         mSendStartWalkButton = (Button) findViewById(R.id.buttonStartWalk);
         mSendStartWalkButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
@@ -387,7 +490,7 @@ public class MainActivity extends Activity implements
         		
             }
         });
-        
+        */
         
         
         mSendStartRunButton= (Button) findViewById(R.id.buttonStartRun);
@@ -425,7 +528,14 @@ public class MainActivity extends Activity implements
             }
         });
         
+        // Initialize the BluetoothChatService to perform bluetooth connections
+        for(int i = 0; i<7 ; i++){
+        	mChatService[i] = new BluetoothChatService(this, mHandler[i]);
+        }
+        
         //+++++++++++++++++++++++++++Sending data to Server++++++++++++++++++++++++++++++++++
+        
+      
         
         mSendStopButton = (Button) findViewById(R.id.buttonSendToServer);
         mSendStopButton.setOnClickListener(new OnClickListener() {
@@ -433,17 +543,31 @@ public class MainActivity extends Activity implements
             	final Context context = getApplicationContext();
             	CharSequence text;
             	int duration = Toast.LENGTH_SHORT;
+            	
+            	MainActivity.sampleCount = MainActivity.sampleCount + 1;
+            	updateSample(MainActivity.sampleCount);
+
 
             	if (serverProtocolState)
             		text = "Try to connect to Server...";
             	
             	else
             		text = "Please capture Data first";
+            	
+            	//sampleText.setText("blabla");
             		
             	Toast toast = Toast.makeText(context, text, duration);
             	toast.show();
             	
+            	
+            
+            	
             	if (serverProtocolState) {
+            		
+            		writeLogMessage.writeLogMessage("Try to reach 192.168.210.183:5432", false);
+            		ConnectServer connectServer = new ConnectServer();
+            		connectServer.execute();
+            		
             		final ImageView favicon = (ImageView) findViewById(R.id.imageView1);
             		favicon.setVisibility(View.VISIBLE);
 
@@ -461,26 +585,134 @@ public class MainActivity extends Activity implements
 
             			public void onFinish() {
             				favicon.setVisibility(View.GONE);
-                    		
-                        	Toast toast = Toast.makeText(context, "Success!", Toast.LENGTH_SHORT);
-                        	toast.show();
             			}
             		}.start();
             		
             	}
-                   	
-            	PushToServer.pushFileToServer();
             }
         });
-        
-        //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        // Initialize the BluetoothChatService to perform bluetooth connections
-        for(int i = 0; i<7 ; i++){
-        	mChatService[i] = new BluetoothChatService(this, mHandler[i]);
-        }
     }
     
+  
+    
+	private class ConnectServer extends AsyncTask<Void, String, Void> {
+
+	    @Override
+	    protected Void doInBackground(Void... params) {
+	    	
+	    	String clientSentence = "Hello Internet";
+	    	
+	    	TimeZone tz = TimeZone.getTimeZone("Europe/Rome");
+	    	Calendar rightNow = Calendar.getInstance(tz);// .getInstance();
+
+	        Socket socket = null;
+	        DataOutputStream dataOutputStream = null;
+	        
+	        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+	        StrictMode.setThreadPolicy(policy);
+	        
+	        String url = "192.168.210.183:5432";
+	        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/CUPID_data/"+rightNow.get(Calendar.DAY_OF_MONTH)+"_"+ (rightNow.get(Calendar.MONTH) + 1) +"_"+ rightNow.get(Calendar.YEAR) +"/",
+	        file_name_log);
+	        
+	        String ret = "";
+
+	        try {
+	            InputStream inputStream = new FileInputStream(file);
+
+	            if ( inputStream != null ) {
+	                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+	                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+	                String receiveString = "";
+	                StringBuilder stringBuilder = new StringBuilder();
+
+	                while ( (receiveString = bufferedReader.readLine()) != null ) {
+	                    stringBuilder.append(receiveString);
+	                }
+
+	                inputStream.close();
+	                ret = stringBuilder.toString();
+	            }
+	        }
+	        catch (FileNotFoundException e) {
+	            Log.e("login activity", "File not found: " + e.toString());
+	        } catch (IOException e) {
+	            Log.e("login activity", "Can not read file: " + e.toString());
+	        }
+	        
+	        
+	        /*
+	        try {
+	        HttpClient httpclient = new DefaultHttpClient();
+	        HttpPost httppost = new HttpPost(url);
+	        InputStreamEntity reqEntity = new InputStreamEntity(
+	        new FileInputStream(file), -1);
+	        reqEntity.setContentType("binary/octet-stream");
+	        reqEntity.setChunked(true); // Send in multiple parts if needed
+	        httppost.setEntity(reqEntity);
+	        //HttpResponse response = httpclient.execute(httppost);
+	        //Do something with response...
+	        }
+	         */
+	        
+
+	        try {
+	         //socket = new Socket("192.168.210.183", 5432);
+	         socket = new Socket();
+	         socket.connect(new InetSocketAddress("192.168.210.183", 5432), 3000);
+	         dataOutputStream = new DataOutputStream(socket.getOutputStream());
+	         dataOutputStream.writeBytes(ret);
+	         
+	         //dataOutputStream.writeUTF("Hello Internet" + "\n");
+	         
+	        } 
+	        
+	        catch (UnknownHostException e) {
+	         // TODO Auto-generated catch block
+	        	publishProgress("UnknownHostException");
+	         e.printStackTrace();
+	        } catch (IOException e) {
+	         // TODO Auto-generated catch block
+	        	publishProgress("Can't connect to server!");
+	         e.printStackTrace();
+	        }
+	        
+	        finally{
+	         if (socket != null){
+	          try {
+	           socket.close();
+	          } catch (IOException e) {
+	           // TODO Auto-generated catch block
+	        	  publishProgress("IOException: 2");
+	           e.printStackTrace();
+	          }
+	         }
+
+	         if (dataOutputStream != null){
+	          try {
+	           dataOutputStream.close();
+	          } catch (IOException e) {
+	           // TODO Auto-generated catch block
+	        	  publishProgress("IOException: 3");
+	           e.printStackTrace();
+	          }
+	         }
+	        }
+	        return null;
+	    }
+
+	    @Override
+	    protected void onProgressUpdate(String... values) {
+	    	writeLogMessage.writeLogMessage(values[0], true);
+	        Toast.makeText(getApplicationContext(), values[0],
+	                Toast.LENGTH_SHORT).show();
+	    }
+	}
+	
+    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	
+	
 	
 	private static int nodeIndex = 0;
 	private static int getNodeIndex(){
@@ -497,19 +729,26 @@ public class MainActivity extends Activity implements
 					if (mUImang != null){
 		                switch (msg.what) {
 		                case MESSAGE_STATE_CHANGE:
-		                    if(D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
+		                    if(D) {
+		                    	Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
+		                    	//writeLogMessage.writeLogMessage("Bluetooth socket state: " + msg.arg1, false);
+		                    }
 		                    switch (msg.arg1) {
 		                    case BluetoothChatService.STATE_CONNECTED:
+		                    	writeLogMessage.writeLogMessage("Bluetooth connected", false);
 		                    	mUImang.checkNodeStatus(mChatService);
 		                    	mUImang.checkNames();
 		                        break;
 		                    case BluetoothChatService.STATE_DISCONNECTED:
+		                    	writeLogMessage.writeLogMessage("Bluetooth disconnected", false);
 		                    	mUImang.checkNodeStatus(mChatService);
 		                    	break;
 		                    case BluetoothChatService.STATE_CONNECTING:
+		                    	writeLogMessage.writeLogMessage("Bluetooth connecting...", false);
 		                    	mUImang.checkNodeStatus(mChatService);
 		                        break;
 		                    case BluetoothChatService.STATE_LISTEN:
+		                    	writeLogMessage.writeLogMessage("Bluetooth searching...", false);
 		                    	mUImang.checkNodeStatus(mChatService);
 		                    	break;
 		                    case BluetoothChatService.STATE_NONE:
@@ -536,6 +775,7 @@ public class MainActivity extends Activity implements
 		                case MESSAGE_TOAST:
 		                    Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST),
 		                                   Toast.LENGTH_SHORT).show();
+		                    writeLogMessage.writeLogMessage(msg.getData().getString(TOAST), true);
 		                    break;
 		                }
 		            }
@@ -547,7 +787,10 @@ public class MainActivity extends Activity implements
     
     
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(D) Log.d(TAG, "onActivityResult " + resultCode);
+        if(D) {
+        	Log.d(TAG, "onActivityResult " + resultCode);
+        	writeLogMessage.writeLogMessage("Activity result: " + resultCode, false);
+        }
         if (resultCode != 0){
 	        switch (requestCode) {
 	        case REQUEST_CONNECT_DEVICE_INSECURE:
@@ -574,6 +817,7 @@ public class MainActivity extends Activity implements
 	            } else {
 	                // User did not enable Bluetooth or an error occured
 	                Log.d(TAG, "BT not enabled");
+	                writeLogMessage.writeLogMessage("Bluetooth not enabled!", true);
 	                Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
 	                finish();
 	            }
@@ -598,6 +842,7 @@ public class MainActivity extends Activity implements
 	        }
         }
     }
+    
     
     
     /**
@@ -688,5 +933,6 @@ public int get_log_num(String node_id, int l_num_update,int service_id, String a
 	
 		return nNodes;
 }
+
     
 }
