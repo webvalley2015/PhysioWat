@@ -1207,7 +1207,7 @@ div#portfoliolist {
 		bottom:-40px;
 	}
 .portfolio .label-bg {
-			background: #22B4B8;
+			background: #22B4Bform-cnt8;
 			width: 100%;
 			height:100%;
 			position: absolute;
@@ -3674,4 +3674,8 @@ h3.sngl {
 	padding-top: 3em;
 	width: 60%;
 	margin: 0 auto;
+}
+
+.btn-fix {
+	padding-left: 15px;
 }
