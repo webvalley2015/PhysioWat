@@ -77,7 +77,7 @@ def select_experiment(request):
         if err_log:
             return HttpResponseRedirect(reverse('record_selector', kwargs={'id_num': num_exp}))
         else:
-            messages.error(request, 'Error wrong password')
+            messages.add_message(request, messages.ERROR, 'Error wrong password')
             return render(request, 'preproc/experiments.html', context)
     else:
         return render(request, 'preproc/experiments.html', context)
