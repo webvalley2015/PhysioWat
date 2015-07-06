@@ -14,19 +14,16 @@ class linegraph(HighChartsLineView):
         #vals = vals[1:]
         data = makejson("raw", urlTmp['id_num'], vals)
         data = json.loads(data)
-        print "here"
         #print data
         for i in data['series']:
-            print i['name']
             if (i['name'] == 'timeStamp'):
                 times = i['data']
 
-        print times
 
-        print "fsahdiasdjasdioadsjdoisj"
+
         for i in data['series']:
-            print 'i[data]', len(i['data'])
+
             i['data'] = [ [times[cont], i['data'][cont]  ] for cont in range(len(i['data'])) ]
-        print data['series']
+
         data['chart'] = {"renderTo":"#temporary-processing"}
         return data
