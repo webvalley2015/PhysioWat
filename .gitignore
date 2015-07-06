@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # files for the dex VM
 *.dex
 
@@ -24,3 +25,16 @@ proguard/
 *.ipr
 *.iws
 .idea/
+=======
+.idea
+*.pyc
+*~
+*.sqlite3
+.DS_Store
+*.json
+PhysioWat/User Interface/images/circ.png
+PhysioWat/User Interface/images/default.gif
+local_settings.py
+dev.db
+
+>>>>>>> bb62b2f1c1d967fae3f475f18cb07db1209e7852

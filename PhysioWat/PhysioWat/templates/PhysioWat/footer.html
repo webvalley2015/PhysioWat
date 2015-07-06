@@ -1,0 +1,12 @@
+{# {% extends 'base.html' %}  ???????? #}
+{% block footer %}
+    Hello World!
+    this is a <br>
+    list of element!!!
+    {# another comment#}
+    <ul>
+    {% for a in l %}
+	<li> a  {% if a == 3 %} ALERT, THREE DETECTED! {% endif %}</li>	
+    {% endfor %}
+    </ul>
+{% endblock %}
