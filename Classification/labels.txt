@@ -1,0 +1,2 @@
+AccFullScale=8g, GyrFullScale=2000dps, SamplingRate=100Hz, PacketType=RAW
+timeStamp,packetCounter, AccX,AccY,AccZ, GyrX,GyrY,GyrZ, MagX,MagY,MagZ

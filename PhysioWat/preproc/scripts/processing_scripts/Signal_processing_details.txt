@@ -1,0 +1,138 @@
+Author: Andrea, Flavio, Riccardo
+
+Input data:
+  Nicola:
+    - Galvanic Skin Response (GSR)
+    - EKG
+    [- EMG]
+  Empatica E4:
+    - GSR
+    - BVP
+    - Inertial data
+
+Structure:
+This file explain, divided for signal type, which operations we provide for each step of the signal processing, and which functions achieve those results
+The documentations for the functions is added after
+
+GSR
+-Preprocessing:
+!!!!!!!!!!!!!!! CORREZIONI !!!!!!!!!!!
+    - smoothing
+    - downsampling
+    - filtering
+!!!!!!!!!!!!!!! CORREZIONI !!!!!!!!!!!
+    - GSR.remove_spike(data, FSAMP, TH=0.1)  
+        Removes annoying spikes
+		:param data: data set (no t)
+		:param FSAMP: sampling frequency
+		:param TH: Threshold
+		:return: data, timestamps
+-Time domain transformation:
+    - TIME_DRV, DRV, PH_DRV, TN_DRV = estimate_drivers(TIME_GSR, GSR, T1, T2, MX, DELTA_PEAK)
+		Estimates the various driving components of a GSR signal.
+	    The IRF is a bateman function defined by the gen_bateman function.
+	    T1, T2, MX and DELTA_PEAK are modificable parameters (optimal 0.75, 2, 1, 0.02) 
+	- preprocess the phasic data with GSR.preprocessPSR(pha, t, DELTA)
+	- extract features (in a pandas DataFrame) with GSR.PSRindexes(pha_preprocessed)
+    Windowing and features extraction:
+	- In order:
+	  pha_processed = GSR.processPSR(phasic_d, t_driver, DELTA)
+	  features = GSR.extract_features(pha_processed)
+	  Optimal value for delta is 0.02
+
+EKG:
+-Preprocessing:
+    -Downsample
+        tools.downsampling (default: FS_NEW = FSAMP, or no downsampling)
+    -Filter
+        filters.filterSignal (default: filterType = None)
+-Time domain transformation:
+    -Getting peaks
+        IBI.getPeaksIBI (default: delta = 0.2)
+    -calculating IBI
+        IBI.max2interval (default: minFr = 40, maxFr = 200)
+-Windowing and features extraction:
+    -Windowing:
+        one of the three algorithm for the windowing
+    -Feature extraction:
+        IBI.extract_IBI_features
+
+
+BVP:
+-Preprocessing:
+    -Filter
+        filters.filterSignal (default: passFr = 2, stopFr = 6, LOSS = 0.1, ATTENUATION = 0.4, filterType = 'butter')
+-Time domain transformation:
+    -Getting peaks
+        IBI.getPeaksIBI (default: delta = 1)
+    -calculating IBI
+        IBI.max2interval (default: minFr = 40, maxFr = 200)
+-Windowing and features extraction:
+    -Windowing:
+        one of the three algorithm for the windowing
+    -Feature extraction:
+        IBI.extract_IBI_features
+
+
+Inertial data:
+-Preprocessing:
+    - inertial.convert_units(data, labels, coeff)
+        data is a pandas dataframe
+        labels are the indexes for the columns to convert
+        coeff is the value to multiply
+    -filtering? yes                 !!!!!!!!!!!!!!! CORREZIONI !!!!!!!!!!!
+-Time domain transformation:
+    -None
+-Windowing and features extraction:
+    -extract_features_TYPE(data, wlen, wstep, fsamp, col)
+    for every type
+
+FUNCTIONS:
+
+filters.filterSignal (SIGNAL , smp_fr, passFr, stopFr, LOSS, ATTENUATION, filterType = None)
+    return: the signal filtered with the passed parameters
+    #param SIGNAL: the signal, as an array
+    #param smp_fr: the sampling frequency of the signal
+    #param passFr: the pass frequency of the filter
+    #param stopFr: the stop frequency of the filter
+    #param LOSS: the maximum LOSS for the filter
+    #param ATTENUATION: the minimum 'movement' for the filter
+    #param filterType: (default 'None') type of the filter. None or invalid values implies no filtering
+    filterType available: Butterworth ('butter')
+    -Butterworth: passFr < stopFr for a low_pass filter
+                  stopFr < passFr for a high_pass filter
+                  0 < passFr, stopFr < smp_fr / 2
+
+tools.downsampling(data, FSAMP, FS_NEW)
+    return: the downsampled version of the data
+    #param data: the data to downsample
+    #param FSAMP: the sampling frequency of the data
+    #param FS_NEW: the frequency of the downsampled data
+    notes: the algorithm returns data with FS_NEW >= FSAMP or if FS_NEW doesn't divide FSAMP
+
+IBI.getPeaksIBI(signal, SAMP_F, peakDelta)
+    get the peaks for the ibi calculation
+    return: an nparrays (N,2), containing the time (in s) in the first column and the height of the peak in the second column
+    #param signal: signal in which search the peaks
+    #param peakDelta: minimum peak height
+    #param SAMP_F: the sampling frequency of signal
+
+IBI.max2interval(peaks, minrate=40, maxrate=200):
+    Returns intervals from timesMax, after filtering possible artefacts based on rate range (rates in min^(-1))
+    if two peaks are nearer than minrate or further than maxrate, the algorithm try to recognize if there's a false true or a peak missing
+    return: an nparray (N,2) containing the time in the first column and the ibi in the second
+    #param peaks: an nparray (N,) containing the time of the peaks in the first column
+    #param minrate: represents the minimum(in min^(-1)) bpm to detect
+    #param maxrate: represents the maximum(in min^(-1)) bpm to detect
+
+IBI.extract_IBI_features(data, windows, labels):
+    exetract the features  from an IBI with passed windows
+    return: np.array containing the features of each window, the new labels (removes the ones corresponding to empty windows)
+    #param data: the data from which extract the features, passed as a numpy array (N,2) with time and values in the two columns
+    #param windows: np.array containing the start and the end point (in time) of every windows
+    #param labels: np.array containing the labels
+
+
+Preprocessing:
+    - BVP noise reduction: the main issue with this kind of data is that for each beat we also have another peak to clean. To identify just the first one of them we've applied a low-pass filter on the signal with the different algorithms (Butter, Chebyshev I and II, Besser, Ellip) and different filter parameters. In particular
+
