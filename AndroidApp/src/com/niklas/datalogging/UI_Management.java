@@ -90,58 +90,7 @@ public class UI_Management {
 		}
 
 		
-		state =mChatService[3].getState();
-		BTicon= (ImageView) this.act.findViewById(R.id.imageNode4);
-		switch (state){
-		case BluetoothChatService.STATE_NONE:
-			BTicon.setImageResource(R.drawable.bluetooth_gray);
-			break;
-		case BluetoothChatService.STATE_DISCONNECTED:
-			BTicon.setImageResource(R.drawable.bluetooth_red);
-			break;
-		case BluetoothChatService.STATE_CONNECTED:
-			BTicon.setImageResource(R.drawable.bluetooth_green);
-			break;
-		case BluetoothChatService.STATE_CONNECTING:
-			BTicon.setImageResource(R.drawable.bluetooth_yellow);
-			break;
-		}
-		
-		
-		state =mChatService[4].getState();
-		BTicon= (ImageView) this.act.findViewById(R.id.imageNode5);
-		switch (state){
-		case BluetoothChatService.STATE_NONE:
-			BTicon.setImageResource(R.drawable.bluetooth_gray);
-			break;
-		case BluetoothChatService.STATE_DISCONNECTED:
-			BTicon.setImageResource(R.drawable.bluetooth_red);
-			break;
-		case BluetoothChatService.STATE_CONNECTED:
-			BTicon.setImageResource(R.drawable.bluetooth_green);
-			break;
-		case BluetoothChatService.STATE_CONNECTING:
-			BTicon.setImageResource(R.drawable.bluetooth_yellow);
-			break;
-		}
-		
-		
-		state =mChatService[5].getState();
-		BTicon= (ImageView) this.act.findViewById(R.id.imageNode6);
-		switch (state){
-		case BluetoothChatService.STATE_NONE:
-			BTicon.setImageResource(R.drawable.bluetooth_gray);
-			break;
-		case BluetoothChatService.STATE_DISCONNECTED:
-			BTicon.setImageResource(R.drawable.bluetooth_red);
-			break;
-		case BluetoothChatService.STATE_CONNECTED:
-			BTicon.setImageResource(R.drawable.bluetooth_green);
-			break;
-		case BluetoothChatService.STATE_CONNECTING:
-			BTicon.setImageResource(R.drawable.bluetooth_yellow);
-			break;
-		}
+
 		
 	}
 	
@@ -160,12 +109,6 @@ public class UI_Management {
 		NodeText.setText(mChatService[1].deviceName);
 		NodeText = (TextView) this.act.findViewById(R.id.textNode3);
 		NodeText.setText(mChatService[2].deviceName);
-		NodeText = (TextView) this.act.findViewById(R.id.textNode4);
-		NodeText.setText(mChatService[3].deviceName);
-		NodeText = (TextView) this.act.findViewById(R.id.textNode5);
-		NodeText.setText(mChatService[4].deviceName);		
-		NodeText = (TextView) this.act.findViewById(R.id.textNode6);
-		NodeText.setText(mChatService[5].deviceName);
 	}
 	
 	public void initBtButtons(){
@@ -194,30 +137,6 @@ public class UI_Management {
 		    	nodeToPlot = 2;
 		    	checkNodeStatus(mChatService);
 		    	imgView3.setImageResource(R.drawable.bluetooth_dark_green);
-		    }
-		});
-		final ImageView imgView4 = (ImageView) this.act.findViewById(R.id.imageNode4);
-		imgView4.setOnClickListener(new View.OnClickListener(){
-		    public void onClick(View v) {
-		    	nodeToPlot = 3;
-		    	checkNodeStatus(mChatService);
-		    	imgView4.setImageResource(R.drawable.bluetooth_dark_green);
-		    }
-		});
-		final ImageView imgView5 = (ImageView) this.act.findViewById(R.id.imageNode5);
-		imgView5.setOnClickListener(new View.OnClickListener(){
-		    public void onClick(View v) {
-		    	nodeToPlot = 4;
-		    	checkNodeStatus(mChatService);
-		    	imgView5.setImageResource(R.drawable.bluetooth_dark_green);
-		    }
-		});
-		final ImageView imgView6 = (ImageView) this.act.findViewById(R.id.imageNode6);
-		imgView6.setOnClickListener(new View.OnClickListener(){
-		    public void onClick(View v) {
-		    	nodeToPlot = 5;
-		    	checkNodeStatus(mChatService);
-		    	imgView6.setImageResource(R.drawable.bluetooth_dark_green);
 		    }
 		});
 	}

@@ -26,6 +26,11 @@ import java.util.UUID;
 //import com.example.android.BluetoothChat.BluetoothChat;
 
 
+
+
+
+
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
@@ -125,7 +130,7 @@ import android.util.Log;
      * Start the chat service. Specifically start AcceptThread to begin a
      * session in listening (server) mode. Called by the Activity onResume() */
     public synchronized void start() {
-        if (D) Log.d(TAG, "start");
+        //if (D) writeLogMessage.writeLogMessage("Start Bluetooth", false);
 
         // Cancel any thread attempting to make a connection
         if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
@@ -152,7 +157,7 @@ import android.util.Log;
      * @param secure Socket Security type - Secure (true) , Insecure (false)
      */
     public synchronized void connect(BluetoothDevice device, boolean secure) {
-        if (D) Log.d(TAG, "connect to: " + device);
+        if (D) writeLogMessage.writeLogMessage("Bluetooth connect to: " + device, false);
 
         // Cancel any thread attempting to make a connection
         if (mState == STATE_CONNECTING) {
@@ -175,7 +180,7 @@ import android.util.Log;
      */
     public synchronized void connected(BluetoothSocket socket, BluetoothDevice
             device, final String socketType) {
-        if (D) Log.d(TAG, "connected, Socket Type:" + socketType);
+        //if (D) writeLogMessage.writeLogMessage("connected, Socket Type:" + socketType, false); WTF?!
 
         // Cancel the thread that completed the connection
         if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
@@ -213,7 +218,7 @@ import android.util.Log;
      * Stop all threads
      */
     public synchronized void stop() {
-        if (D) Log.d(TAG, "stop");
+        //if (D) writeLogMessage.writeLogMessage("Bluetooth stop", false);
 
         if (mConnectThread != null) {
             mConnectThread.cancel();
@@ -262,6 +267,7 @@ import android.util.Log;
         Message msg = mHandler.obtainMessage(MainActivity.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
         bundle.putString(MainActivity.TOAST, "Unable to connect device");
+        //writeLogMessage.writeLogMessage("Unable to connect device", true);
         msg.setData(bundle);
         mHandler.sendMessage(msg);
         IsConnected = false;
@@ -320,6 +326,8 @@ public String getDeviceID(){
                 }
             } catch (IOException e) {
                 Log.e(TAG, "Socket Type: " + mSocketType + "listen() failed", e);
+                
+                //writeLogMessage.writeLogMessage("Socket Type: " + mSocketType + "listen() failed", true);
             }
             mmServerSocket = tmp;
         }
@@ -339,6 +347,7 @@ public String getDeviceID(){
                     socket = mmServerSocket.accept();
                 } catch (IOException e) {
                     Log.e(TAG, "Socket Type: " + mSocketType + "accept() failed", e);
+                    //writeLogMessage.writeLogMessage("Socket Type: " + mSocketType + "listen() failed", true);
                     break;
                 }
 
@@ -359,6 +368,7 @@ public String getDeviceID(){
                                 socket.close();
                             } catch (IOException e) {
                                 Log.e(TAG, "Could not close unwanted socket", e);
+                                //writeLogMessage.writeLogMessage("Could not close unwanted socket", true);
                             }
                             break;
                         }
@@ -375,6 +385,7 @@ public String getDeviceID(){
                 mmServerSocket.close();
             } catch (IOException e) {
                 Log.e(TAG, "Socket Type" + mSocketType + "close() of server failed", e);
+                //writeLogMessage.writeLogMessage("Socket Type" + mSocketType + "close() of server failed", true);
             }
         }
     }
@@ -407,12 +418,14 @@ public String getDeviceID(){
                 }
             } catch (IOException e) {
                 Log.e(TAG, "Socket Type: " + mSocketType + "create() failed", e);
+                //writeLogMessage.writeLogMessage("Socket Type: " + mSocketType + "create() failed", true);
             }
             mmSocket = tmp;
         }
 
         public void run() {
             Log.i(TAG, "BEGIN mConnectThread SocketType:" + mSocketType);
+            //writeLogMessage.writeLogMessage("Begin mConnectThread SocketType:" + mSocketType, false);
             setName("ConnectThread" + mSocketType);
 
             // Always cancel discovery because it will slow down a connection
@@ -886,6 +899,7 @@ public String getDeviceID(){
                         .sendToTarget();
             } catch (IOException e) {
                 Log.e(TAG, "Exception during write", e);
+                
             }
         }
 

@@ -199,11 +199,13 @@ public class SettingsActivity extends Activity{
 	        		new OnItemSelectedListener() {
 	        			public void onItemSelected(
 	                            AdapterView<?> parent, View view, int position, long id) {
-	                        showToast("Spinner1: position=" + position + " id=" + id);
+	                        //showToast("Spinner1: position=" + position + " id=" + id);
+	                        writeLogMessage.writeLogMessage("Settings: position=" + position + " id=" + id, false);
 	                    }
 
 	                    public void onNothingSelected(AdapterView<?> parent) {
-	                        showToast("Spinner1: unselected");
+	                        //showToast("Spinner1: unselected");
+	                    	writeLogMessage.writeLogMessage("Spinner1: unselected", false);
 	                    }
 	        		});
 	        
