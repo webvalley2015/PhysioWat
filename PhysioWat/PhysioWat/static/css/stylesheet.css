@@ -2898,6 +2898,10 @@ h2.b-animate.b-from-left.b-delay03 {
   height: 220px;
 }
 
+.map {
+	position: absolute;
+}
+
 .contact {
   padding: 3em 0px;
 }
