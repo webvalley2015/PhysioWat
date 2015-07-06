@@ -52,7 +52,6 @@ def show_chart(request, id_num):
            'opt_list': opt_list, 'id_num':id_num}
         return render(request, template, context)
 
-
 def getExperimentsNames():
     return Experiment.objects.values_list('name', flat=True).distinct()
 

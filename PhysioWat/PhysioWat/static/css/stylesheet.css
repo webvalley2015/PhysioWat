@@ -3674,6 +3674,7 @@ h3.sngl {
 	padding-top: 3em;
 	width: 60%;
 	margin: 0 auto;
+<<<<<<< HEAD
 }
 
 .btn-fix {
@@ -3703,4 +3704,6 @@ h3.sngl {
 }
 .custom-file-input:active::before {
   background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9);
+=======
+>>>>>>> 6119681547c02dd377aaa887dd823b6482cbc809
 }
