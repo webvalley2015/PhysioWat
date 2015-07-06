@@ -1469,6 +1469,13 @@ div#portfoliolist {
 	-o-transition:0.5s all;
 	-ms-transition:0.5s all;c
 }
+
+.contact-top h2 {
+	font-size: 2em;
+	padding-left: 10px;
+	weight: 500;
+}
+
 /*--end-contact--*/
 /*--start-footer--*/
 .footer{
@@ -2890,6 +2897,11 @@ h2.b-animate.b-from-left.b-delay03 {
 .map iframe {
   height: 220px;
 }
+
+.map {
+	position: absolute;
+}
+
 .contact {
   padding: 3em 0px;
 }
@@ -3675,3 +3687,8 @@ h3.sngl {
 	width: 60%;
 	margin: 0 auto;
 }
+
+.btn-fix {
+	padding-left: 15px;
+}
+
