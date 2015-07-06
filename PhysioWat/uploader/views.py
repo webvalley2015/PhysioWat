@@ -27,7 +27,7 @@ def upload(request):
             else:
                 messages.error(request, 'Invalid Password')
 
-            return HttpResponseRedirect(reverse('humanupload'))
+        return HttpResponseRedirect(reverse('humanupload'))
 
     else:
         form = UploadForm()
