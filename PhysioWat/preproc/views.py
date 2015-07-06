@@ -5,6 +5,8 @@ from forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike
 from PhysioWat.models import Experiment
 from django.contrib import messages
 from .jsongen import getavaliabledatavals
+from scripts.processing_scripts import tools, inertial
+import numpy as np
 
 
 def show_chart(request, id_num):
@@ -75,3 +77,22 @@ def select_experiment(request):
         name_list = getExperimentsNames()
         context = {'name_list': name_list}
         return render(request, 'preproc/experiments.html', context)
+
+def test(request):
+    print "OK"
+    data = tools.load_raw_db(8)
+    sensAccCoeff=8*9.81/32768
+    sensGyrCoeff=2000/32768
+    sensMagCoeff=0.007629
+    t=data[:,1]
+    acc=data[:,3:6]
+    gyr=data[:,6:9]
+    mag=data[:,9:12]
+
+    acc= inertial.convert_units(acc, coeff=sensAccCoeff)
+    gyr= inertial.convert_units(gyr, coeff=sensGyrCoeff)
+    mag= inertial.convert_units(mag, coeff=sensMagCoeff)
+    output_columns=["timeStamp","AccX","AccY","AccZ","GyrX","GyrY","GyrZ","MagX","MagY","MagZ"]
+    tools.putPreprocArrayintodb(8, np.column_stack([t, acc, gyr, mag]), np.array(output_columns))
+
+    return render(request,'preproc/experiments.html', {'name_list':["exp1"]})
