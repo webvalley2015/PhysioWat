@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike, smoothGaussian
-from PhysioWat.models import Experiment
+from PhysioWat.models import Experiment, Recording
 from django.contrib import messages
 from .jsongen import getavaliabledatavals
 from scripts.processing_scripts import tools, inertial, filters, IBI
@@ -110,3 +110,6 @@ def test(request):
     tools.putPreprocArrayintodb(ID, ibi, np.array(["timestamp", "IBI"]))
 
     return render(request,'preproc/experiments.html', {'name_list':["exp1"]})
+
+def getRecordsByExperimentID(experimentId):
+    return Recording.objects.filter(experiment=experimentId)
