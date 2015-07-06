@@ -6,6 +6,7 @@ from StringIO import StringIO
 from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
 import csv
 
+
 def peakdet(v, delta, x=None, startMax=True):
     '''
     Functions for detecting peaks
@@ -109,7 +110,7 @@ def load_file(filename, header=1, sep=";"):
     return data
 
 
-def load_file_db(recordingID):
+def load_raw_db(recordingID):
     # raw query for i csv line
     table = Recording.objects.get(id=recordingID)
     data = SensorRawData.objects.filter(recording_id=recordingID)
@@ -208,9 +209,10 @@ def dict_to_csv(d, filename):
 def array_labels_to_csv(array, labels, filename):
     np.savetxt(filename, array, delimiter=",", header=",".join(labels.tolist()))
 
+#Puts data int the preprocessed array into the database
+def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
 
-def putArrayintodb(rec_id, preProcArray, preProcLabel):
-
+    #Andrew's crazy method to convert array to CSV-ish string??? IDK what it means, but IT WORKS!!!
     csvasstring = ",".join(preProcLabel.tolist()) + '\n'
     for dataarr in preProcArray:
         for dataval in dataarr:
@@ -218,13 +220,17 @@ def putArrayintodb(rec_id, preProcArray, preProcLabel):
         csvasstring = csvasstring[:-1]
         csvasstring += '\n'
 
+    #Initiate the CSV Reader
     csvreader = csv.reader(StringIO(csvasstring), delimiter=',')
     dictky = csvreader.next()
 
+    #Submit data to model and thus the database table
     pr = Preprocessed_Recording(recording_id=rec_id, dict_keys=dictky)
     pr.save()
 
     for row in csvreader:
-        Preprocessed_Data(pp_recording_id=pr.id, store=dict(zip(dictky, row))).save()
+        Preprocessed_Data(pp_recording=pr.id, store=dict(zip(dictky, row))).save()
+
+    print csvreader
 
     return 0

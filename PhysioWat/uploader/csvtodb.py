@@ -8,6 +8,7 @@ from PhysioWat.models import Recording, SensorRawData, Experiment
 
 
 def putintodb(fname, dvname, desc, expName):
+    print str(fname)
     csvreader = csv.reader(fname[0], delimiter=',')
     dictky = csvreader.next()
 
