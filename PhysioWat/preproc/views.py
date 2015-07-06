@@ -64,6 +64,8 @@ def getExperimentsList():
 
 
 def select_experiment(request):
+    name_list = getExperimentsNames()
+    context = {'name_list': name_list}
     if request.method == 'POST':
         exp_name = request.POST.get('exp_name')
         password = request.POST.get('password')
@@ -76,9 +78,8 @@ def select_experiment(request):
             return HttpResponseRedirect(reverse('record_selector', kwargs={'id_num': num_exp}))
         else:
             messages.error(request, 'Error wrong password')
+            return render(request, 'preproc/experiments.html', context)
     else:
-        name_list = getExperimentsNames()
-        context = {'name_list': name_list}
         return render(request, 'preproc/experiments.html', context)
 
 
