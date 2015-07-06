@@ -43,6 +43,6 @@ feats=np.column_stack([feats_acc, feats_gyr, feats_mag, winlab])
 columns_out=np.r_[fcol_acc, fcol_gyr, fcol_mag, np.array(["LAB"])]
 # print feats.shape
 # print columns.shape, columns
-tools.array_labels_to_csv(feats, columns_out, "./output/preproc_"+filename[7:-4]+".csv")
+tools.array_labels_to_csv(feats, columns_out, "./output/feat_"+filename[7:-4]+".csv")
 # # feats.to_csv("./output/feat_6.csv")
 
