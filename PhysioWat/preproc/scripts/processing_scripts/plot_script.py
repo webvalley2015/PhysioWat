@@ -14,6 +14,10 @@ def scatter_error_bar_creator_2(accuracy, error):
     mat_modified = np.empty([0,3]) #initialises array mat_modified
     for index, item in np.ndenumerate(accuracy):
         mat_modified = np.vstack((mat_modified, [index[0], index[1], item])) #gives the coordinates and the content of each element in accuracy array
-    mat_modified = np.hstack((mat_modified, (accuracy - error).flatten().reshape((12,1)))) #y-error
-    mat_modified = np.hstack((mat_modified, (accuracy + error).flatten().reshape((12,1)))) #y+error
+    mat_modified = np.hstack((mat_modified, (accuracy - error).flatten().reshape((-1,1)))) #y-error
+    mat_modified = np.hstack((mat_modified, (accuracy + error).flatten().reshape((-1,1)))) #y+error
     return mat_modified
+
+def mean_std(array):
+    """ Unuseful function """
+    return np.mean(array), np.std(array)
