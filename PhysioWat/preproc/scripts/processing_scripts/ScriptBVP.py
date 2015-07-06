@@ -1,8 +1,3 @@
-"""
-Created on Tue Jun 30 17:56:22 2015
-
-@author: flavio & Andrea
-"""
 '''
 function for extract IBI from BVP
 '''
@@ -31,6 +26,8 @@ if __name__ == '__main__':
 
     #load data from the file
     rawdata = loadBVP(fileName)
+    SAMP_F = int(round(1/(rawdata[1,0]-rawdata[0,0])))
+    
     
     #filter the signal
     #the user selects the parameters, with default suggested
