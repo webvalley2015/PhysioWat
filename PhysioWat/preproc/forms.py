@@ -66,7 +66,7 @@ class choose_exp(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(choose_exp, self).__init__(*args, **kwargs)
-        print get_my_choices()
+        #print get_my_choices()
         self.fields['experiment'].choices = get_my_choices()
         self.fields['asd'].choices = [('ciao', 'Hello')]
 
