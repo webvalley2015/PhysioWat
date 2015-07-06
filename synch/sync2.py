@@ -7,15 +7,9 @@ correlation between GSR_F/EKG_F and GSR_M/EKG_M features extracted by pre-proces
 '''
 
 def cut(df,df2):                                    #cutting array features to have two datasets of features with the same number of rows
-<<<<<<< HEAD
-    f1 = np.genfromtxt(df, delimiter=',')
-    f2 = np.genfromtxt(df2,delimiter=',') 
-    if len(f1) > len(f2):  
-=======
     f1 = np.genfromtxt(df, delimiter=",")
     f2 = np.genfromtxt(df2,delimiter=",")
     if len(f1) > len(f2):
->>>>>>> b3a5c1e45dfa8014a19d406d6775dee4ca252012
         l = len(f2)
         f1 = f1[:l,:]
     else :
