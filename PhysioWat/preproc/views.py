@@ -47,7 +47,7 @@ def show_chart(request, id_num):
             formSpec = GSR()
 
         opt_temp = getavaliabledatavals(id_num)
-        opt_list = opt_temp#[1:]
+        opt_list = opt_temp[1:]
 
         context = {'forms': {'Filter': formFilt, 'Downpass': formDown,
                     'Spike': formPick, 'Special': formSpec, 'Gaussian': formGau},
