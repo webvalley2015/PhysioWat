@@ -8,11 +8,11 @@ from PhysioWat.models import Recording, SensorRawData, Experiment
 
 
 def putintodb(fname, dvname, desc, expName):
+    print str(fname)
     csvreader = csv.reader(fname[0], delimiter=',')
     dictky = csvreader.next()
 
     experimentRow = Experiment.objects.get(name=expName)
-    print desc
 
     r = Recording(experiment_id=experimentRow.id, device_name=dvname, dict_keys=dictky, description=desc)
     r.save()

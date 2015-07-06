@@ -1,13 +1,15 @@
 from django.shortcuts import render
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
-from forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike, smoothGaussian, choose_exp, linein
+from forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike, smoothGaussian
 from PhysioWat.models import Experiment
 from django.contrib import messages
-from django import forms
+from .jsongen import getavaliabledatavals
+from scripts.processing_scripts import tools, inertial, filters, IBI
+import numpy as np
 
 
-def show_chart(request):
+def show_chart(request, id_num):
     template = "preproc/chart.html"
 
     # load all the algorithms forms
@@ -42,31 +44,20 @@ def show_chart(request):
             formFilt = filterAlg(initial={'filterType': 'none'})
             formSpec = GSR()
 
-    
-    #here, my dear db guys, i want a variable (call it as u want, whic_lines i have called it) which is 
-    #a FORM of the type multiple choiche, which contains actually the """lines""" that you want to show
-    #, which is, contains, for example, magZ, accX, gyrY, things like that 
-    
-	#course you delete the lines of assignement after having done this
-	 
-	#NOTE!!: I'M IMPORTING THE FORM MODULE. IF U DON'T WANT IT, PUT IT SOMEWHERE ELSE. IT'S JUST FOR THE VARIABLIE OF TEST
-    print "quiiiI"
-    which_lines = linein()
-    print "CIAOOO"
-    context = {'forms': {'Filter': formFilt, 'Downpass': formDown,
-                         'Spike': formPick, 'Special': formSpec, 'Gaussian': formGau},
-               'lines':which_lines}
-    return render(request, template, context)
+        opt_temp = getavaliabledatavals(id_num)
+        opt_list = opt_temp[1:]
 
-
+        context = {'forms': {'Filter': formFilt, 'Downpass': formDown,
+                     'Spike': formPick, 'Special': formSpec, 'Gaussian': formGau},
+           'opt_list': opt_list, 'id_num':id_num}
+        return render(request, template, context)
 
 def getExperimentsNames():
     return Experiment.objects.values_list('name', flat=True).distinct()
 
+
 def getExperimentsList():
     return Experiment.objects.values_list('name', 'token').distinct()
-
-
 
 
 def select_experiment(request):
@@ -83,5 +74,38 @@ def select_experiment(request):
             messages.error(request, 'Error wrong password')
     else:
         name_list = getExperimentsNames()
-        context = {'name_list':name_list}
+        context = {'name_list': name_list}
         return render(request, 'preproc/experiments.html', context)
+
+def test(request):
+    print "OK"
+    ID=10
+    SAMP_F = 64
+
+    #load data from the file
+    rawdata = tools.load_raw_db(ID)
+
+    #filter the signal
+    #the user selects the parameters, with default suggested
+    filterType = 'butter'
+    F_PASS = 2
+    F_STOP = 6
+    ILOSS = 0.1
+    IATT = 40
+    filtered_signal = filters.filterSignal(rawdata, SAMP_F, passFr = F_PASS, stopFr = F_STOP, LOSS = ILOSS, ATTENUATION = IATT, filterType = filterType)
+    #filtered_signal = rawdata
+
+    #extraction peaks from the signal
+    #the user selects the parameters, with default suggested
+    delta = 1
+    peaks = IBI.getPeaksIBI(filtered_signal,SAMP_F, delta)
+
+    #calculation of the IBI
+    #the user selects the parameters, with default suggested
+    minFr = 40
+    maxFr = 200
+    ibi = IBI.max2interval(peaks[:,0], minFr, maxFr)
+
+    tools.putPreprocArrayintodb(ID, ibi, np.array(["timestamp", "IBI"]))
+
+    return render(request,'preproc/experiments.html', {'name_list':["exp1"]})
