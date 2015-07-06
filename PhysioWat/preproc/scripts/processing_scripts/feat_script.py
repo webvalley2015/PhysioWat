@@ -314,12 +314,12 @@ def get_report(y_true, y_pred):
     }
     conf_mat = confusion_matrix(y_true, y_pred)
 
-    X = np.arange(len(report))
-    plt.bar(X, report.values(), align='center', width=0.5)
-    plt.xticks(X, report.keys(), rotation=90)
-    ymax = max(report.values()) + 1
-    plt.ylim(0, ymax)
-    plt.draw()  
+    #X = np.arange(len(report))
+    #plt.bar(X, report.values(), align='center', width=0.5)
+    #plt.xticks(X, report.keys(), rotation=90)
+    #ymax = max(report.values()) + 1
+    #plt.ylim(0, ymax)
+    #plt.draw()  
     
     return report, conf_mat
     
@@ -372,7 +372,6 @@ def bestAlg(fe_data, metric):
         scores = cross_validation.cross_val_score(the_clf, in_data, in_tar, cv=cv_val, n_jobs=-1)
         mean_sum += scores.mean()
         std_sum  += scores.std()
-    iterations*1000
     quick_res = np.array([(mean_sum/big_iterations), (std_sum/big_iterations)])
     return the_clf, quick_res  #,metric
     
@@ -455,18 +454,8 @@ def bestfit_KNN(fe_data, alg, metric):  # ok
     
     for nn in NNlist:
         clf = classifiers[alg](nn)
-        mean_sum = 0.
-        std_sum = 0.
-        for i in range(iterations):
-            fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
-            in_tar = fe_data.label
-            in_data = fe_data[fe_data.columns[:-1]]
-            scores = cross_validation.cross_val_score(clf, in_data, in_tar, 
-                                                      cv=cv_val, n_jobs=-1)
-            #in this variables are saved the value of mean and error
-            mean_sum += scores.mean()
-            std_sum  += scores.std()
-        my_met[NNlist.index(nn), :] = np.array([nn, (mean_sum/iterations), (std_sum/iterations)])
+        mean_local, err_local = iterate_crossvalidation(clf, fe_data, metric)
+        my_met[NNlist.index(nn), :] = np.array([nn, mean_local, err_local])
         
         
     #plot the my_met
@@ -488,17 +477,8 @@ def bestfit_SVM(fe_data, alg, metric):
     for k, kernel in enumerate(Klist):
         for C in Clist:
             clf = classifiers[alg](kernel, C)          
-            mean_sum = 0.
-            std_sum = 0.
-            for i in range(iterations):
-                fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
-                in_tar = fe_data.label
-                in_data = fe_data[fe_data.columns[:-1]]
-                scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=cv_val, n_jobs=1)
-                #in this variables are saved the value of mean and error
-                mean_sum += scores.mean()
-                std_sum  += scores.std()
-            in_vec = np.array([C, (mean_sum/iterations), (std_sum/iterations), k])
+            mean_local, err_local = iterate_crossvalidation(clf, fe_data, metric)
+            in_vec = np.array([C, mean_local, err_local, k])
             my_met = np.vstack((my_met, in_vec))
         #plot the my_met
         #plt.figure()
@@ -517,18 +497,8 @@ def bestfit_DCT(fe_data, alg, metric):
     my_met = np.zeros((len(MFlist), 3))
     for k, max_f in enumerate(MFlist):
         clf = classifiers[alg](max_f)
-        mean_sum = 0.
-        std_sum = 0.
-        for i in range(iterations):
-            fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
-            in_tar = fe_data.label
-            in_data = fe_data[fe_data.columns[:-1]]
-            scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=cv_val, n_jobs=-1)
-            #print scores
-            #in this variables are saved the value of mean and error
-            mean_sum += scores.mean()
-            std_sum  += scores.std()
-        my_met[MFlist.index(max_f), :] = np.array([k, (mean_sum/iterations), (std_sum/iterations)])
+        mean_local, err_local = iterate_crossvalidation(clf, fe_data, metric)
+        my_met[MFlist.index(max_f), :] = np.array([k, mean_local, err_local])
         
     #plot the my_met
     #plt.figure()
@@ -544,18 +514,8 @@ def bestfit_QDA(fe_data, alg, metric):  #ok
     my_met = np.matrix([[0,0,0]])
     #just default parameters
     clf = classifiers[alg]()
-    mean_sum = 0.
-    std_sum = 0.
-    for i in range(iterations):
-        fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
-        in_tar = fe_data.label
-        in_data = fe_data[fe_data.columns[:-1]]
-        scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=cv_val, n_jobs=-1)
-        #print scores
-        #in this variables are saved the value of mean and error
-        mean_sum += scores.mean()
-        std_sum  += scores.std()
-    my_met = np.array([0, (mean_sum/iterations), (std_sum/iterations)])
+    mean_local, err_local = iterate_crossvalidation(clf, fe_data, metric)
+    my_met = np.array([0, mean_local, err_local])
 
     #plot the my_met
     #plt.figure()
@@ -572,18 +532,8 @@ def bestfit_LDA(fe_data, alg, metric):
     
     for k, solver in enumerate(SRlist):
         clf = classifiers[alg](solver)
-        mean_sum = 0.
-        std_sum = 0.
-        for i in range(iterations):
-            fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
-            in_tar = fe_data.label
-            in_data = fe_data[fe_data.columns[:-1]]
-            scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=cv_val, n_jobs=-1)
-            #print scores
-            #in this variables are saved the value of mean and error
-            mean_sum += scores.mean()
-            std_sum  += scores.std()
-        my_met[SRlist.index(solver), :] = np.array([k, (mean_sum/iterations), (std_sum/iterations)])
+        mean_local, err_local = iterate_crossvalidation(clf, fe_data, metric)
+        my_met[SRlist.index(solver), :] = np.array([k, mean_local, err_local])
 
     #plot the my_met
     #X = np.arange(len(SRlist)+1)
@@ -611,31 +561,18 @@ def bestfit_ADA(fe_data, alg, metric):
     for n_est in NElist:
         for l_rate in LRlist:
             clf = classifiers[alg](n_est, l_rate)
-            mean_sum = 0.
-            std_sum = 0.
-            for i in range(iterations):
-                fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
-                in_tar = fe_data.label
-                in_data = fe_data[fe_data.columns[:-1]]
-                tstart = time.time()
-                scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=cv_val, n_jobs=-1)
-                tstop += time.time() - tstart
-                j += 1
-                mean_sum += scores.mean()
-                std_sum  += scores.std()
-            mean_local = mean_sum/iterations
-            err_local  = std_sum/iterations
+            mean_local, err_local = iterate_crossvalidation(clf, fe_data, metric)
             my_met[NElist.index(n_est), LRlist.index(l_rate)] = mean_local
             err_met[NElist.index(n_est), LRlist.index(l_rate)] = err_local
     #plot the my_met
     #plt.figure()
     #plt.imshow(my_met)
     #plt.draw()  
-    print '{}'.format(tstop /float(i))
+    #print '{}'.format(tstop /float(i))
     bestn_est, bestl_rate = np.unravel_index(my_met.argmax(), (len(NElist), len(LRlist)))
-    print my_met.max()
-    print NElist[bestl_rate]
-    LRlist[bestn_est]
+    #print my_met.max()
+    #print NElist[bestl_rate]
+    #print LRlist[bestn_est]
     clf = classifiers[alg](NElist[bestn_est], LRlist[bestl_rate])
     return clf, my_met.max()
     
@@ -648,17 +585,7 @@ def bestfit_RFC(fe_data, alg, metric):
     for n_est in NElist:
         for max_f in MFlist:
             clf = classifiers[alg](n_est, max_f)           
-            mean_sum = 0.
-            std_sum = 0.
-            for i in range(iterations):
-                fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
-                in_tar = fe_data.label
-                in_data = fe_data[fe_data.columns[:-1]]
-                scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=cv_val, n_jobs=-1)
-                mean_sum += scores.mean()
-                std_sum  += scores.std()
-            mean_local = mean_sum/iterations
-            err_local  = std_sum/iterations
+            mean_local, err_local = iterate_crossvalidation(clf, fe_data, metric)
             my_met[NElist.index(n_est), MFlist.index(max_f)] = mean_local
             err_met[NElist.index(n_est), MFlist.index(max_f)] = err_local
     #plot the my_met
@@ -670,7 +597,30 @@ def bestfit_RFC(fe_data, alg, metric):
     clf = classifiers[alg](NElist[bestn_est], MFlist[bestmax_f])
     return clf, my_met.max()
     
-    
+def normalize(data):
+    '''
+    normalize (mean = 0, std = 1) an array (N,) passed
+    return: the array normalized
+    data: the array to normalize
+    '''
+    new_data = (data - np.mean(data)) / np.std(data)
+    return new_data
+ 
+def iterate_crossvalidation(clf, fe_data, metric):
+    mean_sum = 0.
+    std_sum = 0.
+    for i in range(iterations):
+        fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
+        in_tar = fe_data.label
+        in_data = fe_data[fe_data.columns[:-1]]
+        scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=cv_val, n_jobs=-1)
+        mean_sum += scores.mean()
+        std_sum  += scores.std()
+    mean_local = mean_sum/iterations
+    err_local  = std_sum/iterations
+    return mean_local, err_local
+
+   
 if __name__ == '__main__':
     print 'Starting main...'    
     localdir = '/home/andrea/Work/data/27_06_Analisys/extracted/'
@@ -680,13 +630,21 @@ if __name__ == '__main__':
 
     #run on algs
     clf, metric = bestAlg(data1, 1)
-    #
     #clf, metric = bestfit(data1, 'LDA',1)
-
     y_true = data3.label
-    te_data = data3[data1.columns[:-1]]
+    te_data = data3[data3.columns[:-1]]
     y_pred = predict(clf, te_data, y_true )
-    
     dic_metric, conf_mat = get_report(y_true, y_pred)
     print dic_metric
     print conf_mat
+    
+    #uncomment the following line if you want to try also with random labels
+#    data1.label = np.random.permutation(data1.label)
+#    clf, metric = bestAlg(data1, 1)
+#    #clf, metric = bestfit(data1, 'LDA',1)
+#    y_true = data3.label
+#    te_data = data3[data3.columns[:-1]]
+#    y_pred = predict(clf, te_data, y_true )
+#    dic_metric, conf_mat = get_report(y_true, y_pred)
+#    print dic_metric
+#    print conf_mat
