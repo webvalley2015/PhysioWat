@@ -1,0 +1,149 @@
+{% extends "PhysioWat/base.html" %}
+{% load static %}
+{% load highcharts_tags %}
+{% block app_specific_css %}
+    {% load bootstrap3 %}
+{% endblock %}
+
+{% block container %}
+    <div class="content row">
+
+        <div class="graphs col-md-8">
+            <div class="processed-signal row">
+                <div id="processed-signal"></div>
+            </div>
+            <hr>
+            <div class="temporary-processing row">
+                <div id="temporary-processing"></div>
+            </div>
+        </div>
+
+        <div class="algorithms col-md-4">
+            <ul class="nav nav-tabs" id="setting_nav">
+                {% csrf_token %}
+                {% for k,v in forms.items %}
+                    <li role="presentation" class="active"><a href="#" id="nav_id_{{ k }}">{{ k }}</a></li>
+                {% endfor %}
+            </ul>
+
+            {% csrf_token %}
+            <form action="page_to_which_send_the_form" method="post" enctype="multipart/form-data">
+
+                {% for k,v in forms.items %}
+                    <!-- in the end, this contains a form. wich tag is better? div, what?-->
+                    <div id="div_id_{{ k }}" style="display:none">
+
+                        <br>
+                        {% bootstrap_form v %}
+                        <br>
+                        <br>
+                    </div>
+                {% endfor %}
+
+                <div>
+                    {% buttons %}
+                        <button type="submit" id="select_submit" class="btn btn-success" href="ciao.html">Submit
+                        </button>
+                        <button type="reset" class="btn btn-danger">Reset</button>
+                        <button type="button" class="btn btn-danger" onClick="show()">ShowAll</button>
+                    {% endbuttons %}
+                </div>
+        </div>
+
+        </form>
+    {{ opt_list }}
+    
+       <div id ="options">
+        <form onsubmit="show_graph()" id="options_form" action="#">
+            <fieldset>
+                {% for i in opt_list %}
+                    <input type="checkbox" name="{{ i }}" value="{{ i }}" id="{{ i }}"/>{{ i }}
+                {% endfor %}
+                {% buttons %}
+                    <button type="submit" id="select_submit" class="btn btn-success">Submit</button>
+                {% endbuttons %}
+            </fieldset>
+        </form>
+	</div>
+</div>
+{% endblock %}
+
+
+{% block app_specific_js %}
+
+    {% highcharts_js 1 1 0 0 %}
+
+    <script>
+        "use strict";
+        var formlist = [];
+
+
+        $(document).ready(function () {
+            console.log("esisto");
+
+            var i = 0;
+            {% for k,v in forms.items %}
+
+                formlist.push("{{ k }}");
+            {% endfor %}
+            console.log(formlist);
+
+//DEFINE WHAT HAPPENS ON CLICK EVENT
+            for (var i = 0; i < formlist.length; i++) {
+                var nav_id = "#nav_id_" + formlist[i];  //THIS IS THE ID OF THE BUTTON OF THE NAV
+                var div_id = "#div_id_" + formlist[i]; //THIS IS THE ID OF THE IDDEN DIV WHERE THE FORM IS RENDERED
+
+                //console.log(nav_id);
+                console.log("fuori " + div_id);
+
+                var eventData = {'divid': div_id};
+
+                //eventData = {"NAV_DOWN":DIV_DOWN, "NAV_PICK":DIV_PICK};
+
+                $(nav_id).attr("target", div_id);
+
+                $(nav_id).click(function (e) {
+                    e.preventDefault(); //prevent default form submit ???? MA SERVE???
+                    //console.log(this);
+                    hide();
+                    //	divid = eventDAta{SELF}
+                    console.log(nav_id);
+                    console.log("drento " + eventData.divid);
+                    $(this.getAttribute("target")).show();
+                });
+            }
+        });
+
+        function hide() {
+            for (var i = 0; i < formlist.length; i++) {
+                var $target = $("#div_id_" + formlist[i]);
+                $target.hide();
+            }
+        }
+
+        function show() {
+            for (var i = 0; i < formlist.length; i++) {
+                var $target = $("#div_id_" + formlist[i]);
+                $target.show();
+            }
+        }
+
+        hide();
+        $.getJSON("{% url 'chart_getdata' %}", function (data) {
+            var global_data = data;
+            show_graph()
+        }); 
+        
+		var allVals = [];
+        function show_graph(){
+         $('#options :input:checked').each(function (i, elem){allVals.push(elem.value);});
+		console.log(allVals);
+    }
+//        $('#temporary-processing').highcharts('StockChart', data);
+  //      }     
+    </script>
+
+{% endblock app_specific_js %}
+
+
+
