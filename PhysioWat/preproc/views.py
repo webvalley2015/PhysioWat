@@ -219,6 +219,8 @@ def select_experiment(request):
 
 def getRecordsList(experimentId):
     return Recording.objects.filter(experiment=experimentId).values_list('id', flat=True).order_by('id')
+def getRecordsListDesc(experimentId):
+    return Recording.objects.filter(experiment=experimentId).values_list('description', flat=True)
 
 
 def select_record(request, id_num):
@@ -227,7 +229,9 @@ def select_record(request, id_num):
         return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': record_id, 'alg_type': ""}))
     else:
         name_list = getRecordsList(id_num)
-        context = {'name_list': name_list}
+        desc_list = getRecordsListDesc(id_num)
+        d = dict(zip(name_list, desc_list))
+        context = {'dict': d}
         return render(request, 'preproc/records.html', context)
 
 
