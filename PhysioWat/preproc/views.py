@@ -7,7 +7,8 @@ from django.contrib import messages
 from .jsongen import getavaliabledatavals
 from scripts.processing_scripts import tools, filters, IBI, windowing
 from scripts.processing_scripts.GSR import preproc as GSR_preproc
-from scripts.processing_scripts.inertial import extract_features_acc, extract_features_gyr, extract_features_mag, preproc as inertial_preproc
+from scripts.processing_scripts.inertial import extract_features_acc, extract_features_gyr, extract_features_mag, \
+    preproc as inertial_preproc
 import numpy as np
 from StringIO import StringIO
 
@@ -55,9 +56,8 @@ def show_chart(request, id_num, alg_type=""):
     # load all the algorithms forms
     # TODO discuss a way to obtain all the form dinamically
     if request.method == "POST":
-        # PreprocSettings does not exists here will have an error!!!!
-        # data,cols=QueryDb(id_num)
-        # NOTE 4 STEPHEN: I need the function to read the data from DB
+
+        data, cols = QueryDb(id_num)
 
         # DATA TYPES in ALG TYPES:
         # 1 : BVP
@@ -65,52 +65,74 @@ def show_chart(request, id_num, alg_type=""):
         # 3 : inertial
         # 4 : GSR
 
+        print request.POST
+
         # iterate over the data types passed with url parameters
         for data_type in alg_type:
+            count = int(data_type) - 1
 
-            if request.POST['{}-apply_downsampling'.format(mytype[int(data_type)])] == "on":
-                FS_NEW = request.POST['{}-FS_NEW'.format(mytype[int(data_type)])]
+            try:
+                if request.POST['{}-apply_downsampling'.format(mytype[count])] == "on":
+                    FS_NEW = request.POST['{}-FS_NEW'.format(mytype[count])]
+                    data = tools.downsampling(data, FS_NEW)
+            except:
+                pass
 
-                data = tools.downsampling(data, FS_NEW)
+            try:
+                if request.POST['{}-apply_smooth'.format(mytype[count])] == "on":
+                    sigma = request.POST['{}-sigma'.format(mytype[count])]
+                    data = filters.smoothGaussian(data, sigma)
+            except:
+                pass
 
-            if request.POST['{}-apply_smooth'.format(mytype[int(data_type)])] == "on":
-                sigma = request.POST['{}-sigma'.format(mytype[int(data_type)])]
-
-                data = filters.smoothGaussian(data, sigma)
-
-            if request.POST['{}-apply_alg_filter'.format(mytype[int(data_type)])] == "on":
-                passFr = request.POST['{}-passFr'.format(mytype[int(data_type)])]
-                stopFr = request.POST['{}-stopFr'.format(mytype[int(data_type)])]
-                LOSS = request.POST['{}-LOSS'.format(mytype[int(data_type)])]
-                ATTENUATION = request.POST['{}-ATTENUATION'.format(mytype[int(data_type)])]
-                filterType = request.POST['{}-filterType'.format(mytype[int(data_type)])]
-
-                data = filters.filterSignal(data, passFr, stopFr, LOSS, ATTENUATION, filterType)
+            try:
+                if request.POST['{}-apply_alg_filter'.format(mytype[count])] == "on":
+                    passFr = request.POST['{}-passFr'.format(mytype[count])]
+                    stopFr = request.POST['{}-stopFr'.format(mytype[count])]
+                    LOSS = request.POST['{}-LOSS'.format(mytype[count])]
+                    ATTENUATION = request.POST['{}-ATTENUATION'.format(mytype[count])]
+                    filterType = request.POST['{}-filterType'.format(mytype[count])]
+                    data = filters.filterSignal(data, passFr, stopFr, LOSS, ATTENUATION, filterType)
+            except:
+                pass
 
             if data_type == "4":
-                if request.POST['{}-apply_spike'.format(mytype[int(data_type)])] == "on":
-                    TH = request.POST['{}-TH'.format(mytype[int(data_type)])]
-
-                    data = GSR.remove_spikes(data, TH)
+                try:
+                    if request.POST['{}-apply_spike'.format(mytype[count])] == "on":
+                        TH = request.POST['{}-TH'.format(mytype[count])]
+                        data = GSR.remove_spikes(data, TH)
+                except:
+                    pass
 
             if data_type == "4":
-                pre_data, columns_out = GSR_preproc(data, cols, request.POST['T1'], request.POST['T2'],
-                                                    request.POST['MX'],
-                                                    request.POST['DELTA_PEAK'], request.POST['k_near'],
-                                                    request.POST['grid_size'],
-                                                    request.POST['s'])
+                T1 = request.POST['{}-T1'.format(mytype[count])]
+                T2 = request.POST['{}-T2'.format(mytype[count])]
+                MX = request.POST['{}-MX'.format(mytype[count])]
+                DELTA_PEAK = request.POST['{}-DELTA_PEAK'.format(mytype[count])]
+                k_near = request.POST['{}-k_near'.format(mytype[count])]
+                grid_size = request.POST['{}-grid_size'.format(mytype[count])]
+                s = request.POST['{}-s'.format(mytype[count])]
+                pre_data, columns_out = GSR_preproc(data, cols, T1, T2, MX, DELTA_PEAK, k_near, grid_size, s)
 
-            elif alg_type == "EKG" or alg_type == "BVP":
+            if data_type == "1" or data_type == "2":
                 SAMP_F = int(round(1 / (data[1, 0] - data[0, 0])))
-                peaks = IBI.getPeaksIBI(data, SAMP_F, request.POST['delta'])
-                pre_data, columns_out = IBI.max2interval(peaks, request.POST['minFr'], request.POST['maxFr'])
+                delta = request.POST['{}-delta'.format(mytype[count])]
+                peaks = IBI.getPeaksIBI(data, SAMP_F, delta)
+                minFr = request.POST['{}-minFr'.format(mytype[count])]
+                maxFr = request.POST['{}-maxFr'.format(mytype[count])]
+                pre_data, columns_out = IBI.max2interval(peaks, minFr, maxFr)
 
-            elif alg_type == "inertial":
-                data_type = "ACC"  # Or GYR or MAG
-                pre_data = inertial_preproc(data, cols, data_type, request.POST['coeff'])
+            # if data_type == "3":
+            #     coeff = request.POST['{}-coeff'.format(mytype[count])]
+            #
+            #     data_type = "ACC"  # Or GYR or MAG
+            #     pre_data = inertial_preproc(data, cols, data_type, coeff)
 
-        putPreprocArrayintodb(id_num, pre_data, columns_out)
-        return HttpResponseRedirect(reverse('user_upload'))
+            # putPreprocArrayintodb(id_num, pre_data, columns_out)
+
+            context = {'id_num': id_num, 'elab': 'proc'}
+        return render(request, template, context)
+
     else:
         bvp_tmp, ekg_tmp, inertial_tmp, gsr_tmp = None, None, None, None
         if alg_type == "":
@@ -162,7 +184,7 @@ def show_chart(request, id_num, alg_type=""):
         opt_list = opt_temp[1:]
 
         context = {'forms': {'bvp_tmp': bvp_tmp, 'ekg_tmp': ekg_tmp, 'inertial_tmp': inertial_tmp, 'gsr_tmp': gsr_tmp},
-                   'opt_list': opt_list, 'id_num': id_num}
+                   'opt_list': opt_list, 'id_num': id_num, 'elab': 'raw'}
         return render(request, template, context)
 
 
@@ -237,12 +259,12 @@ def select_record(request, id_num):
 
 def test(request):
     ID = 1
-    columns_out=["TIME", "ACCX", "ACCY", "ACCZ", "GYRX", "GYRY", "GYRZ", "MAGX", "MAGY", "MAGZ", "LAB"]
-    applied_func=[]
-    preproc_funcs_parameters=dict()
-    sensAccCoeff=8*9.81/32768
-    sensGyrCoeff=2000/32768
-    sensMagCoeff=0.007629
+    columns_out = ["TIME", "ACCX", "ACCY", "ACCZ", "GYRX", "GYRY", "GYRZ", "MAGX", "MAGY", "MAGZ", "LAB"]
+    applied_func = []
+    preproc_funcs_parameters = dict()
+    sensAccCoeff = 8 * 9.81 / 32768
+    sensGyrCoeff = 2000 / 32768
+    sensMagCoeff = 0.007629
 
     data, columns_in = tools.load_raw_db(ID)
 
@@ -255,14 +277,14 @@ def test(request):
     #     lab=np.zeros(t.shape[0])
     #     pass
 
-    acc, temp_col_acc= inertial_preproc(data, columns_in, "ACC", sensAccCoeff)
-    gyr, temp_col_gyr= inertial_preproc(data, columns_in, "GYR", sensGyrCoeff)
-    mag, temp_col_mag= inertial_preproc(data, columns_in, "MAG", sensMagCoeff)
+    acc, temp_col_acc = inertial_preproc(data, columns_in, "ACC", sensAccCoeff)
+    gyr, temp_col_gyr = inertial_preproc(data, columns_in, "GYR", sensGyrCoeff)
+    mag, temp_col_mag = inertial_preproc(data, columns_in, "MAG", sensMagCoeff)
     applied_func.append("intertial.preproc")
     preproc_funcs_parameters.update({"inertial.preproc": str(sensAccCoeff)})
 
-    data_out, col_out=tools.merge_arrays([acc, gyr, mag], [temp_col_acc, temp_col_gyr, temp_col_mag])
+    data_out, col_out = tools.merge_arrays([acc, gyr, mag], [temp_col_acc, temp_col_gyr, temp_col_mag])
 
-    tools.putPreprocArrayintodb(ID, data_out, np.array(columns_out), applied_func, preproc_funcs_parameters )
+    tools.putPreprocArrayintodb(ID, data_out, np.array(columns_out), applied_func, preproc_funcs_parameters)
 
     return render(request, 'preproc/experiments.html', {'name_list': ["exp1"]})
