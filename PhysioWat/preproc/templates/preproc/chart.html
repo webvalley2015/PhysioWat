@@ -59,8 +59,6 @@
                 <a href={% url 'chart_show' id_num i %}>{{ i }}</a>
             {% endfor %}
 
-
-
             <form action="#" name="preproc" method="post" enctype="multipart/form-data">
             {% csrf_token %}
                 {% for k,v in forms.items %}
