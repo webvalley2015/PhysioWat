@@ -8,15 +8,15 @@
 {% block container %}
 <div id="total_container" style="position:absolute; top:80px; left:20px;">
     <form action="#" method="post" enctype="multipart/form-data" name="selection" id="selection">
-
-        {{ viewf }}
+    {% csrf_token %}
+        {{  viewf }}
 
      <div id="mlParSet_1" style="display:none;" class="div_choose">
          <br><br>
          <h5> Select whether you want to choose how many features you want to consider, or if you want an automatic
              response</h5> <br> in the first case, write the number <br><br>
 
-         {{FPar }}
+         {{ FPar }}
      </div>
 
 
@@ -45,6 +45,9 @@
 
         </div>
         <br><br>
+        <div id="autoFitParamChoose" style="display:none;">
+            {{ autoParam }}
+        </div>
        <button type="submit" class="btn btn-success" id="button_submit" style="display:none">Submit</button>
          <input type="button" id ="button_reset" value="reset"></input>
         <input type="button" id="proceed" value="proceed"></input>
@@ -122,7 +125,7 @@
         $('#mlParSet_4 :input:checked').each(function (i, elem) {  choosen_opt= elem.value});
         //console.log(choosen_opt);
 
-        if(choosen_opt == "pers"){
+        if(choosen_opt == "pers"){        // IF YOU WANT THE PERSONALIZED PARAMETERS, SHOW THEM (DIFFERENT FOR EACH ALG)
             if(choosen_alg == "quad_disc")
                 alert("the quadratic discriminant analisys has no personalized options. Please switch to default or autofit ");
 
@@ -140,6 +143,24 @@
 
              {% endfor %}
         }
+        if(choosen_opt == "auto"){  // IF YOU WANT THE AUTOTRAIN, then show the choices
+            console.log("ciaociaociaociaociaoilli");
+            $('#autoFitParamChoose').show();
+            $('#mlParSet_5').hide();
+            //if(typeof $ == 'undefined')
+                 //console.log("pirla");
+        }
+        else{        //IF YOU WANT THE DEFAULT PARAMETERS,
+           $('#autoFitParamChoose').hide();
+        }
+
+        if(choosen_opt == "def")
+        {
+        $('#autoFitParamChoose').hide();
+            $('#mlParSet_5').hide();
+        }
+
+
 
     }
 

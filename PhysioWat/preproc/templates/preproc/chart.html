@@ -7,7 +7,7 @@
 
 {% block container %}
     <!--Creating the divs to dispay the name of the step-->
-    <br><br><br>
+    <br><br><br><br>
     <div class="form-cnt">
 
         <div width="100%" height="100%"
@@ -40,7 +40,7 @@
         <div class="content row">
             <br><br><br><br>
 
-            <div class="graphs col-md-8">
+            <div class="graphs col-md-7">
                 <div class="processed-signal row">
                     <div id="processed-signal"></div>
                     <!-- THIS IS ANOTHER DIV FOR ANOTHER GRAPH, IT DOES NOT CONTAIN ANITHING NOW -->
@@ -50,52 +50,68 @@
                     <div id="temporary-processing"></div>
                     <!-- THIS IS THE DIV CONTAINIG THE GRAPH -->
                 </div>
+                options list:
+		<div id="options" style="margin-left:2px">
+		    <form onsubmit="show_graph()" id="options_form">
+		        <fieldset>
+		            
+		                {% for i in opt_list %}
+		                    <input type="checkbox" name="{{ i }}" value="{{ i }}" id="{{ i }}"/> {{ i }}          
+		                {% endfor %}
+		           
+		            {% buttons %}
+		                <button type="submit" id="select_submit" class="btn btn-success">Update Graph</button>
+		            {% endbuttons %}
+		        </fieldset>
+		    </form>
+	         </div>
+
             </div>
 
-            <div class="algorithms col-md-4" style="margin-top: 40px; padding-left:20px">
-                <ul class="nav nav-tabs" id="setting_nav">
-                    {% for k,v in forms.items %}
-                        {% if v %}
-                            <li role="presentation" class="active"><a href="#" id="nav_id_{{ k }}">{{ k }}</a></li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
 
-
-
-
-                <form action="#" name="preproc" method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {% for k,v in forms.items %}
-
-                        <!-- in the end, this contains a form. wich tag is better? div, what?-->
-                        {% if v %}
+            <div class="col-md-5" style="margin-top: 40px; padding-left:20px">
+	<form action="#" name="preproc" method="post" enctype="multipart/form-data">
+	    <ul class="nav nav-tabs" id="setting_nav">
+                {% for k,v in forms.items %}
+                    {% if v %}
+                        <li role="presentation" class="active"><a href="#" id="nav_id_{{ k }}">{{ k }}</a>
+                	    <!-- moved the for-->
                             {% for kv,vv in v.items %}
-                                <div id="div_id_{{ k }}" style="display:none">
+                                <div id="div_id_{{ k }}" class="tabcontents" style="display:none">
                                     <br>
                                     {% bootstrap_form vv %}
                                     <br>
                                     <br>
                                 </div>
                             {% endfor %}
-                        {% endif %}
-                    {% endfor %}
+			</li>
+                    {% endif %}
+                {% endfor %}
+	    </ul>
+
+
+
+
+          
+                    {% csrf_token %}
+                   
 
                     <div>
                             {% buttons %}
                                 <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
                                 <button type="reset" class="btn btn-danger">Reset</button>
-                                <button type="button" class="btn btn-active" onClick="show()">ShowAll</button>
+                                <button type="button" class="btn btn-active" onClick="show()">Show All</button>
                             {% endbuttons %}
+
                     </div>
 
             </div>
 
             </form>
 
-            <p align="center">Signals</p>
+         
 
-            options list:
+<!--            options list:
             <div id="options">
                 <form onsubmit="show_graph()" id="options_form">
                     <fieldset>
@@ -110,6 +126,7 @@
                     </fieldset>
                 </form>
             </div>
+-->
         </div>
     </div>
     </div>

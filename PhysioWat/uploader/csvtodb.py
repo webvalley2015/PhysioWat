@@ -6,7 +6,7 @@ import csv
 from PhysioWat.models import Recording, SensorRawData, Experiment
 # from django.db import connection
 
-def putintodbflex(fname, dvname, desc, expName):
+def putintodbflex(fname, dvname, desc, exp_id):
     if hasattr(fname, '__iter__'):
         for filename in fname:
             csvreader = csv.reader(filename, delimiter=',')
@@ -14,26 +14,21 @@ def putintodbflex(fname, dvname, desc, expName):
             for index in range(len(dictky)):
                 dictky[index] = dictky[index].replace('#','').replace(' ','')
 
-            experimentRow = Experiment.objects.get(name=expName)
-
-            r = Recording(experiment_id=experimentRow.id, device_name=dvname, dict_keys=dictky, description=desc)
+            r = Recording(experiment_id=exp_id, device_name=dvname, dict_keys=dictky, description=desc)
             r.save()
-
             for row in csvreader:
                 SensorRawData(recording_id=r.id, store=dict(zip(dictky, row))).save()
     return 0
 
-def putintodb(fname, dvname, desc, expName):
-    print str(fname)
+'''
+def putintodb(fname, dvname, desc, exp_id):
     csvreader = csv.reader(fname[0], delimiter=',')
     dictky = csvreader.next()
     for index in range(len(dictky)):
         dictky[index] = dictky[index].replace('#','').replace(' ','')
 
-    experimentRow = Experiment.objects.get(name=expName)
-
-
-    r = Recording(experiment_id=experimentRow.id, device_name=dvname, dict_keys=dictky, description=desc)
+    print exp_id
+    r = Recording(experiment_id=exp_id, device_name=dvname, dict_keys=dictky, description=desc)
     r.save()
 
     for row in csvreader:
@@ -46,3 +41,4 @@ def putintodb(fname, dvname, desc, expName):
         # the keys and the values with two different lists
         # results = cursor.fetchall()
     return 0
+'''
