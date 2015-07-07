@@ -182,13 +182,17 @@ def preproc(data, cols, data_type, coeff):
     '''
     time=selectCol(data, cols, "TIME")
     data_out=selectCol(data, cols, [data_type+"X", data_type+"Y", data_type+"Z"])
+    print cols
 
     try:
         labs=selectCol(data, cols, "LAB")
+        print "TROVATO"
     except IndexError as e:
         print e.message
-        labs=np.zeros(data.shape[0])
+        labs=np.array(np.zeros(data.shape[0]))
+        pass
 
+    print "LAB", labs.shape
     data_out=convert_units(data_out, coeff)
     result=np.column_stack((time, data_out, labs))
     return result, ["TIME", data_type+"X", data_type+"Y", data_type+"Z", "LAB"]

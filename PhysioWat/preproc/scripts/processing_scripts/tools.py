@@ -233,7 +233,7 @@ def array_labels_to_csv(array, labels, filename):
     np.savetxt(filename, array, delimiter=",", header=",".join(labels.tolist()), comments="")
 
 #Puts data int the preprocessed array into the database
-def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
+def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_funcs_names, preproc_funcs_parameters):
 
     #Andrew's crazy method to convert array to CSV-ish string??? IDK what it means, but IT WORKS!!!
     csvasstring = ",".join(preProcLabel.tolist()) + '\n'
@@ -248,7 +248,7 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
     dictky = csvreader.next()
 
     #Submit data to model and thus the database table
-    pr = Preprocessed_Recording(recording_id=rec_id, dict_keys=dictky)
+    pr = Preprocessed_Recording(recording_id=rec_id, applied_preproc_funcs_names=applied_preproc_funcs_names, preproc_funcs_parameters=preproc_funcs_parameters,  dict_keys=dictky)
     pr.save()
 
     for row in csvreader:
@@ -304,7 +304,7 @@ def selectCol(vect, head, cols):
 
     if result.shape[1]==1 :
         result=result.flatten()
-    elif len(result)==0:
+    elif result.shape[1]==0:
         raise IndexError("No column named "+", ".join(cols))
 
     return result
@@ -316,13 +316,17 @@ def merge_arrays(arrays, labels):
     :param labels: list of np.array for labels
     :return: array and labels both as np.array
     '''
+    for arr in arrays:
+        print arr.shape,
+    for lab in labels:
+        print len(lab),
     result=[]
     result_labels=[]
 
     for i in range(len(arrays)):
         for j in range(len(labels[i])):
             if labels[i][j] not in result_labels:
-                result.append(arrays[i][j])
+                result.append(arrays[i][:,j])
                 result_labels.append(labels[i][j])
 
     if "TIME" in result_labels:
@@ -339,5 +343,7 @@ def merge_arrays(arrays, labels):
         result_labels.pop(idx)
         result.append(temp)
         result_labels.append("LAB")
+    for arr in result:
+         print arr.shape,
 
     return np.array(result), np.array(result_labels)
