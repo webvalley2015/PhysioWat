@@ -22,7 +22,7 @@ CHOICES = [("butter", "Butterworth"),
 
 
 class filterAlg(forms.Form):
-    apply_alg = forms.BooleanField()
+    apply_alg_filter = forms.BooleanField()
     passFr = forms.FloatField(min_value=0, required=False)
     stopFr = forms.FloatField(min_value=0, required=False)
     LOSS = forms.FloatField(min_value=0, required=False)
@@ -35,7 +35,7 @@ class remove_spike(forms.Form):
     TH = forms.FloatField(min_value=0, required=False)
 
 
-class GSR(forms.Form):
+class GSR_Form(forms.Form):
     T1 = forms.FloatField(min_value=0.0)
     T2 = forms.FloatField(min_value=0.0)
     MX = forms.FloatField(min_value=0.0)
@@ -45,19 +45,19 @@ class GSR(forms.Form):
     s = forms.FloatField(min_value=0)
 
 
-class EKG(forms.Form):
+class EKG_Form(forms.Form):
     delta = forms.FloatField(min_value=0)
     minFr = forms.FloatField(min_value=0)
     maxFr = forms.FloatField(min_value=0)
 
 
-class BVP(forms.Form):# Uguale a quello sopra ma cambia un default
+class BVP_Form(forms.Form):# Uguale a quello sopra ma cambia un default
     delta = forms.FloatField(min_value=0)
     minFr = forms.FloatField(min_value=0)
     maxFr = forms.FloatField(min_value=0)
 
 
-class Inertial(forms.Form):
+class Inertial_Form(forms.Form):
     coeff = forms.FloatField(min_value=0)
 
 

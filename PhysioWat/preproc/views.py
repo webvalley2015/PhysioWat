@@ -1,13 +1,8 @@
 from django.shortcuts import render
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
-<<<<<<< HEAD
-from forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike, smoothGaussian
-from PhysioWat.models import Experiment, Recording
-=======
-from .forms import filterAlg, downsampling, BVP, EKG, GSR, Inertial, remove_spike, smoothGaussian
+from .forms import filterAlg, downsampling, BVP_Form, EKG_Form, GSR_Form, Inertial_Form, remove_spike, smoothGaussian
 from PhysioWat.models import Experiment, Recording, SensorRawData
->>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
 from django.contrib import messages
 from .jsongen import getavaliabledatavals
 from scripts.processing_scripts import tools, inertial, filters, IBI, GSR
@@ -66,7 +61,7 @@ def show_chart(request, id_num, alg_type=""):
         if request.POST['apply_smooth'] == "on":
             data = filters.smoothGaussian(data, request.POST['sigma'])
 
-        if request.POST['apply_alg'] == "on":
+        if request.POST['apply_alg_filter'] == "on":
             data = filters.filterSignal(data, request.POST['passFr'], request.POST['stopFr'], request.POST['LOSS'],
                                         request.POST['ATTENUATION'], request.POST['filterType'])
 
@@ -107,27 +102,26 @@ def show_chart(request, id_num, alg_type=""):
             formFilt = filterAlg(
                 initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType': 'cheby2',
                          'apply_filter': True})
-            formSpec = BVP(initial={'delta': 1, 'minFr': 40, 'maxFr': 200})
+            formSpec = BVP_Form(initial={'delta': 1, 'minFr': 40, 'maxFr': 200})
             existVar = True
         elif alg_type == "EKG":
             formDown = downsampling(initial={'apply_filter': False})
             formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False})
             formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False})
-            formSpec = EKG(initial={'delta': 0.2, 'minFr': 40, 'maxFr': 200})
+            formSpec = EKG_Form(initial={'delta': 0.2, 'minFr': 40, 'maxFr': 200})
             existVar = True
         elif alg_type == "inertial":
             formDown = downsampling(initial={'apply_filter': False})
             formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False})
             formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False})
-            formSpec = Inertial()
+            formSpec = Inertial_Form()
             existVar = True
         elif alg_type == "GSR":
             formPick = remove_spike(initial={'apply_filter': False})
             formDown = downsampling(initial={'apply_filter': False})
             formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False})
             formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False})
-            formSpec = GSR(
-                initial={'T1': 0.75, 'T2': 2, 'MX': 1, 'DELTA_PEAK': 0.02, 'k_near': 5, 'grid_size': 5, 's': 0.2})
+            formSpec = GSR_Form(initial={'T1': 0.75, 'T2': 2, 'MX': 1, 'DELTA_PEAK': 0.02, 'k_near': 5, 'grid_size': 5, 's': 0.2})
             existVar = True
 
         opt_temp = getavaliabledatavals(id_num)
@@ -181,34 +175,20 @@ def select_experiment(request):
     context = {'name_list': name_list}
     if request.method == 'POST':
         exp_name = request.POST.get('exp_name')
-        password = request.POST.get('password')
+        password = request.POST.get('token')
         err_log = False
         for i in getExperimentsList():
             if exp_name == i[1] and password == i[2]:
                 err_log = True
                 num_exp = i[0]
         if err_log:
-<<<<<<< HEAD
-            return HttpResponseRedirect('/preproc/records/'+str(num_exp))
-=======
             return HttpResponseRedirect(reverse('record_selector', kwargs={'id_num': num_exp}))
->>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
         else:
             messages.add_message(request, messages.ERROR, 'Error wrong password')
             return render(request, 'preproc/experiments.html', context)
     else:
         return render(request, 'preproc/experiments.html', context)
 
-<<<<<<< HEAD
-def getRecordsList(experimentId):
-    return Recording.objects.filter(experiment=experimentId).values_list('id', flat=True)
-
-def select_record(request, id_num):
-    print(id_num)
-    if request.method == 'POST':
-        record_id = request.POST.get('rec_name')
-        return HttpResponseRedirect('/preproc/chart/'+str(record_id))
-=======
 
 def getRecordsList(experimentId):
     return Recording.objects.filter(experiment=experimentId).values_list('id', flat=True).order_by('id')
@@ -217,18 +197,13 @@ def getRecordsList(experimentId):
 def select_record(request, id_num):
     if request.method == 'POST':
         record_id = request.POST.get('rec_name')
-        res = searchInDesc(id_num)
-        return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': id_num, 'alg_type': res}))
->>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
+        return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': id_num, 'alg_type': ""}))
     else:
         name_list = getRecordsList(id_num)
         context = {'name_list': name_list}
         return render(request, 'preproc/records.html', context)
 
-<<<<<<< HEAD
-=======
 
->>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
 def test(request):
     ID = 10
     SAMP_F = 64
@@ -260,9 +235,4 @@ def test(request):
 
     tools.putPreprocArrayintodb(ID, ibi, np.array(["timestamp", "IBI"]))
 
-<<<<<<< HEAD
-    return render(request,'preproc/experiments.html', {'name_list':["exp1"]})
-
-=======
     return render(request, 'preproc/experiments.html', {'name_list': ["exp1"]})
->>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
