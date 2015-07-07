@@ -5,7 +5,9 @@ from .forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spik
 from PhysioWat.models import Experiment, Recording, SensorRawData
 from django.contrib import messages
 from .jsongen import getavaliabledatavals
-from scripts.processing_scripts import tools, inertial, filters, IBI, GSR
+from scripts.processing_scripts import tools, filters, IBI
+from scripts.processing_scripts.GSR import preproc as GSR_preproc
+from scripts.processing_scripts.inertial import preproc as inertial_preproc
 import numpy as np
 from StringIO import StringIO
 
@@ -71,7 +73,7 @@ def show_chart(request, id_num, alg_type=""):
             data = GSR.remove_spikes(data, request.POST['TH'])
 
         if alg_type == "GSR":
-            pre_data, columns_out = GSR.preproc(data, cols, request.POST['T1'], request.POST['T2'], request.POST['MX'],
+            pre_data, columns_out = GSR_preproc(data, cols, request.POST['T1'], request.POST['T2'], request.POST['MX'],
                                         request.POST['DELTA_PEAK'], request.POST['k_near'], request.POST['grid_size'],
                                         request.POST['s'])
         elif alg_type == "EKG" or alg_type == "BVP":
@@ -81,7 +83,7 @@ def show_chart(request, id_num, alg_type=""):
 
         elif alg_type == "inertial":
             data_type="ACC" #Or GYR or MAG
-            pre_data = inertial.preproc(data, cols, data_type, request.POST['coeff'])
+            pre_data = inertial_preproc(data, cols, data_type, request.POST['coeff'])
         print pre_data, columns_out
         putPreprocArrayintodb(id_num, pre_data, columns_out)
         return HttpResponseRedirect(reverse('user_upload'))
