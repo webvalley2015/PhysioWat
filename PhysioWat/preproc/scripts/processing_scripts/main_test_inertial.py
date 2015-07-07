@@ -1,17 +1,15 @@
 from __future__ import division
 import inertial
 import numpy as np
-from PhysioWat.PhysioWat.preproc.scripts.processing_scripts import tools
+import tools
 import windowing as win
-# import matplotlib.pyplot as plt
 
-filename="./data/claire_ASD.txt"
+filename="./data/claire_labeled.csv"
 
-# columns=["timeStamp","packetCounter","AccX","AccY","AccZ","GyrX","GyrY","GyrZ","MagX","MagY","MagZ"]
-output_columns=["timeStamp","AccX","AccY","AccZ","GyrX","GyrY","GyrZ","MagX","MagY","MagZ"]
-col_acc=["AccX", "AccY", "AccZ"]
-col_gyr=["GyrX", "GyrY", "GyrZ"]
-col_mag=["MagX", "MagY", "MagZ"]
+columns_in=["TIME", "ACCX","ACCY","ACCZ", "GYRX","GYRY","GYRZ", "MAGX","MAGY","MAGZ", "LAB"]
+col_acc=["ACCX", "ACCY", "ACCZ"]
+col_gyr=["GYRX", "GYRY", "GYRZ"]
+col_mag=["MAGX", "MAGY", "MAGZ"]
 
 
 empaticaAccCoeff=2*9.81/128
@@ -22,30 +20,29 @@ sensGyrCoeff=2000/32768
 sensMagCoeff=0.007629
 sensfsamp=100
 
-data = tools.load_file(filename, sep=',', header=0)
-t=data[:,0]
-acc=data[:,2:5]
-gyr=data[:,5:8]
-mag=data[:,8:11]
-# t=data[:,0]
-# acc=data[:,1:]
+data = tools.load_file(filename, sep=',', header=1)
+t=tools.selectCol(data, columns_in, "TIME")
+acc=tools.selectCol(data, columns_in, col_acc)
+gyr=tools.selectCol(data, columns_in, col_gyr)
+mag=tools.selectCol(data, columns_in, col_mag)
+lab=tools.selectCol(data, columns_in, "LAB")
 
 acc= inertial.convert_units(acc, coeff=sensAccCoeff)
 gyr= inertial.convert_units(gyr, coeff=sensGyrCoeff)
 mag= inertial.convert_units(mag, coeff=sensMagCoeff)
 
-tools.array_labels_to_csv(np.column_stack([t, acc]), np.array(output_columns), "./output/preproc_"+filename[7:-4]+".csv")
+tools.array_labels_to_csv(np.column_stack([t, acc]), np.array(columns_in), "./output/preproc_"+filename[7:-4]+".csv")
 
 #-----EXTRACT FEATURES-----
 
-windows=win.generate_dummy_windows(t, 1000, 500)
-feats_acc, fcol_acc= inertial.extract_features_acc(acc, t, col_acc, windows, fsamp=sensfsamp)
-feats_gyr, fcol_gyr= inertial.extract_features_gyr(gyr, t, col_gyr, windows, fsamp=sensfsamp)
-feats_mag, fcol_mag= inertial.extract_features_mag(mag, t, col_mag, windows, fsamp=sensfsamp)
-feats=np.column_stack([feats_acc, feats_gyr, feats_mag])
-columns=np.r_[fcol_acc, fcol_gyr, fcol_mag]
+windows, winlab=win.get_windows_no_mix(t,lab , 1, 0.5)
+feats_acc, fcol_acc= inertial.extract_features_acc(acc, t, col_acc, windows)
+feats_gyr, fcol_gyr= inertial.extract_features_gyr(gyr, t, col_gyr, windows)
+feats_mag, fcol_mag= inertial.extract_features_mag(mag, t, col_mag, windows)
+feats=np.column_stack([feats_acc, feats_gyr, feats_mag, winlab])
+columns_out=np.r_[fcol_acc, fcol_gyr, fcol_mag, np.array(["LAB"])]
 # print feats.shape
 # print columns.shape, columns
-tools.array_labels_to_csv(feats, columns, "./output/preproc_"+filename[7:-4]+".csv")
+tools.array_labels_to_csv(feats, columns_out, "./output/feat_"+filename[7:-4]+".csv")
 # # feats.to_csv("./output/feat_6.csv")
 

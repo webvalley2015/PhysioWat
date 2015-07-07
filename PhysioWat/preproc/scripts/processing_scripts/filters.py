@@ -3,8 +3,9 @@ Filters
 '''
 from scipy.signal import gaussian, convolve, filtfilt, filter_design, freqz
 import numpy as np
+from IBI import getPeaksIBI
 #DEBUG ONLY
-# import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 def smoothGaussian(X,sigma=5, switch=True):
     """
@@ -38,17 +39,18 @@ def filtfiltFilter (SIGNAL, F_PASS, F_STOP, F_SAMP, LOSS, ATTENUATION, ftype = '
     wp = np.array(F_PASS)/nyq
     ws = np.array(F_STOP)/nyq
     b, a = filter_design.iirdesign(wp, ws, LOSS, ATTENUATION, ftype = ftype)
-    plot = False    
-    if plot:
-        mfreqz(b,a, wp, ws)
-    filtered_signal = filtfilt(b, a, SIGNAL)
+    plot = False
+    # if plot:
+    #     mfreqz(b,a, wp, ws)
+    for idx in xrange(SIGNAL.shape[1]):
+        filtered_signal = filtfilt(b, a, SIGNAL[:,idx])
     return filtered_signal
 
 
 def filterSignal (SIGNAL ,smp_fr, passFr, stopFr, LOSS=0.1, ATTENUATION=40, filterType = None):
     '''
     return a filtered signal with the algorithm selected (filterType) and the frequencies passed
-    SIGNAL: the signal you want to filter
+    SIGNAL: the signal you want to filter as np.array (N,m) with first col = timestamp and last col = labels
     smp_fr: the sampling frequency of the signal
     passFr: the pass frequency of the filter
     stopFr: the stop frequency of the filter
@@ -56,13 +58,47 @@ def filterSignal (SIGNAL ,smp_fr, passFr, stopFr, LOSS=0.1, ATTENUATION=40, filt
     ATTENUATION: the minimum 'movement' for the filter (default = 40)
     filterType: (default 'None') type of the filter. None or invalid value implies no filtering
     '''
-
     filters=["butter", "cheby1", "cheby2", "ellip"]
+    sign_val = SIGNAL[:,1:-1]
     if filterType in filters:
-        filtered_signal = filtfiltFilter(SIGNAL, passFr, stopFr, smp_fr, LOSS, ATTENUATION, ftype=filterType)
+        filtered_signal = filtfiltFilter(sign_val, passFr, stopFr, smp_fr, LOSS, ATTENUATION, ftype=filterType)
     else:
-        filtered_signal = SIGNAL
-    return filtered_signal
+        filtered_signal = SIGNAL[:,1:-1]
+    return np.column_stack((SIGNAL[:,0],filtered_signal,SIGNAL[:,2]))
+
+def matched_filter(signal, SAMP_F, t_start_good_ecg, t_end_good_ecg, peak_bef = 0.35, peak_aft = 1):
+    '''
+    return the signal filtered with a match algorithm
+    signal: np.array (N,3) containing the EKG
+    SAMP_F: sampling frequency of signal
+    t_start_good_ecg: time start for the good EKGs
+    t_end_good_ecg: time end for the good EKGs
+    peak_bef: (default 0.35) the lenght of each beat before the peak (in s)
+    peak_aft: (default 1) the lenght of each beat after the peak (in s)
+    '''
+    peak_len = peak_bef + peak_aft
+    timestamp = signal[:,0]
+    ecg = signal[:,1]
+    #take good_ekg from signal, so it can be passed to getPeaksIBI
+    good_ecg = signal[(timestamp >= t_start_good_ecg)&(timestamp < t_end_good_ecg),:]
+    maxp = getPeaksIBI(good_ecg, SAMP_F, 0.25)
+    templates = np.zeros(peak_len*SAMP_F)
+    for i in maxp[:,0]:
+        tmp = ecg[(timestamp >= (i - peak_bef))&(timestamp < (i + peak_aft))]
+        tmp = (tmp - np.min(tmp))/(np.max(tmp) - np.min(tmp))
+        templates = np.vstack((templates, tmp))
+    templates = templates[:, 1:]
+    #for gr in templates:
+    #    plt.plot(gr) 
+    #plt.show()
+    ecg_template = np.mean(templates, axis = 0)
+    #plt.plot(ecg_template)
+    #plt.show()
+    ecg_template = ecg_template - ecg_template[0]
+    ecg_template = ecg_template[::-1]
+    ecg_matched = np.convolve(ecg, ecg_template, mode = 'same')
+    return ecg_matched
+
 
 #DEBUG ONLY
 #Plot frequency and phase response

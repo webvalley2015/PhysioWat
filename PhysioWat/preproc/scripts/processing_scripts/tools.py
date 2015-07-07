@@ -1,9 +1,9 @@
 from __future__ import division
 import numpy as np
 import json
-from PhysioWat.models import Recording, SensorRawData
+# from PhysioWat.models import Recording, SensorRawData
 from StringIO import StringIO
-from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
+# from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
 import csv
 
 
@@ -11,9 +11,9 @@ def peakdet(v, delta, x=None, startMax=True):
     '''
     Functions for detecting peaks
     return: two nparrays (N,2), containing the time (in s) in the first column and the height of the peak in the second column
-    v: function in which search the peaks
+    v: np.array (N,) containing the signal in which search the peaks
     delta: minimum peak height
-    x: (default None) the "timeline"
+    x: (default None) the timestamp
     startMax: (default True)
     '''
 
@@ -86,18 +86,18 @@ def gen_bateman(mx, T1, T2, fsamp=4, gsr=None):
         return bateman, t_bat
 
 
-# Deprecated
-def plotter(filename):
-    '''
-    :param filename: file to plot
-    :return: nothing, just plot
-    '''
-    data = load_file(filename)
-    plt.figure()
-    plt.plot(data[:, 0], data[:, 1])
-    plt.xlabel("Time")
-    plt.ylabel("GSR (nS)")
-    plt.show()
+# # Deprecated
+# def plotter(filename):
+#     '''
+#     :param filename: file to plot
+#     :return: nothing, just plot
+#     '''
+#     data = load_file(filename)
+#     plt.figure()
+#     plt.plot(data[:, 0], data[:, 1])
+#     plt.xlabel("Time")
+#     plt.ylabel("GSR (nS)")
+#     plt.show()
 
 
 def load_file(filename, header=1, sep=";"):
@@ -113,7 +113,23 @@ def load_file(filename, header=1, sep=";"):
 def load_raw_db(recordingID):
     # raw query for i csv line
     table = Recording.objects.get(id=recordingID)
-    data = SensorRawData.objects.filter(recording_id=recordingID)
+    data = SensorRawData.objects.filter(recording_id=recordingID).order_by('id')
+    alldata = (','.join(table.dict_keys) + '\n').replace(' ', '')
+    for record in data:
+        ll = []
+        for key in table.dict_keys:
+            ll.append(record.store[key])
+
+        alldata += ','.join(ll) + '\n'
+
+    datacsv = np.genfromtxt(StringIO('\n'.join(alldata.split('\n')[1:])), delimiter=',')
+    return datacsv, table.dict_keys
+    # results = cursor.fetchall()
+
+def load_preproc_db(recordingID):
+    # raw query for i csv line
+    table = Preprocessed_Recording.objects.get(id=recordingID)
+    data = Preprocessed_Data.objects.filter(recording_id=recordingID).order_by('id')
     alldata = (','.join(table.dict_keys) + '\n').replace(' ', '')
     for record in data:
         ll = []
@@ -121,9 +137,9 @@ def load_raw_db(recordingID):
             ll.append(record.store[key])
         alldata += ','.join(ll) + '\n'
     datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
-    datacsv[:, 0] -= datacsv[0, 0]
-    return datacsv
+    return datacsv, table.dict_keys
     # results = cursor.fetchall()
+
 
 
 def prepare_json_to_plot(series, labels):
@@ -169,17 +185,20 @@ def prepare_json_to_plot(series, labels):
 #     # results = cursor.fetchall()
 
 
-def downsampling(data, FSAMP, FS_NEW, switch=True):
+def downsampling(data, FS_NEW, switch=True, t_col=0):
     '''
     Downsamples the signals (too much data is long to extract!)
     :param data: The data to downsample
-    :param FSAMP: The strating frequency
     :param FS_NEW: The new frequency
-    :param off: Do not downsample
+    :param switch: False = Do not downsample
     :return: The downsampled data
     '''
-    if FSAMP <= FS_NEW or FSAMP % FS_NEW != 0 or not switch:
+    if not switch:
         return data
+
+    FSAMP=int(round(1/(data[1,t_col]-data[0,t_col])))
+    if FSAMP <= FS_NEW or FSAMP % FS_NEW != 0:
+        raise ValueError("FS_NEW should be lower than FSAMP and one of its divisors #illy")
     N_SAMP = FSAMP / FS_NEW
 
     indexes = np.arange(len(data))
@@ -203,14 +222,16 @@ def dict_to_csv(d, filename):
     feats = []
     for key, value in d.items():
         feats.append(value)
+        print key
+    print d.keys()
     np.savetxt(filename, np.column_stack(feats), delimiter=",", header=",".join(d.keys()))
 
 
 def array_labels_to_csv(array, labels, filename):
-    np.savetxt(filename, array, delimiter=",", header=",".join(labels.tolist()))
+    np.savetxt(filename, array, delimiter=",",fmt='%0.6f', header=",".join(labels.tolist()), comments="")
 
 #Puts data int the preprocessed array into the database
-def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
+def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_funcs_names, preproc_funcs_parameters):
 
     #Andrew's crazy method to convert array to CSV-ish string??? IDK what it means, but IT WORKS!!!
     csvasstring = ",".join(preProcLabel.tolist()) + '\n'
@@ -225,12 +246,105 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
     dictky = csvreader.next()
 
     #Submit data to model and thus the database table
-    pr = Preprocessed_Recording(recording_id=rec_id, dict_keys=dictky)
+    pr = Preprocessed_Recording(recording_id=rec_id, applied_preproc_funcs_names=applied_preproc_funcs_names, preproc_funcs_parameters=preproc_funcs_parameters,  dict_keys=dictky)
     pr.save()
 
     for row in csvreader:
-        Preprocessed_Data(pp_recording=pr.id, store=dict(zip(dictky, row))).save()
+        Preprocessed_Data(pp_recording_id=pr.id, store=dict(zip(dictky, row))).save()
 
     print csvreader
 
     return 0
+
+def get_row_for_col(mat, indexes):
+    '''
+    extract the rows of mat that has an element of indexes in their first position
+    return: np.array that contains the rows of mat required
+    mat: np.array (N,M)
+    indexes: np.array (A,)
+    '''
+    result = []
+    for row in mat:
+        if row[0] in indexes:
+            result.append(row)
+    return np.array(result)
+
+def selectCol(vect, head, cols):
+    '''
+    Select the cols columns from vector, given its header
+    :param vect: the array to slice
+    :param head: the header of the array (either as np.ndarray or list)
+    :param cols: the columns to select (either as np.ndarray, list or str)
+    :return: the slice of the array
+    '''
+    if type(head) is list:
+        head=np.array(head)
+    elif type(head) is not np.ndarray:
+        raise ValueError("head is neither a np.ndarray or a list")
+
+    for i in range(len(head)):
+        head[i]=head[i].upper()
+
+    if type(cols) is str:
+        if cols=="TIME" or cols=="TIMESTAMP":
+            cols=["TIME", "TIMESTAMP"]
+        else:
+            cols=[cols]
+    elif type(cols) is not list and type(cols) is not np.ndarray:
+        raise ValueError("\"Che cazzo ti sei fumato?\" cols must be a str, list or np.ndarray #droga #ilfumouccide #illy")
+
+    mask=np.zeros(len(head), dtype=bool)
+
+    for col in cols:
+        mask = (mask) | (head==col)
+
+    result=vect[:, mask]
+
+    if result.shape[1]==1 :
+        result=result.flatten()
+    elif result.shape[1]==0:
+        raise IndexError("No column named "+", ".join(cols))
+
+    return result
+
+def merge_arrays(arrays, labels):
+    '''
+    Merges the arrays and the labels in a single array and labels array
+    :param arrays: list of np.arrays
+    :param labels: list of np.array for labels
+    :return: array and labels both as np.array
+    '''
+    for arr in arrays:
+        print arr.shape,
+    print "<- INPUT"
+    for lab in labels:
+        print len(lab),
+    print "<-COLUMNS"
+    result=[]
+    result_labels=[]
+
+    for i in range(len(arrays)):
+        for j in range(len(labels[i])):
+            if labels[i][j] not in result_labels:
+                result.append(arrays[i][:,j])
+                result_labels.append(labels[i][j])
+
+    if "TIME" in result_labels:
+        idx=result_labels.index("TIME")
+        temp=result[idx]
+        result.pop(idx)
+        result_labels.pop(idx)
+        result.insert(0, temp)
+        result_labels.insert(0, "TIME")
+    if "LAB" in result_labels:
+        idx=result_labels.index("LAB")
+        temp=result[idx]
+        result.pop(idx)
+        result_labels.pop(idx)
+        result.append(temp)
+        result_labels.append("LAB")
+    for arr in result:
+         print arr.shape,
+    print "<-OUTPUT"
+
+    return np.array(result), np.array(result_labels)

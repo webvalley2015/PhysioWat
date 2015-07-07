@@ -1,25 +1,21 @@
-"""
-Created on Tue Jun 30 17:56:22 2015
-
-@author: flavio & Andrea
-"""
 '''
 function for extract IBI from BVP
 '''
 
 import numpy as np
-# import matplotlib.pyplot as plt
 import filters as ourFilters
 import IBI
 import windowing
 import tools
+import matplotlib.pyplot as plt
 
 def loadBVP(filename):
     '''
     DEBUG ONLY. This will be done by the server
     reads the data of a BVP from a file (full path and name in filename) like Emaptica_E4 ones
     '''
-    return np.genfromtxt(filename, delimiter=';', skip_header = 1)[:,1]
+    a = np.genfromtxt(filename, delimiter=',', skip_header = 1)
+    return a
 
 #Simulate users app
 if __name__ == '__main__':
@@ -30,6 +26,8 @@ if __name__ == '__main__':
 
     #load data from the file
     rawdata = loadBVP(fileName)
+    SAMP_F = int(round(1/(rawdata[1,0]-rawdata[0,0])))
+    
     
     #filter the signal
     #the user selects the parameters, with default suggested
@@ -39,27 +37,30 @@ if __name__ == '__main__':
     ILOSS = 0.1
     IATT = 40
     filtered_signal = ourFilters.filterSignal(rawdata, SAMP_F, passFr = F_PASS, stopFr = F_STOP, LOSS = ILOSS, ATTENUATION = IATT, filterType = filterType)
-    #filtered_signal = rawdata
 
+    #compact timestamp, signal and labels for the next processes
+    total_signal = filtered_signal
+    
     #extraction peaks from the signal
     #the user selects the parameters, with default suggested
     delta = 1
-    peaks = IBI.getPeaksIBI(filtered_signal,SAMP_F, delta)
-    
+    peaks = IBI.getPeaksIBI(total_signal,SAMP_F, delta)
     #calculation of the IBI
     #the user selects the parameters, with default suggested
     minFr = 40
     maxFr = 200
-    ibi = IBI.max2interval(peaks[:,0], minFr, maxFr)
+    ibi = IBI.max2interval(peaks, minFr, maxFr)
 
-    tools.array_labels_to_csv(ibi, np.array(["timestamp", "IBI"]), "./output/preproc_"+fileName[7:-4]+".csv")
+    tools.array_labels_to_csv(ibi, np.array(["timestamp", "IBI", "lables"]), "./output/preproc_"+fileName[7:-4]+".csv")
+
 
     #-----FEATURES EXTRACTION-----
+    timestamp = ibi[:,0]
+    timed_vals = ibi[:,[0,1]]
+    lbls = ibi[:,2]
+    winds, lbls = windowing.get_windows_contiguos(timestamp, lbls, 100, 50)
 
-    lbls = np.array([0 for i in ibi[:,0]])
-    winds, lbls = windowing.get_windows_contiguos(ibi[:,0], lbls, 100, 50)
-
-    feat, lbls = IBI.extract_IBI_features(ibi, winds, lbls)
+    feat, lbls = IBI.extract_IBI_features(timed_vals, winds, lbls)
 
     feat_col=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
 

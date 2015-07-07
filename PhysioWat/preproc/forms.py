@@ -5,13 +5,19 @@ from .jsongen import getavaliabledatavals
 # FileUpload form class.
 
 class downsampling(forms.Form):
-    FS_NEW = forms.IntegerField()
-    switch = forms.BooleanField()
+    apply_downsampling = forms.BooleanField()
+    FS_NEW = forms.IntegerField(required=False)
+    #
+    # def __init__(self, *args, **kwargs):
+    #     nome = kwargs.pop('nome', 'ciao')
+    #     super(downsampling, self).__init__(*args, **kwargs)
+    #     self.fields['FS_NEW']widget.attrs['name'] = nome
+
 
 
 class smoothGaussian(forms.Form):
-    sigma = forms.FloatField(min_value=0)
-    switch = forms.BooleanField()
+    apply_smooth = forms.BooleanField()
+    sigma = forms.FloatField(min_value=0, required=False)
 
 
 CHOICES = [("butter", "Butterworth"),
@@ -22,19 +28,20 @@ CHOICES = [("butter", "Butterworth"),
 
 
 class filterAlg(forms.Form):
-    passFr = forms.FloatField(min_value=0)
-    stopFr = forms.FloatField(min_value=0)
-    LOSS = forms.FloatField(min_value=0)
-    ATTENUATION = forms.FloatField(min_value=0)
-    filterType = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect())
+    apply_alg_filter = forms.BooleanField()
+    passFr = forms.FloatField(min_value=0, required=False)
+    stopFr = forms.FloatField(min_value=0, required=False)
+    LOSS = forms.FloatField(min_value=0, required=False)
+    ATTENUATION = forms.FloatField(min_value=0, required=False)
+    filterType = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(), required=False)
 
 
 class remove_spike(forms.Form):
-    remove_spike = forms.BooleanField()
-    TH = forms.FloatField(min_value=0)
+    apply_spike = forms.BooleanField()
+    TH = forms.FloatField(min_value=0, required=False)
 
 
-class GSR(forms.Form):
+class GSR_Form(forms.Form):
     T1 = forms.FloatField(min_value=0.0)
     T2 = forms.FloatField(min_value=0.0)
     MX = forms.FloatField(min_value=0.0)
@@ -44,19 +51,19 @@ class GSR(forms.Form):
     s = forms.FloatField(min_value=0)
 
 
-class EKG(forms.Form):
+class EKG_Form(forms.Form):
     delta = forms.FloatField(min_value=0)
     minFr = forms.FloatField(min_value=0)
     maxFr = forms.FloatField(min_value=0)
 
 
-class BVP(forms.Form):  # Uguale a quello sopra ma cambia un default
+class BVP_Form(forms.Form):# Uguale a quello sopra ma cambia un default
     delta = forms.FloatField(min_value=0)
     minFr = forms.FloatField(min_value=0)
     maxFr = forms.FloatField(min_value=0)
 
 
-class inertial(forms.Form):
+class Inertial_Form(forms.Form):
     coeff = forms.FloatField(min_value=0)
 
 
@@ -77,4 +84,11 @@ class lineinout(forms.Form):
     def __init__(self, *args, **kwargs):
         super(linein, self).__init__(*args, **kwargs)
         self.fields['lines'].choices = get_my_choices()
+
+
+class windowing(forms.Form):
+    get_windows = forms.ChoiceField(choices=['get windows contiguous', 'get windows no mix', 'get windows full label'])
+    wlen = forms.IntegerField(min_value=0)
+    wstep = forms.IntegerField(min_value=0)
+
 

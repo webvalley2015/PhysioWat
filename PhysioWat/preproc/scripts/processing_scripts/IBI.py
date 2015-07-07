@@ -1,6 +1,6 @@
 from __future__ import division
 import numpy as np
-from tools import peakdet
+from tools import peakdet, get_row_for_col
 
 #####################################
 ## NOTE
@@ -36,9 +36,7 @@ def extract_IBI_features(data, windows, labels):
     values = data[:,1]
     for tindex in xrange(len(windows)):
         startt = windows[tindex][0]
-        #print startt
         endt = windows[tindex][1]
-        #print endt
         this_win = values[(times >= startt)&(times < endt)]
         if this_win.size == 0:
             res_labels.pop(tindex)
@@ -49,26 +47,24 @@ def extract_IBI_features(data, windows, labels):
 def getPeaksIBI(signal, SAMP_F, peakDelta):
     '''
     get the peaks for the ibi calculation
-    return: an nparrays (N,2), containing the time (in s) in the first column and the height of the peak in the second column
-    signal: signal in which search the peaks
+    return: an nparrays (N,3), containing in order the time (in s), the height of the peak and the lables
+    signal: signal as np.array (N,3) in which search the peaks (columns: timestamp, signal, labels)
     peakDelta: minimum peak height
     SAMP_F: the sampling frequency of signal
     '''
-    t = np.arange(0, len(signal)/float(SAMP_F), 1.0/SAMP_F)
-    maxp, minp = peakdet(signal, peakDelta, t)
-    '''print 'maxp:'
-    print maxp
-    plt.plot(t, signal)
-    plt.plot(maxp[:,0], maxp[:,1], 'o')
-    plt.show()'''
-    return maxp
+    timed_lbls = signal[:,[0,2]]
+    t = signal[:,0]
+    signal_vals = signal[:,1]
+    maxp, minp = peakdet(signal_vals, peakDelta, t)
+    new_lbls = get_row_for_col(timed_lbls, maxp[:,0])[:,1]
+    return np.column_stack((maxp, new_lbls))
 
 def max2interval(peaks, minrate=40, maxrate=200):
     """
     Returns intervals from timesMax, after filtering possible artefacts based on rate range (rates in min^(-1))
     if two peaks are nearer than minrate or further than maxrate, the algorithm try to recognize if there's a false true or a peak missing
-    return: an nparray (N,2) containing the time in the first column and the ibi in the second
-    peaks: an nparray (N,) containing the time of the peaks in the first column
+    return: an nparray (N,3) containing in order the time, the ibi and the label
+    peaks: an nparray (N,3) containing in order the timestamp, the height and the label of each peak
     minrate: represents the minimum(in min^(-1)) bpm to detect
     maxrate: represents the maximum(in min^(-1)) bpm to detect
     """
@@ -81,12 +77,14 @@ def max2interval(peaks, minrate=40, maxrate=200):
     # algoritmo alternativo
     # beat artifacts correction
     ##inizializzazioni
-
-    tprev=peaks[0]
+    timed_lbls = peaks[:,[0,2]]
+    peaks_time = peaks[:,0]
+    
+    tprev=peaks_time[0]
     tfalse=tprev
 
-    for i in range(1, len(peaks)):
-        tact=peaks[i]
+    for i in range(1, len(peaks_time)):
+        tact=peaks_time[i]
 
         RRcurr=tact-tprev
         if (RRcurr<minRR): # troppo breve: falso picco?
@@ -101,8 +99,10 @@ def max2interval(peaks, minrate=40, maxrate=200):
             timeRR.append(tact) #aggiungo istante temporale
             tfalse=tact #aggiorno falso picco
             tprev=tact #aggiorno tprev
+    #calculates the labels foreach time in timeRR
+    labelRR = get_row_for_col(timed_lbls, timeRR)[:,1]
     #the result contains a 2D array with the times and the ibi
-    return np.column_stack(( np.array(timeRR), np.array(RR)))
+    return np.column_stack((timeRR, RR, labelRR)), ["TIME", "IBI", "LAB"]
 
 
 def calculateTDindexes(RR):
