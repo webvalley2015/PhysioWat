@@ -19,3 +19,7 @@ downward hand flapping w/ walking
 upward hand flapping standing still
 upward hand flapping w/ walking
 
+July 8th, 2015, 10:18
+
+Claire added a list of relevantPublications.txt, all of which are available through the ACM Digital Library. (You have to pay to get to them.) There are probably other relevant papers, but these are the ones I feel best represent what we need.
+

@@ -1,0 +1,16 @@
+Plotz et al, 2012, Automatic assessment of problem behavior in individuals with developmental disabilities
+
+Short et al, 2011, A comparison of machine learning techniques for modeling human-robot interaction with children with autism
+
+Coronato et al, 2014, A situation-aware system for the detection of motion disorders of patients with Autism Spectrum Disorders
+
+Varkey et al, 2012, Human motion recognition using a wireless sensor-based wearable system
+
+Goodwin et al, 2014, Moving towards a real-time system for automatically recognizing stereotypical motor movements in individuals on the autism spectrum using wireless accelerometry
+
+Nazneen et al, 2010, Understanding the challenges and opportunities for richer descriptions of stereotypical behaviors of children with asd: a concept exploration and validation
+
+Goodwin et al, 2008, Sensor-enabled detection of stereotypical motor movements in persons with autism spectrum disorder
+
+Albinali et al, 2009, Recognizing stereotypical motor movements in the laboratory and classroom: a case study with children on the autism spectrum
+
