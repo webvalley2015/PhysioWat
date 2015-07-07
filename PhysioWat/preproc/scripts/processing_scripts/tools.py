@@ -1,9 +1,9 @@
 from __future__ import division
 import numpy as np
 import json
-from PhysioWat.models import Recording, SensorRawData
+# from PhysioWat.models import Recording, SensorRawData
 from StringIO import StringIO
-from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
+# from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
 import csv
 
 
@@ -187,16 +187,14 @@ def downsampling(data, FS_NEW, switch=True, t_col=0):
     '''
     Downsamples the signals (too much data is long to extract!)
     :param data: The data to downsample
-    :param FSAMP: The strating frequency
     :param FS_NEW: The new frequency
-    :param off: Do not downsample
+    :param switch: False = Do not downsample
     :return: The downsampled data
     '''
-    FSAMP=int(round(1/(data[1,t_col]-data[0,t_col])))
-
     if not switch:
         return data
 
+    FSAMP=int(round(1/(data[1,t_col]-data[0,t_col])))
     if FSAMP <= FS_NEW or FSAMP % FS_NEW != 0:
         raise ValueError("FS_NEW should be lower than FSAMP and one of its divisors #illy")
     N_SAMP = FSAMP / FS_NEW

@@ -3,11 +3,11 @@ function for extract IBI from BVP
 '''
 
 import numpy as np
-# import matplotlib.pyplot as plt
 import filters as ourFilters
 import IBI
 import windowing
 import tools
+import matplotlib.pyplot as plt
 
 def loadBVP(filename):
     '''
@@ -36,10 +36,10 @@ if __name__ == '__main__':
     F_STOP = 6
     ILOSS = 0.1
     IATT = 40
-    filtered_signal = ourFilters.filterSignal(rawdata[:,1], SAMP_F, passFr = F_PASS, stopFr = F_STOP, LOSS = ILOSS, ATTENUATION = IATT, filterType = filterType)
+    filtered_signal = ourFilters.filterSignal(rawdata, SAMP_F, passFr = F_PASS, stopFr = F_STOP, LOSS = ILOSS, ATTENUATION = IATT, filterType = filterType)
 
     #compact timestamp, signal and labels for the next processes
-    total_signal = np.column_stack((rawdata[:,0], filtered_signal, rawdata[:,2]))
+    total_signal = filtered_signal
     
     #extraction peaks from the signal
     #the user selects the parameters, with default suggested
