@@ -138,7 +138,8 @@ public class MainActivity extends Activity implements
 	    
 	    //private String[] ConnectedDevicesNames = new String[MaxNodes];
 	    
-	    public String dirName, dirName2,update_name_log,file_name_log;
+	    public String dirName, dirName2,update_name_log;
+	    public static String file_name_log;
 	    File root;
 	    //private int day, month, year,l_num;
 	    private File log_file;
@@ -186,7 +187,7 @@ public class MainActivity extends Activity implements
 	        return MainActivity.context;
 	    }
 	    
-	    
+	    static TextView sampleText;
 	    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -194,6 +195,8 @@ public class MainActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		MainActivity.context = getApplicationContext();
 		setContentView(R.layout.activity_main);
+		
+		MainActivity.sampleText = (TextView) findViewById(R.id.textView2); 
 		
 		
 		
@@ -273,9 +276,8 @@ public class MainActivity extends Activity implements
         Log.e(TAG, "+++ ON PAUSE +++");
     }
     
-    public void updateSample(long number) {
-    	TextView sampleText = (TextView) findViewById(R.id.textView2); 
-    	sampleText.setText("Samples: " + number);
+    public static void updateSample(long number) {
+    	MainActivity.sampleText.setText("Samples: " + MainActivity.sampleCount);
     }
     /*
     public void updateCallback(long result) {   
@@ -395,6 +397,11 @@ public class MainActivity extends Activity implements
 		}
 		if (id ==R.id.action_save_devices)
 			ConnectionManager.saveDevices();
+		
+		if (id ==R.id.action_send_server) {
+			Intent serverPostIntent = new Intent(this, FileChooser.class);
+    	    MainActivity.this.startActivity(serverPostIntent);
+		}
 		
 		return super.onOptionsItemSelected(item);
 	}
@@ -522,8 +529,6 @@ public class MainActivity extends Activity implements
                 String message = new String(ConfigVals.stopStr);
                 sendMessage(message);
                 redrawer.pause();
-        		getApplicationContext().stopService(new Intent(getApplicationContext(),
-        				com.niklas.datalogging.GPSLoggerService.class));
         		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
         });
@@ -552,7 +557,7 @@ public class MainActivity extends Activity implements
             		text = "Try to connect to Server...";
             	
             	else
-            		text = "Please capture Data first";
+            		text = "Please capture Data first or choose a existing File";
             	
             	//sampleText.setText("blabla");
             		
@@ -562,7 +567,7 @@ public class MainActivity extends Activity implements
             	
             
             	
-            	if (serverProtocolState) {
+            	if (!serverProtocolState) {
             		
             		writeLogMessage.writeLogMessage("Try to reach 192.168.210.183:5432", false);
             		ConnectServer connectServer = new ConnectServer();
@@ -589,14 +594,19 @@ public class MainActivity extends Activity implements
             		}.start();
             		
             	}
+            	
+            	
+            	
+            	ConnectServer connectServer = new ConnectServer();
+            	connectServer.execute();
             }
         });
 
     }
     
-  
+  /*
     
-	private class ConnectServer extends AsyncTask<Void, String, Void> {
+	public class ConnectServer extends AsyncTask<Void, String, Void> {
 
 	    @Override
 	    protected Void doInBackground(Void... params) {
@@ -642,7 +652,7 @@ public class MainActivity extends Activity implements
 	        }
 	        
 	        
-	        /*
+	        
 	        try {
 	        HttpClient httpclient = new DefaultHttpClient();
 	        HttpPost httppost = new HttpPost(url);
@@ -654,7 +664,7 @@ public class MainActivity extends Activity implements
 	        //HttpResponse response = httpclient.execute(httppost);
 	        //Do something with response...
 	        }
-	         */
+	         
 	        
 
 	        try {
@@ -709,6 +719,7 @@ public class MainActivity extends Activity implements
 	                Toast.LENGTH_SHORT).show();
 	    }
 	}
+	*/
 	
     //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	
