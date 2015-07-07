@@ -10,7 +10,7 @@ from preproc.scripts.processing_scripts.IBI import extract_IBI_features as extfe
 from preproc.scripts.processing_scripts.inertial import extract_features_acc as extfeat_ACC, extract_features_mag as extfeat_MAG, extract_features_gyr as extfeat_GYR
 from preproc.scripts.processing_scripts.tools import selectCol as selcol
 import numpy as np
-import pandas as pd
+#import pandas as pd
 
 def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
 
@@ -48,13 +48,13 @@ def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!
             print "aaa"
             a = a.cleaned_data
             if (a['type'] == 'contigous'):
-                window, labs = wd.get_windows_contiguos(time, labs, a['length'], a['step]'])
+                window, labs = wd.get_windows_contiguos(time, labs, a['length'], a['step'])
 
             if (a['type'] == 'no_mix'):  # for the values, make reference to .forms --> windowing.!!!!
-                window, labs = wd.get_windows_no_mix(time, labs, a['length'], a['step']])
+                window, labs = wd.get_windows_no_mix(time, labs, a['length'], a['step'])
 
             if (a['type'] == 'full_label'):
-                window, labs = wd.get_windows_full_label(time, labs, a['length'], a['step]'])
+                window, labs = wd.get_windows_full_label(time, labs, a['length'], a['step'])
 
         # extract features from result
         # store feats. in the db
@@ -92,13 +92,13 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         print mydict
 
         #GET FEATURED DATA FORM DB
-        localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
-        input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')#, index_col=None, sep=',')
+        #localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
+        #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')#, index_col=None, sep=',')
 
-        if 'norm' in mydict['viewf']:
-            input_data=fs.normalize(input_data)
-
-        print(input_data)
+        # if 'norm' in mydict['viewf']:
+        #     input_data=fs.normalize(input_data)
+        #
+        # print(input_data)
 
         return render(request,"machine_learning/form_error.html")
 
