@@ -102,6 +102,8 @@ public class MainActivity extends Activity implements
 	    public static final int MESSAGE_DEVICE_NAME = 4;
 	    public static final int MESSAGE_TOAST = 5;
 	    
+	    public static boolean isTheFileNew = false;
+	    
 	    public static long sampleCount = 42;
 
 	    // Key names received from the BluetoothChatService Handler
@@ -525,6 +527,7 @@ public class MainActivity extends Activity implements
         mSendStopButton = (Button) findViewById(R.id.buttonSendStop);
         mSendStopButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
+            	isTheFileNew = true;
             	now.setToNow();
                 String message = new String(ConfigVals.stopStr);
                 sendMessage(message);
