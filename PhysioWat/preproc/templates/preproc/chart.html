@@ -167,7 +167,7 @@
 
         var global_data = NaN;
 
-        $.getJSON("{% url 'chart_getdata' id_num %}", function (data) {
+        $.getJSON("{% url 'chart_getdata' id_num elab %}", function (data) {
             global_data = data;
             show_graph();
         });
