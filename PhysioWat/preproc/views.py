@@ -21,7 +21,7 @@ def QueryDb(recordingID):
             ll.append(record.store[key])
         alldata += ','.join(ll) + '\n'
     datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
-    return datacsv
+    return datacsv , table.dict_keys
 
 def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
 
@@ -54,7 +54,7 @@ def show_chart(request, id_num, alg_type=""):
     # TODO discuss a way to obtain all the form dinamically
     if request.method == "POST":
         # PreprocSettings does not exists here will have an error!!!!
-
+        data, cols=QueryDb(id_num)
         #NOTE 4 STEPHEN: I need the function to read the data from DB
 
         if request.POST['apply_downsampling'] == "on":
@@ -71,22 +71,19 @@ def show_chart(request, id_num, alg_type=""):
             data = GSR.remove_spikes(data, request.POST['TH'])
 
         if alg_type == "GSR":
-            pre_data = GSR.estimate_drivers(data, request.POST['T1'], request.POST['T2'], request.POST['MX'],
+            pre_data, columns_out = GSR.preproc(data, cols, request.POST['T1'], request.POST['T2'], request.POST['MX'],
                                         request.POST['DELTA_PEAK'], request.POST['k_near'], request.POST['grid_size'],
                                         request.POST['s'])
-        elif alg_type == "EKG":
-            peaks = IBI.getPeaksIBI(data, request.POST['delta'])
-            pre_data = IBI.max2interval(peaks, request.POST['minFr'], request.POST['maxFr'])
-
-        elif alg_type == "BVP":
-            peaks = IBI.getPeaksIBI(data, request.POST['delta'])
-            pre_data = IBI.max2interval(peaks, request.POST['minFr'], request.POST['maxFr'])
+        elif alg_type == "EKG" or alg_type == "BVP":
+            SAMP_F = int(round(1/(data[1,0]-data[0,0])))
+            peaks = IBI.getPeaksIBI(data, SAMP_F, request.POST['delta'])
+            pre_data, columns_out = IBI.max2interval(peaks, request.POST['minFr'], request.POST['maxFr'])
 
         elif alg_type == "inertial":
-            pre_data = inertial.convert_units(data, request.POST['coeff'])
-
-        print pre_data
-
+            data_type="ACC" #Or GYR or MAG
+            pre_data = inertial.preproc(data, cols, data_type, request.POST['coeff'])
+        print pre_data, columns_out
+        putPreprocArrayintodb(id_num, pre_data, columns_out)
         return HttpResponseRedirect(reverse('user_upload'))
     else:
         formFilt, formDown, formPick, formSpec, formGau, alg_select = None, None, None, None, None, None
