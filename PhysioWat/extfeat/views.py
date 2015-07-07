@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from .forms import windowing, viewFeatures, FeatPar, TestParam, AlgChoose, AlgParam, SvmParam, KNearParam, DecTreeParam, \
     RndForParam, AdaBoostParam, LatDirAssParam, autoFitParam
@@ -45,13 +46,13 @@ def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!
             print "aaa"
             a = a.cleaned_data
             if (a['type'] == 'contigous'):
-                window, labs = wd.get_windows_contiguos(time, labs, a['length'], a['step]'])
+                window, labs = wd.get_windows_contiguos(time, labs, a['length'], a['step'])
 
             if (a['type'] == 'no_mix'):  # for the values, make reference to .forms --> windowing.!!!!
-                window, labs = wd.get_windows_no_mix(time, labs, a['length'], a['step]'])
+                window, labs = wd.get_windows_no_mix(time, labs, a['length'], a['step'])
 
             if (a['type'] == 'full_label'):
-                window, labs = wd.get_windows_full_label(time, labs, a['length'], a['step]'])
+                window, labs = wd.get_windows_full_label(time, labs, a['length'], a['step'])
 
         # extract features from result
         # store feats. in the db
@@ -97,6 +98,10 @@ def ml_input(request):  # obviously, it has to be added id record and everything
             print key, request.POST.getlist(key)
 
         print mydict
+
+
+
+        return render(request,"machine_learning/form_error.html")
 
     else:
         template = "machine_learning/ml_input.html"
