@@ -89,14 +89,17 @@ def show_chart(request, id_num, alg_type=""):
 
             if data_type == "4":
                 if request.POST['{}-apply_spike'.format(mytype[int(data_type)])] == "on":
-                    data = GSR.remove_spikes(data, request.POST['TH'])
+                    TH = request.POST['{}-TH'.format(mytype[int(data_type)])]
 
-            if alg_type == "GSR":
+                    data = GSR.remove_spikes(data, TH)
+
+            if data_type == "4":
                 pre_data, columns_out = GSR_preproc(data, cols, request.POST['T1'], request.POST['T2'],
                                                     request.POST['MX'],
                                                     request.POST['DELTA_PEAK'], request.POST['k_near'],
                                                     request.POST['grid_size'],
                                                     request.POST['s'])
+
             elif alg_type == "EKG" or alg_type == "BVP":
                 SAMP_F = int(round(1 / (data[1, 0] - data[0, 0])))
                 peaks = IBI.getPeaksIBI(data, SAMP_F, request.POST['delta'])
@@ -118,36 +121,40 @@ def show_chart(request, id_num, alg_type=""):
                 messages.add_message(request, messages.ERROR, 'Error no processable data found')
         else:
             if "1" in alg_type:
-                formDown = downsampling(initial={'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
-                formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
+                count = 0
+                formDown = downsampling(initial={'apply_filter': False}, prefix=mytype[count])
+                formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[count])
                 formFilt = filterAlg(
                     initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType': 'cheby2',
-                             'apply_filter': True}, prefix=mytype[int(alg_type) - 1])
-                formSpec = BVP_Form(initial={'delta': 1, 'minFr': 40, 'maxFr': 200}, prefix=mytype[int(alg_type) - 1])
+                             'apply_filter': True}, prefix=mytype[count])
+                formSpec = BVP_Form(initial={'delta': 1, 'minFr': 40, 'maxFr': 200}, prefix=mytype[count])
                 bvp_tmp = {'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt, 'formSpec': formSpec}
             if "2" in alg_type:
-                formDown = downsampling(initial={'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
-                formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
+                count = 1
+                formDown = downsampling(initial={'apply_filter': False}, prefix=mytype[count])
+                formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[count])
                 formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False},
-                                     prefix=mytype[int(alg_type) - 1])
-                formSpec = EKG_Form(initial={'delta': 0.2, 'minFr': 40, 'maxFr': 200}, prefix=mytype[int(alg_type) - 1])
+                                     prefix=mytype[count])
+                formSpec = EKG_Form(initial={'delta': 0.2, 'minFr': 40, 'maxFr': 200}, prefix=mytype[count])
                 ekg_tmp = {'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt, 'formSpec': formSpec}
             if "3" in alg_type:
-                formDown = downsampling(initial={'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
-                formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
+                count = 2
+                formDown = downsampling(initial={'apply_filter': False}, prefix=mytype[count])
+                formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[count])
                 formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False},
-                                     prefix=mytype[int(alg_type) - 1])
+                                     prefix=mytype[count])
                 formSpec = Inertial_Form()
                 inertial_tmp = {'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt, 'formSpec': formSpec}
             if "4" in alg_type:
-                formPick = remove_spike(initial={'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
-                formDown = downsampling(initial={'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
-                formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
+                count = 3
+                formPick = remove_spike(initial={'apply_filter': False}, prefix=mytype[count])
+                formDown = downsampling(initial={'apply_filter': False}, prefix=mytype[count])
+                formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[count])
                 formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False},
-                                     prefix=mytype[int(alg_type) - 1])
+                                     prefix=mytype[count])
                 formSpec = GSR_Form(
                     initial={'T1': 0.75, 'T2': 2, 'MX': 1, 'DELTA_PEAK': 0.02, 'k_near': 5, 'grid_size': 5, 's': 0.2},
-                    prefix=mytype[int(alg_type) - 1])
+                    prefix=mytype[count])
                 gsr_tmp = {'formPick': formPick, 'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt,
                            'formSpec': formSpec}
 
