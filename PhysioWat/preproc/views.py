@@ -11,6 +11,7 @@ from scripts.processing_scripts.inertial import extract_features_acc, extract_fe
 import numpy as np
 from StringIO import StringIO
 
+
 def QueryDb(recordingID):
     table = Recording.objects.get(id=recordingID)
     data = SensorRawData.objects.filter(recording_id=recordingID)
@@ -21,22 +22,23 @@ def QueryDb(recordingID):
             ll.append(record.store[key])
         alldata += ','.join(ll) + '\n'
     datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
-    return datacsv , table.dict_keys
+    return datacsv, table.dict_keys
+
 
 def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
     # Andrew's crazy method to convert array to CSV-ish string??? IDK what it means, but IT WORKS!!!
     csvasstring = ",".join(preProcLabel.tolist()) + '\n'
     for dataarr in preProcArray:
         for dataval in dataarr:
-            csvasstring += str(dataval)+','
+            csvasstring += str(dataval) + ','
         csvasstring = csvasstring[:-1]
         csvasstring += '\n'
 
-    #Initiate the CSV Reader
+    # Initiate the CSV Reader
     csvreader = csv.reader(StringIO(csvasstring), delimiter=',')
     dictky = csvreader.next()
 
-    #Submit data to model and thus the database table
+    # Submit data to model and thus the database table
     pr = Preprocessed_Recording(recording_id=rec_id, dict_keys=dictky)
     pr.save()
 
@@ -48,40 +50,62 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
 
 def show_chart(request, id_num, alg_type=""):
     template = "preproc/chart.html"
+    alg_type = str(alg_type)
+    mytype = ['bvp', 'ekg', 'inertial', 'gsr']
     # load all the algorithms forms
     # TODO discuss a way to obtain all the form dinamically
     if request.method == "POST":
         # PreprocSettings does not exists here will have an error!!!!
-        #data,cols=QueryDb(id_num)
-        #NOTE 4 STEPHEN: I need the function to read the data from DB
+        # data,cols=QueryDb(id_num)
+        # NOTE 4 STEPHEN: I need the function to read the data from DB
 
-        if request.POST['apply_downsampling'] == "on":
-            data = tools.downsampling(data, request.POST['FS_NEW'])
+        # DATA TYPES in ALG TYPES:
+        # 1 : BVP
+        # 2 : EKG
+        # 3 : inertial
+        # 4 : GSR
 
-        if request.POST['apply_smooth'] == "on":
-            data = filters.smoothGaussian(data, request.POST['sigma'])
+        # iterate over the data types passed with url parameters
+        for data_type in alg_type:
 
-        if request.POST['apply_alg_filter'] == "on":
-            data = filters.filterSignal(data, request.POST['passFr'], request.POST['stopFr'], request.POST['LOSS'],
-                                        request.POST['ATTENUATION'], request.POST['filterType'])
+            if request.POST['{}-apply_downsampling'.format(mytype[int(data_type)])] == "on":
+                FS_NEW = request.POST['{}-FS_NEW'.format(mytype[int(data_type)])]
 
-        if request.POST['apply_spike'] == "on":
-            data = GSR.remove_spikes(data, request.POST['TH'])
+                data = tools.downsampling(data, FS_NEW)
 
-        if alg_type == "GSR":
-            pre_data, columns_out = GSR_preproc(data, cols, request.POST['T1'], request.POST['T2'], request.POST['MX'],
-                                        request.POST['DELTA_PEAK'], request.POST['k_near'], request.POST['grid_size'],
-                                        request.POST['s'])
-        elif alg_type == "EKG" or alg_type == "BVP":
-            SAMP_F = int(round(1/(data[1,0]-data[0,0])))
-            peaks = IBI.getPeaksIBI(data, SAMP_F, request.POST['delta'])
-            pre_data, columns_out = IBI.max2interval(peaks, request.POST['minFr'], request.POST['maxFr'])
+            if request.POST['{}-apply_smooth'.format(mytype[int(data_type)])] == "on":
+                sigma = request.POST['{}-sigma'.format(mytype[int(data_type)])]
 
-        elif alg_type == "inertial":
-            data_type="ACC" #Or GYR or MAG
-            pre_data = inertial_preproc(data, cols, data_type, request.POST['coeff'])
-        print pre_data, columns_out
-        
+                data = filters.smoothGaussian(data, sigma)
+
+            if request.POST['{}-apply_alg_filter'.format(mytype[int(data_type)])] == "on":
+                passFr = request.POST['{}-passFr'.format(mytype[int(data_type)])]
+                stopFr = request.POST['{}-stopFr'.format(mytype[int(data_type)])]
+                LOSS = request.POST['{}-LOSS'.format(mytype[int(data_type)])]
+                ATTENUATION = request.POST['{}-ATTENUATION'.format(mytype[int(data_type)])]
+                filterType = request.POST['{}-filterType'.format(mytype[int(data_type)])]
+
+                data = filters.filterSignal(data, passFr, stopFr, LOSS, ATTENUATION, filterType)
+
+            if data_type == "4":
+                if request.POST['{}-apply_spike'.format(mytype[int(data_type)])] == "on":
+                    data = GSR.remove_spikes(data, request.POST['TH'])
+
+            if alg_type == "GSR":
+                pre_data, columns_out = GSR_preproc(data, cols, request.POST['T1'], request.POST['T2'],
+                                                    request.POST['MX'],
+                                                    request.POST['DELTA_PEAK'], request.POST['k_near'],
+                                                    request.POST['grid_size'],
+                                                    request.POST['s'])
+            elif alg_type == "EKG" or alg_type == "BVP":
+                SAMP_F = int(round(1 / (data[1, 0] - data[0, 0])))
+                peaks = IBI.getPeaksIBI(data, SAMP_F, request.POST['delta'])
+                pre_data, columns_out = IBI.max2interval(peaks, request.POST['minFr'], request.POST['maxFr'])
+
+            elif alg_type == "inertial":
+                data_type = "ACC"  # Or GYR or MAG
+                pre_data = inertial_preproc(data, cols, data_type, request.POST['coeff'])
+
         putPreprocArrayintodb(id_num, pre_data, columns_out)
         return HttpResponseRedirect(reverse('user_upload'))
     else:
@@ -89,41 +113,48 @@ def show_chart(request, id_num, alg_type=""):
         if alg_type == "":
             res = searchInLabels(id_num)
             if res:
-                return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': id_num, 'alg_type': res}))
+                return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': id_num, 'alg_type': int(res)}))
             else:
                 messages.add_message(request, messages.ERROR, 'Error no processable data found')
-        elif "1" in alg_type:
-            formDown = downsampling(initial={'apply_filter': False})
-            formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False})
-            formFilt = filterAlg(
-                initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType': 'cheby2',
-                         'apply_filter': True})
-            formSpec = BVP_Form(initial={'delta': 1, 'minFr': 40, 'maxFr': 200})
-            bvp_tmp = {'formDown':formDown,'formGau':formGau,'formFilt':formFilt,'formSpec':formSpec}
-        elif "2" in alg_type:
-            formDown = downsampling(initial={'apply_filter': False})
-            formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False})
-            formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False})
-            formSpec = EKG_Form(initial={'delta': 0.2, 'minFr': 40, 'maxFr': 200})
-            ekg_tmp = {'formDown':formDown,'formGau':formGau,'formFilt':formFilt,'formSpec':formSpec}
-        elif "3" in alg_type:
-            formDown = downsampling(initial={'apply_filter': False})
-            formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False})
-            formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False})
-            formSpec = Inertial_Form()
-            inertial_tmp = {'formDown':formDown,'formGau':formGau,'formFilt':formFilt,'formSpec':formSpec}
-        elif "4" in alg_type:
-            formPick = remove_spike(initial={'apply_filter': False})
-            formDown = downsampling(initial={'apply_filter': False})
-            formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False})
-            formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False})
-            formSpec = GSR_Form(initial={'T1': 0.75, 'T2': 2, 'MX': 1, 'DELTA_PEAK': 0.02, 'k_near': 5, 'grid_size': 5, 's': 0.2})
-            gsr_tmp = {'formPick':formPick,'formDown':formDown,'formGau':formGau,'formFilt':formFilt,'formSpec':formSpec}
+        else:
+            if "1" in alg_type:
+                formDown = downsampling(initial={'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
+                formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
+                formFilt = filterAlg(
+                    initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType': 'cheby2',
+                             'apply_filter': True}, prefix=mytype[int(alg_type) - 1])
+                formSpec = BVP_Form(initial={'delta': 1, 'minFr': 40, 'maxFr': 200}, prefix=mytype[int(alg_type) - 1])
+                bvp_tmp = {'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt, 'formSpec': formSpec}
+            if "2" in alg_type:
+                formDown = downsampling(initial={'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
+                formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
+                formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False},
+                                     prefix=mytype[int(alg_type) - 1])
+                formSpec = EKG_Form(initial={'delta': 0.2, 'minFr': 40, 'maxFr': 200}, prefix=mytype[int(alg_type) - 1])
+                ekg_tmp = {'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt, 'formSpec': formSpec}
+            if "3" in alg_type:
+                formDown = downsampling(initial={'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
+                formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
+                formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False},
+                                     prefix=mytype[int(alg_type) - 1])
+                formSpec = Inertial_Form()
+                inertial_tmp = {'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt, 'formSpec': formSpec}
+            if "4" in alg_type:
+                formPick = remove_spike(initial={'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
+                formDown = downsampling(initial={'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
+                formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[int(alg_type) - 1])
+                formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False},
+                                     prefix=mytype[int(alg_type) - 1])
+                formSpec = GSR_Form(
+                    initial={'T1': 0.75, 'T2': 2, 'MX': 1, 'DELTA_PEAK': 0.02, 'k_near': 5, 'grid_size': 5, 's': 0.2},
+                    prefix=mytype[int(alg_type) - 1])
+                gsr_tmp = {'formPick': formPick, 'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt,
+                           'formSpec': formSpec}
 
         opt_temp = getavaliabledatavals(id_num)
         opt_list = opt_temp[1:]
 
-        context = {'forms': {'bvp_tmp':bvp_tmp,'ekg_tmp':ekg_tmp,'inertial_tmp':inertial_tmp,'gsr_tmp':gsr_tmp},
+        context = {'forms': {'bvp_tmp': bvp_tmp, 'ekg_tmp': ekg_tmp, 'inertial_tmp': inertial_tmp, 'gsr_tmp': gsr_tmp},
                    'opt_list': opt_list, 'id_num': id_num}
         return render(request, template, context)
 
@@ -149,6 +180,7 @@ def searchInLabels(id_num):
         return found
     else:
         return False
+
 
 def getExperimentsNames():
     return Experiment.objects.values_list('name', flat=True).distinct()

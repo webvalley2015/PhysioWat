@@ -7,6 +7,12 @@ from .jsongen import getavaliabledatavals
 class downsampling(forms.Form):
     apply_downsampling = forms.BooleanField()
     FS_NEW = forms.IntegerField(required=False)
+    #
+    # def __init__(self, *args, **kwargs):
+    #     nome = kwargs.pop('nome', 'ciao')
+    #     super(downsampling, self).__init__(*args, **kwargs)
+    #     self.fields['FS_NEW']widget.attrs['name'] = nome
+
 
 
 class smoothGaussian(forms.Form):
