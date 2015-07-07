@@ -12,7 +12,7 @@ columns_out=["TIME", "ACCX","ACCY","ACCZ", "GYRX","GYRY","GYRZ", "MAGX","MAGY","
 
 data_out=np.empty((1,11))
 for i, fname in enumerate(filenames):
-    data_in=np.genfromtxt(fname, skip_header=head, delimiter=",")
+    data_in=np.genfromtxt(fname, skip_header=head, delimiter=",", dtype=None)
     label_col=np.ones((data_in.shape[0]))*i
     new_rows=np.column_stack([data_in[:,0], data_in[:,2:11], label_col])
     data_out=np.concatenate((data_out, new_rows), axis=0)
@@ -22,4 +22,4 @@ data_out=np.delete(data_out, 0, 0)
 for i in range(data_out.shape[0]):
     data_out[i,0]=i/fs
 
-np.savetxt(raw_input("Filename: "), data_out, delimiter=",", header=",".join(columns_out), comments="")
+np.savetxt(raw_input("Output file name: "), data_out, delimiter=",", header=",".join(columns_out), comments="", fmt="%0.6f")

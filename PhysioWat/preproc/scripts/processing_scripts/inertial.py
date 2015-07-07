@@ -4,10 +4,11 @@ Accelerometer, Gyroscope, Magnetometer
 '''
 from __future__ import division
 import numpy as np
+from tools import selectCol
 
 def convert_units(data, coeff = 1):
     '''
-    :param data: accelerometer, gyroscope OR magnetometer data as a pandas.DataFrame with x, y, z indexes. Do not
+    :param data: accelerometer, gyroscope OR magnetometer data as a numpy.array with x, y, z indexes. Do not
                  pass more than 1 sensor data at a time!! np.array
     :param coeff: coefficient to multiply to convert the units
     :param prefix: "acc", "gyr" or "mag" (accelerometer, gyroscope or magnetoscope
@@ -170,3 +171,60 @@ def concat_string(array, str):
     for element in array:
         result.append(element+str)
     return np.array(result)
+
+def preproc(data, cols, coeffAcc=1, coeffGyr=1, coeffMag=1):
+    '''
+    :param data: the data
+    :param cols: the olumns in input
+    :param coeff: the conversion rate
+    :param data_type: ACC, GYR or MAG
+    :return: aray and columns
+    '''
+    col_acc=["ACCX", "ACCY", "ACCZ"]
+    col_gyr=["GYRX", "GYRY", "GYRZ"]
+    col_mag=["MAGX", "MAGY", "MAGZ"]
+    time=selectCol(data, cols, "TIME")
+    try:
+        data_acc=selectCol(data, cols, col_acc)
+        present_acc=True
+    except IndexError as e:
+        print e.message
+        present_acc=False
+    try:
+        data_gyr=selectCol(data, cols, col_gyr)
+        present_gyr=True
+    except IndexError as e:
+        print e.message
+        present_gyr=False
+    try:
+        data_mag=selectCol(data, cols, col_mag)
+        present_mag=True
+    except IndexError as e:
+        print e.message
+        present_mag=False
+
+    try:
+        labs=selectCol(data, cols, "LAB")
+    except IndexError as e:
+        print e.message
+        labs=np.zeros(data.shape[0])
+        pass
+
+    print "LAB", labs.shape
+    result=time
+    columns=["TIME"]
+    if present_acc:
+        data_acc=convert_units(data_acc, coeffAcc)
+        result=np.column_stack((result,data_acc))
+        columns += col_acc
+    if present_gyr:
+        data_gyr=convert_units(data_gyr, coeffGyr)
+        result=np.column_stack((result,data_gyr))
+        columns += col_gyr
+    if present_mag:
+        data_mag=convert_units(data_mag, coeffMag)
+        result=np.column_stack((result,data_mag))
+        columns += col_mag
+    result=np.column_stack((result, labs))
+    columns += ["LAB"]
+    return result, columns

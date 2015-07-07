@@ -5,13 +5,12 @@ from __future__ import division
 
 import numpy as np
 import scipy.signal as spy
-from PhysioWat.PhysioWat.preproc.scripts.processing_scripts.tools import peakdet, gen_bateman
+from tools import peakdet, gen_bateman, selectCol
 from filters import smoothGaussian
 from scipy.interpolate import interp1d
 # import matplotlib.pyplot as plt
 
-
-def estimate_drivers(t_gsr, gsr, T1=0.75, T2=2, MX=1, DELTA_PEAK=0.02, FS=None, k_near=5, grid_size=5, s=0.2):
+def estimate_drivers(t_gsr, gsr, T1=0.75, T2=2, MX=1, DELTA_PEAK=0.02, k_near=5, grid_size=5, s=0.2):
     """
     TIME_DRV, DRV, PH_DRV, TN_DRV = estimate_drivers(TIME_GSR, GSR, T1, T2, MX, DELTA_PEAK):
 
@@ -21,8 +20,7 @@ def estimate_drivers(t_gsr, gsr, T1=0.75, T2=2, MX=1, DELTA_PEAK=0.02, FS=None, 
     k_near and grid_size are optional parameters, relative to the process
     s= t in seconds of gaussian smoothing
     """
-    if FS==None:
-        FS = int(round(1/( t_gsr[1] - t_gsr[0])))
+    FS = int(round(1/( t_gsr[1] - t_gsr[0])))
 
     #======================
     # step 1: DECONVOLUTION
@@ -294,3 +292,18 @@ def remove_spikes(data, FSAMP, TH=0.005):
     t_out = np.arange(t_in[0], t_in[-1], 1/FSAMP)
     data_out = f(t_out)
     return t_out, data_out
+
+def preproc(data, cols, T1=0.75, T2=2, MX=1, DELTA_PEAK=0.02, k_near=5, grid_size=5, s=0.2):
+    gsr=selectCol(data, cols, "GSR")
+    t_gsr=selectCol(data, cols, "TIME")
+
+    try:
+        labs=selectCol(data, cols, "LAB")
+    except IndexError as e:
+        print e.message
+        labs=np.zeros(data.shape[0])
+
+    output_cols=["TIME", "DRV", "PHA", "TNC", "LAB"]
+    TIME_DRV, DRV, PH_DRV, TN_DRV = estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, k_near, grid_size, s)
+    result=np.column_stack((TIME_DRV, DRV, PH_DRV, TN_DRV, labs))
+    return result, output_cols
