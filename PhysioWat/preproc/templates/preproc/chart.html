@@ -41,6 +41,15 @@
             <br><br><br><br>
 
             <div class="graphs col-md-8">
+                <style>
+                    .highcharts-input-group {
+                        display: none;
+                    }
+
+                    .highcharts-range-selector-buttons {
+                        display: none;
+                    }
+                </style>
                 <div class="processed-signal row">
                     <div id="processed-signal"></div>
                     <!-- THIS IS ANOTHER DIV FOR ANOTHER GRAPH, IT DOES NOT CONTAIN ANITHING NOW -->
@@ -62,8 +71,6 @@
                 </ul>
 
 
-
-
                 <form action="#" name="preproc" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     {% for k,v in forms.items %}
@@ -82,11 +89,11 @@
                     {% endfor %}
 
                     <div>
-                            {% buttons %}
-                                <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
-                                <button type="reset" class="btn btn-danger">Reset</button>
-                                <button type="button" class="btn btn-active" onClick="show()">ShowAll</button>
-                            {% endbuttons %}
+                        {% buttons %}
+                            <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
+                            <button type="reset" class="btn btn-danger">Reset</button>
+                            <button type="button" class="btn btn-active" onClick="show()">ShowAll</button>
+                        {% endbuttons %}
                     </div>
 
             </div>
