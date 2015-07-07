@@ -1,4 +1,5 @@
 {% extends 'PhysioWat/base.html' %}
+{% load staticfiles %}
 {% block container %}
 
     {{ a }}
@@ -12,6 +13,7 @@
 			<div class="about-bottom">
 				<div class="col-md-4 about-left">
 					<span class="bttl"> </span>
+                    <img src="{% static 'image/logo_physiowat.png' %}" style="width: 200px; height: 72px;">
 					<h4>The project</h4>
 					<p>Our project is focused on developing a novel web platform for Data Analytics of Wearable Sensors for REsearch. This platform implements also a connection to smartphones, on which it is possible to collect data from wearable sensors and store it on relational database. Researchers can upload their data and analyze the stored data online, visualize data in different graphs and save it. </p>
 				</div>
