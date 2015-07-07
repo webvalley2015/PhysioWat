@@ -302,9 +302,6 @@ def selectCol(vect, head, cols):
 
     if result.shape[1]==1 :
         result=result.flatten()
-<<<<<<< HEAD
-    return result
-=======
     elif result.shape[1]==0:
         raise IndexError("No column named "+", ".join(cols))
 
@@ -348,4 +345,3 @@ def merge_arrays(arrays, labels):
          print arr.shape,
 
     return np.array(result), np.array(result_labels)
->>>>>>> 3bb50fa813affb84ed61ae61318e847d7d0b7724
