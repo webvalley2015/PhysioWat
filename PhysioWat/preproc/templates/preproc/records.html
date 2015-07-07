@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-
-
 {% extends 'PhysioWat/base.html' %}
 {% block container %}
 <br><br><br><br><br>
@@ -32,25 +29,19 @@
 </div>
 <!--end steps-->
 <br><br><br>
-<div class="form-cnt" align="center">
-    <form action="#" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <select name="rec_name">
-            {% for c in name_list %}
-                <option value="{{ c }}">{{ c }}</option>
-            {% endfor %}
-        </select><br>
-        <div class="btn-fix">
-            <input type="submit" value="Select">
-        </div>
-    </form>
-<div>
-{% endblock %}
-=======
-{% extends 'PhysioWat/base.html' %}
-{% block container %}
-	<h1>Select Record</h1>
-	<br>
+{#<div class="form-cnt" align="center">#}
+{#    <form action="#" method="post" enctype="multipart/form-data">#}
+{#        {% csrf_token %}#}
+{#        <select name="rec_name">#}
+{#            {% for c in name_list %}#}
+{#                <option value="{{ c }}">{{ c }}</option>#}
+{#            {% endfor %}#}
+{#        </select><br>#}
+{#        <div class="btn-fix">#}
+{#            <input type="submit" value="Select">#}
+{#        </div>#}
+{#    </form>#}
+{#<div>#}
 
 <div id="div_selection">
 	<form action="#" method="post" enctype="multipart/form-data" class="form-cnt">
@@ -68,4 +59,3 @@
 	</form>
 </div>
 {% endblock %}
->>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb

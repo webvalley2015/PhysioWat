@@ -198,7 +198,7 @@ def getRecordsList(experimentId):
 def select_record(request, id_num):
     if request.method == 'POST':
         record_id = request.POST.get('rec_name')
-        return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': id_num, 'alg_type': ""}))
+        return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': record_id, 'alg_type': ""}))
     else:
         name_list = getRecordsList(id_num)
         context = {'name_list': name_list}
