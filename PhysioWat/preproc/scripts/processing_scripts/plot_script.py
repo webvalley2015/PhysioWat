@@ -40,3 +40,8 @@ def statistic_values(list): # argument: list of lists
 
     return statistics
 
+def convert_PandaDataFrame_to_ListOfLists_2D(data):
+    return data.values.tolist()
+
+def convert_PandaDataFrame_to_ListOfLists_3D(data):
+    return data.values.tolist()
