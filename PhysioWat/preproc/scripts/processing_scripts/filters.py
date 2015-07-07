@@ -3,8 +3,9 @@ Filters
 '''
 from scipy.signal import gaussian, convolve, filtfilt, filter_design, freqz
 import numpy as np
+from IBI import getPeaksIBI
 #DEBUG ONLY
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 def smoothGaussian(X,sigma=5, switch=True):
     """
@@ -63,6 +64,40 @@ def filterSignal (SIGNAL ,smp_fr, passFr, stopFr, LOSS=0.1, ATTENUATION=40, filt
     else:
         filtered_signal = SIGNAL
     return filtered_signal
+
+def matched_filter(signal, SAMP_F, t_start_good_ecg, t_end_good_ecg, peak_bef = 0.35, peak_aft = 1):
+    '''
+    return the signal filtered with a match algorithm
+    signal: np.array (N,3) containing the EKG
+    SAMP_F: sampling frequency of signal
+    t_start_good_ecg: time start for the good EKGs
+    t_end_good_ecg: time end for the good EKGs
+    peak_bef: (default 0.35) the lenght of each beat before the peak (in s)
+    peak_aft: (default 1) the lenght of each beat after the peak (in s)
+    '''
+    peak_len = peak_bef + peak_aft
+    timestamp = signal[:,0]
+    ecg = signal[:,1]
+    #take good_ekg from signal, so it can be passed to getPeaksIBI
+    good_ecg = signal[(timestamp >= t_start_good_ecg)&(timestamp < t_end_good_ecg),:]
+    maxp = getPeaksIBI(good_ecg, SAMP_F, 0.25)
+    templates = np.zeros(peak_len*SAMP_F)
+    for i in maxp[:,0]:
+        tmp = ecg[(timestamp >= (i - peak_bef))&(timestamp < (i + peak_aft))]
+        tmp = (tmp - np.min(tmp))/(np.max(tmp) - np.min(tmp))
+        templates = np.vstack((templates, tmp))
+    templates = templates[:, 1:]
+    #for gr in templates:
+    #    plt.plot(gr) 
+    #plt.show()
+    ecg_template = np.mean(templates, axis = 0)
+    #plt.plot(ecg_template)
+    #plt.show()
+    ecg_template = ecg_template - ecg_template[0]
+    ecg_template = ecg_template[::-1]
+    ecg_matched = np.convolve(ecg, ecg_template, mode = 'same')
+    return ecg_matched
+
 
 #DEBUG ONLY
 #Plot frequency and phase response
