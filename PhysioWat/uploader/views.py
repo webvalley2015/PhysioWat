@@ -13,14 +13,13 @@ def upload(request):
 
         form = UploadForm(request.POST, request.FILES)
         if form.is_valid():
-            experimentName = request.POST.get('experiment')
-            actualPasscode = Experiment.objects.get(name=experimentName)
-            actualPasscode = actualPasscode.token
+            experiment_id = request.POST.get('experiment')
+            actualPasscode = Experiment.objects.get(id=experiment_id).token
             enteredPasscode = form.cleaned_data
             enteredPasscode = enteredPasscode["password"]
 
             if enteredPasscode == actualPasscode:
-                csvtodb.putintodbflex(request.FILES.getlist('file'), request.POST.get('device'), request.POST.get('description'), request.POST.get('experiment'))
+                csvtodb.putintodbflex(request.FILES.getlist('file'), request.POST.get('device'), request.POST.get('description'), experiment_id)
                 messages.success(request, 'Successfully Uploaded File')
             else:
                 messages.error(request, 'Invalid Password')
@@ -34,4 +33,4 @@ def upload(request):
 
 #Gets a list of all available experiments
 def getExperiments():
-        return Experiment.objects.values_list('name', flat=True)
+        return Experiment.objects.values_list('id', 'name')
