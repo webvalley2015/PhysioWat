@@ -27,7 +27,7 @@ public class writeLogMessage {
                 (NotificationManager)MainActivity.getAppContext().getSystemService(Context.NOTIFICATION_SERVICE);
             @SuppressWarnings("deprecation")
 			Notification note=new Notification(R.drawable.stat_notify_chat,
-                                                            "Android Example Status message!",
+                                                            "PhysioWAT",
                                                             System.currentTimeMillis());
              
             // This pending intent will open after notification click
@@ -41,8 +41,6 @@ public class writeLogMessage {
             //After uncomment this line you will see number of notification arrived
             //note.number=2;
             mgr.notify(NOTIFY_ME_ID, note);
-            
-            long[] pattern = { 0, 100, 500, 100, 500, 100, 500, 100, 500, 100, 500};
             
             Vibrator vibrator = (Vibrator)MainActivity.getAppContext().getSystemService(Context.VIBRATOR_SERVICE);
             vibrator.vibrate(2000);		
