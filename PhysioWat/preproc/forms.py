@@ -64,7 +64,10 @@ class BVP_Form(forms.Form):# Uguale a quello sopra ma cambia un default
 
 
 class Inertial_Form(forms.Form):
-    coeff = forms.FloatField(min_value=0)
+    coeffAcc = forms.FloatField(min_value=0)
+    coeffGyr = forms.FloatField(min_value=0)
+    coeffMag = forms.FloatField(min_value=0)
+
 
 
 class choose_exp(forms.Form):
