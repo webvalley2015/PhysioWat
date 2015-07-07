@@ -5,6 +5,7 @@ from scipy.signal import gaussian, convolve, filtfilt, filter_design, freqz
 import numpy as np
 from IBI import getPeaksIBI
 #DEBUG ONLY
+# import matplotlib.pyplot as plt
 
 def smoothGaussian(X,sigma=5, switch=True):
     """

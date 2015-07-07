@@ -113,7 +113,7 @@ def load_file(filename, header=1, sep=";"):
 def load_raw_db(recordingID):
     # raw query for i csv line
     table = Recording.objects.get(id=recordingID)
-    data = SensorRawData.objects.filter(recording_id=recordingID)
+    data = SensorRawData.objects.filter(recording_id=recordingID).order_by('id')
     alldata = (','.join(table.dict_keys) + '\n').replace(' ', '')
     for record in data:
         ll = []
@@ -129,7 +129,7 @@ def load_raw_db(recordingID):
 def load_preproc_db(recordingID):
     # raw query for i csv line
     table = Preprocessed_Recording.objects.get(id=recordingID)
-    data = Preprocessed_Data.objects.filter(recording_id=recordingID)
+    data = Preprocessed_Data.objects.filter(recording_id=recordingID).order_by('id')
     alldata = (','.join(table.dict_keys) + '\n').replace(' ', '')
     for record in data:
         ll = []
