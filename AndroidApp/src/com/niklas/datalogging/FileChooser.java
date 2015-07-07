@@ -2,15 +2,6 @@ package com.niklas.datalogging;
 
 
 
-import com.unibo.cupidnodelogging.R;
-
-import android.app.Activity;
-
-
-
-
-
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -29,6 +20,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.unibo.cupidnodelogging.R;
 
 
 public class FileChooser extends ListActivity{
@@ -138,6 +131,8 @@ public class FileChooser extends ListActivity{
 	    	newFileChoosed = (File)l.getItemAtPosition(position);
 	        
 	        if(newFileChoosed.isFile()) {
+	        	
+	        	MainActivity.isTheFileNew = false;
 	            
 		    Intent extra = new Intent();
 	            extra.putExtra(EXTRA_FILE_PATH, newFileChoosed.getAbsolutePath());
@@ -188,10 +183,10 @@ public class FileChooser extends ListActivity{
 	            textView.setText(object.getName());
 	            
 	            if(object.isFile()) 
-	                imageView.setImageResource(R.drawable.image1);
+	                imageView.setImageResource(R.drawable.pw_file);
 	            
 	             else 
-	                imageView.setImageResource(R.drawable.image1);
+	                imageView.setImageResource(R.drawable.file);
 	            
 	            return row;
 	        }

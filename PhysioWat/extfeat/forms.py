@@ -4,21 +4,21 @@ from django import forms
 class windowing(forms.Form):
     my_choices= [('contigous','continous windowing'), ('no_mix','not mixed windowing'), ('full_label','full label windowing')]
     type = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect())
-    length = forms.FloatField(min_value=0.000001)
-    step = forms.FloatField(min_value=0.000001)
+    length = forms.FloatField(min_value=0.000001, initial=1)
+    step = forms.FloatField(min_value=0.000001, initial=1)
 
 class viewFeatures(forms.Form):
-    my_choices = [('norm','normalize features'), ('sel','select features') ]
+    my_choices = [('norm','normalize features'), ('sel','select features. if not ticked, immediatly following selector will not be taken in consider') ]
     viewf = forms.ChoiceField(choices=my_choices,widget=forms.CheckboxSelectMultiple())
 
 class FeatPar(forms.Form):
      my_choices =[('k_selected','Select the number of features'),('k_auto', 'Automatic number of features')]
      FeatChoose = forms.ChoiceField(choices=my_choices,widget=forms.RadioSelect())
-     feat_num = forms.IntegerField(min_value=0)
+     feat_num = forms.IntegerField(min_value=0, initial=0)
 
 class TestParam(forms.Form):
-    test_percentage = forms.FloatField(min_value=1)
-    number_of_iterations = forms.IntegerField(min_value=1)
+    test_percentage = forms.FloatField(min_value=1, initial=1)
+    number_of_iterations = forms.IntegerField(min_value=1, initial=1)
 
 class AlgChoose(forms.Form):
     my_choices = [('knear','k nearest'),('svm', 'support vector machine'),('dectree','decison tree'),
@@ -28,28 +28,28 @@ class AlgChoose(forms.Form):
 
 
 class AlgParam (forms.Form):
-    my_choices = [('def','default parameters'),('auto','autofit'),('pers','define parameters')]
+    my_choices = [('def','default parameters'),('auto','auto'),('pers','define parameters')]
     parameter_choiche = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect())
 
 class SvmParam(forms.Form):
     my_choices=[('linear','linear'),('rbf','rbf'),('sigmoid','sigmoid')]
     kernel = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect())
-    C = forms.IntegerField(min_value=1)
+    C = forms.IntegerField(min_value=1, initial=10)
 
 class KNearParam(forms.Form):
-    k_neighbour = forms.IntegerField(min_value=1)
+    k_neighbour = forms.IntegerField(min_value=1, initial=5)
 
 class DecTreeParam(forms.Form):
-    max_features = forms.IntegerField(min_value=1)
+    max_features = forms.IntegerField(min_value=1, initial=3)
 
 class RndForParam(forms.Form):
     my_choices=[('1','1'),('None','None'),('sqrt','square root'),('log2','log 2')]
     max_features = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect())
-    number_estimators = forms.IntegerField(min_value=1)
+    number_estimators = forms.IntegerField(min_value=1, initial=1)
 
 class AdaBoostParam(forms.Form):
-    number_estimators = forms.IntegerField(min_value=1)
-    learning_rate = forms.FloatField(min_value=0.25)
+    number_estimators = forms.IntegerField(min_value=1, initial=1)
+    learning_rate = forms.FloatField(min_value=0.25, initial=1)
 
 class LatDirAssParam(forms.Form):
     my_choices=[('svd','svd'),('lsqr','lsqr'),('eigen','eigen')]

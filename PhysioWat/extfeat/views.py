@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from .forms import windowing, viewFeatures, FeatPar, TestParam, AlgChoose, AlgParam, SvmParam, KNearParam, DecTreeParam, \
     RndForParam, AdaBoostParam, LatDirAssParam, autoFitParam
@@ -108,6 +109,10 @@ def ml_input(request):  # obviously, it has to be added id record and everything
             print key, request.POST.getlist(key)
 
         print mydict
+
+
+
+        return render(request,"machine_learning/form_error.html")
 
     else:
         template = "machine_learning/ml_input.html"
