@@ -11,6 +11,8 @@ from scripts.processing_scripts.inertial import preproc as inertial_preproc
 import numpy as np
 from StringIO import StringIO
 
+def getRecDictKeys(recId):
+    return Recording.objects.filter(id=recId).values_list('dict_keys', flat=True)
 
 def QueryDb(recordingID):
     table = Recording.objects.get(id=recordingID)
