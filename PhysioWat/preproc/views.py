@@ -5,14 +5,11 @@ from .forms import filterAlg, downsampling, BVP_Form, EKG_Form, GSR_Form, Inerti
 from PhysioWat.models import Experiment, Recording, SensorRawData
 from django.contrib import messages
 from .jsongen import getavaliabledatavals
-from scripts.processing_scripts import tools, filters, IBI
+from scripts.processing_scripts import tools, filters, IBI, windowing
 from scripts.processing_scripts.GSR import preproc as GSR_preproc
-from scripts.processing_scripts.inertial import preproc as inertial_preproc
+from scripts.processing_scripts.inertial import extract_features_acc, extract_features_gyr, extract_features_mag, preproc as inertial_preproc
 import numpy as np
 from StringIO import StringIO
-
-def getRecDictKeys(recId):
-    return Recording.objects.filter(id=recId).values_list('dict_keys', flat=True)
 
 def QueryDb(recordingID):
     table = Recording.objects.get(id=recordingID)
@@ -55,7 +52,7 @@ def show_chart(request, id_num, alg_type=""):
     # TODO discuss a way to obtain all the form dinamically
     if request.method == "POST":
         # PreprocSettings does not exists here will have an error!!!!
-        data, cols=QueryDb(id_num)
+        #data,cols=QueryDb(id_num)
         #NOTE 4 STEPHEN: I need the function to read the data from DB
 
         if request.POST['apply_downsampling'] == "on":
@@ -88,82 +85,70 @@ def show_chart(request, id_num, alg_type=""):
         putPreprocArrayintodb(id_num, pre_data, columns_out)
         return HttpResponseRedirect(reverse('user_upload'))
     else:
-        formFilt, formDown, formPick, formSpec, formGau, alg_select = None, None, None, None, None, None
+        bvp_tmp, ekg_tmp, inertial_tmp, gsr_tmp = None, None, None, None
         if alg_type == "":
-            res = searchInDesc(id_num)
+            res = searchInLabels(id_num)
             if res:
                 return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': id_num, 'alg_type': res}))
             else:
-                alg_select = ["BVP", "EKG", "inertial", "GSR"]
-                existVar = False
-        elif alg_type == "BVP":
+                messages.add_message(request, messages.ERROR, 'Error no processable data found')
+        elif "1" in alg_type:
             formDown = downsampling(initial={'apply_filter': False})
             formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False})
             formFilt = filterAlg(
                 initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType': 'cheby2',
                          'apply_filter': True})
             formSpec = BVP_Form(initial={'delta': 1, 'minFr': 40, 'maxFr': 200})
-            existVar = True
-        elif alg_type == "EKG":
+            bvp_tmp = {'formDown':formDown,'formGau':formGau,'formFilt':formFilt,'formSpec':formSpec}
+        elif "2" in alg_type:
             formDown = downsampling(initial={'apply_filter': False})
             formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False})
             formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False})
             formSpec = EKG_Form(initial={'delta': 0.2, 'minFr': 40, 'maxFr': 200})
-            existVar = True
-        elif alg_type == "inertial":
+            ekg_tmp = {'formDown':formDown,'formGau':formGau,'formFilt':formFilt,'formSpec':formSpec}
+        elif "3" in alg_type:
             formDown = downsampling(initial={'apply_filter': False})
             formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False})
             formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False})
             formSpec = Inertial_Form()
-            existVar = True
-        elif alg_type == "GSR":
+            inertial_tmp = {'formDown':formDown,'formGau':formGau,'formFilt':formFilt,'formSpec':formSpec}
+        elif "4" in alg_type:
             formPick = remove_spike(initial={'apply_filter': False})
             formDown = downsampling(initial={'apply_filter': False})
             formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False})
             formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False})
             formSpec = GSR_Form(initial={'T1': 0.75, 'T2': 2, 'MX': 1, 'DELTA_PEAK': 0.02, 'k_near': 5, 'grid_size': 5, 's': 0.2})
-            existVar = True
+            gsr_tmp = {'formPick':formPick,'formDown':formDown,'formGau':formGau,'formFilt':formFilt,'formSpec':formSpec}
 
         opt_temp = getavaliabledatavals(id_num)
         opt_list = opt_temp[1:]
 
-        context = {'forms': {'Filter': formFilt, 'Downpass': formDown,
-                             'Spike': formPick, str(alg_type) + '*': formSpec, 'Gaussian': formGau},
-                   'opt_list': opt_list, 'id_num': id_num, 'alg_select': alg_select, 'show_menu':existVar}
+        context = {'forms': {'bvp_tmp':bvp_tmp,'ekg_tmp':ekg_tmp,'inertial_tmp':inertial_tmp,'gsr_tmp':gsr_tmp},
+                   'opt_list': opt_list, 'id_num': id_num}
         return render(request, template, context)
 
 
-def searchInDesc(id_num):
-    desc = str(Recording.objects.filter(id=id_num).values_list('description', flat=True)[0]).lower()
-    # cols = Recording.objects.filter(id=id_num).values_list('dict_keys', flat=True)
-    # print "Columns", cols
-    print desc
+def searchInLabels(id_num):
+    desc = Recording.objects.filter(id=id_num).values_list('dict_keys', flat=True)[0]
     found = ""
-    if "bvp" in desc:
-        if found == "":
-            found = "BVP"
-        else:
-            found = False
-    if "ekg" in desc:
-        if found == "":
-            found = "EKG"
-        else:
-            found = False
-    if "inertial" in desc:
-        if found == "":
-            found = "inertial"
-        else:
-            found = False
-    if "gsr" in desc:
-        if found == "":
-            found = "GSR"
-        else:
-            found = False
-    if not found and found != "":
+    for i in desc:
+        var = str(i).lower()
+        if "bvp" in var:
+            if not "1" in found:
+                found += "1"
+        if "ekg" in var:
+            if not "2" in found:
+                found += "2"
+        if "acc" in var or "gyr" in var or "mag" in var:
+            if not "3" in found:
+                found += "3"
+        if "gsr" in var:
+            if not "4" in found:
+                found += "4"
+    if found != "":
         return found
     else:
         return False
-
 
 def getExperimentsNames():
     return Experiment.objects.values_list('name', flat=True).distinct()
@@ -208,34 +193,33 @@ def select_record(request, id_num):
 
 
 def test(request):
-    ID = 10
-    SAMP_F = 64
+    ID = 1
+    columns_out=["TIME", "ACCX", "ACCY", "ACCZ", "GYRX", "GYRY", "GYRZ", "MAGX", "MAGY", "MAGZ", "LAB"]
+    applied_func=[]
+    preproc_funcs_parameters=dict()
+    sensAccCoeff=8*9.81/32768
+    sensGyrCoeff=2000/32768
+    sensMagCoeff=0.007629
 
-    # load data from the file
-    rawdata = tools.load_raw_db(ID)
+    data, columns_in = tools.load_raw_db(ID)
 
-    # filter the signal
-    # the user selects the parameters, with default suggested
-    filterType = 'butter'
-    F_PASS = 2
-    F_STOP = 6
-    ILOSS = 0.1
-    IATT = 40
-    filtered_signal = filters.filterSignal(rawdata, SAMP_F, passFr=F_PASS, stopFr=F_STOP, LOSS=ILOSS, ATTENUATION=IATT,
-                                           filterType=filterType)
-    # filtered_signal = rawdata
+    # t=tools.selectCol(data, columns_in, "TIME")
+    #
+    # try:
+    #     lab=tools.selectCol(data, columns_in, "LAB")
+    # except IndexError as e:
+    #     print e
+    #     lab=np.zeros(t.shape[0])
+    #     pass
 
-    # extraction peaks from the signal
-    # the user selects the parameters, with default suggested
-    delta = 1
-    peaks = IBI.getPeaksIBI(filtered_signal, SAMP_F, delta)
+    acc, temp_col_acc= inertial_preproc(data, columns_in, "ACC", sensAccCoeff)
+    gyr, temp_col_gyr= inertial_preproc(data, columns_in, "GYR", sensGyrCoeff)
+    mag, temp_col_mag= inertial_preproc(data, columns_in, "MAG", sensMagCoeff)
+    applied_func.append("intertial.preproc")
+    preproc_funcs_parameters.update({"inertial.preproc": str(sensAccCoeff)})
 
-    # calculation of the IBI
-    # the user selects the parameters, with default suggested
-    minFr = 40
-    maxFr = 200
-    ibi = IBI.max2interval(peaks[:, 0], minFr, maxFr)
+    data_out, col_out=tools.merge_arrays([acc, gyr, mag], [temp_col_acc, temp_col_gyr, temp_col_mag])
 
-    tools.putPreprocArrayintodb(ID, ibi, np.array(["timestamp", "IBI"]))
+    tools.putPreprocArrayintodb(ID, data_out, np.array(columns_out), applied_func, preproc_funcs_parameters )
 
     return render(request, 'preproc/experiments.html', {'name_list': ["exp1"]})

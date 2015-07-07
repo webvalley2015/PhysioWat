@@ -5,7 +5,7 @@ from scipy.signal import gaussian, convolve, filtfilt, filter_design, freqz
 import numpy as np
 from IBI import getPeaksIBI
 #DEBUG ONLY
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 def smoothGaussian(X,sigma=5, switch=True):
     """
@@ -39,9 +39,9 @@ def filtfiltFilter (SIGNAL, F_PASS, F_STOP, F_SAMP, LOSS, ATTENUATION, ftype = '
     wp = np.array(F_PASS)/nyq
     ws = np.array(F_STOP)/nyq
     b, a = filter_design.iirdesign(wp, ws, LOSS, ATTENUATION, ftype = ftype)
-    plot = False    
-    if plot:
-        mfreqz(b,a, wp, ws)
+    plot = False
+    # if plot:
+    #     mfreqz(b,a, wp, ws)
     for idx in xrange(SIGNAL.shape[1]):
         filtered_signal = filtfilt(b, a, SIGNAL[:,idx])
     return filtered_signal
