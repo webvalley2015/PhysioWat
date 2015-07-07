@@ -37,15 +37,15 @@ names = ["Nearest Neighbors", "Support Vector Machine", "RBF SVM\t", "Decision T
 #classifiers is the pd.dictionary of the possible algorithms.
 # use as " classifiers[alg](set_parameters) " once you have them
 classifiers = {
-        'KNN': lambda nn: KNeighborsClassifier(n_neighbors=nn),
-        'SVM': lambda kernel, C : SVC(kernel=kernel, C=C),
-        'DCT': lambda max_f: DecisionTreeClassifier(max_features=max_f),
+        #'KNN': lambda nn: KNeighborsClassifier(n_neighbors=nn),
+        #'SVM': lambda kernel, C : SVC(kernel=kernel, C=C),
+        #'DCT': lambda max_f: DecisionTreeClassifier(max_features=max_f),
         'RFC': lambda n_est, max_f: RandomForestClassifier(n_estimators=n_est, 
                                                            max_features=max_f),
-        'ADA': lambda n_est, l_rate: AdaBoostClassifier(n_estimators = n_est, 
-                                                        learning_rate=l_rate),
-        'LDA': lambda solver: LDA(solver),
-        'QDA': lambda : QDA()
+        #'ADA': lambda n_est, l_rate: AdaBoostClassifier(n_estimators = n_est, 
+        #                                                learning_rate=l_rate),
+        #'LDA': lambda solver: LDA(solver),
+        #'QDA': lambda : QDA()
         }
         
 
@@ -381,6 +381,23 @@ def bestAlg(fe_data, metric):
         print loc_metric
         print loc_clf
         
+<<<<<<< HEAD
+    in_tar = fe_data.label
+    in_data = fe_data[fe_data.columns[:-1]]
+    
+    big_iterations = iterations*2 #100 TRY
+    mean_sum = 0.
+    std_sum = 0.
+    for i in range(big_iterations):
+        fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
+        in_tar = fe_data.label
+        in_data = fe_data[fe_data.columns[:-1]]
+        scores = cross_validation.cross_val_score(the_clf, in_data, in_tar, cv=cv_val, n_jobs=-1)
+        mean_sum += scores.mean()
+        std_sum  += scores.std()
+    quick_res = np.array([(mean_sum/big_iterations), (std_sum/big_iterations)])
+    return the_clf, quick_res  #,metric
+=======
     #    in_tar = fe_data.LAB
     #    in_data = fe_data[fe_data.columns[:-1]]
     #    
@@ -396,6 +413,7 @@ def bestAlg(fe_data, metric):
     #        std_sum  += scores.std()
     #    quick_res = np.array([(mean_sum/big_iterations), (std_sum/big_iterations)])
     return the_clf #, quick_res  #,metric
+>>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
     
 def bestfit(fe_data, alg, metric):
     '''
@@ -649,7 +667,11 @@ def iterate_crossvalidation(clf, fe_data, metric):
         fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
         in_tar = fe_data.LAB
         in_data = fe_data[fe_data.columns[:-1]]
+<<<<<<< HEAD
+        scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=cv_val, n_jobs=1)
+=======
         scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=cv_val)
+>>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
         mean_sum += scores.mean()
         std_sum  += scores.std()
     mean_local = mean_sum/iterations
@@ -658,9 +680,15 @@ def iterate_crossvalidation(clf, fe_data, metric):
 
 def split(df):
     colnames = df.columns
+<<<<<<< HEAD
+    b = df.label
+    a = df[df.columns[:-1]]
+    a_train, a_test, b_train, b_test = train_test_split(a, b, test_size=0.25)
+=======
     b = df.LAB
     a = df[df.columns[:-1]]
     a_train, a_test, b_train, b_test = train_test_split(a, b, test_size=0.25, random_state=42)
+>>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
     
     a_train = pd.DataFrame(a_train)
     b_train = pd.DataFrame(b_train)
@@ -676,17 +704,28 @@ def split(df):
    
 if __name__ == '__main__':
     print 'Starting main...'    
+<<<<<<< HEAD
+    localdir = './output/'
+    input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')
+
+    train_data, test_data = split(input_data)
+=======
     localdir = '/home/andrea/Work/data/Physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
     input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv', index_col=None)
     
     norm_data = normalize(input_data)
     train_data, test_data = split(norm_data)
+>>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
 
     #run on algs
     clf, metric = bestAlg(train_data, 1)
     #clf, metric = bestfit(train_data, 'LDA',1)
     
+<<<<<<< HEAD
+    y_true = test_data.label
+=======
     y_true = test_data.LAB
+>>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
     te_data = test_data[test_data.columns[:-1]]
     y_pred = predict(clf, te_data, y_true )
     dic_metric, conf_mat = get_report(y_true, y_pred)
