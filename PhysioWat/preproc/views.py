@@ -65,8 +65,6 @@ def show_chart(request, id_num, alg_type=""):
         # 3 : inertial
         # 4 : GSR
 
-        print request.POST
-
         # iterate over the data types passed with url parameters
         for data_type in alg_type:
             count = int(data_type) - 1
