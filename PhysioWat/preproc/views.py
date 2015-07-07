@@ -228,7 +228,9 @@ def test(request):
 
     data_out, col_out=tools.merge_arrays([acc, gyr, mag], [temp_col_acc, temp_col_gyr, temp_col_mag])
     print "DATA", data_out
+    print data_out.shape
     print "COL", col_out
+    print col_out.shape
 
     tools.putPreprocArrayintodb(ID, np.column_stack((t, acc, gyr, mag, lab)), np.array(columns_out) )
 
