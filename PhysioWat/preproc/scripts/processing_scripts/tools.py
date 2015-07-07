@@ -288,6 +288,8 @@ def selectCol(vect, head, cols):
     if type(cols) is str:
         if cols=="TIME" or cols=="TIMESTAMP":
             cols=["TIME", "TIMESTAMP"]
+        elif cols=="GSR" or cols=="EDA":
+            cols=["GSR", "EDA"]
         else:
             cols=[cols]
     elif type(cols) is not list and type(cols) is not np.ndarray:
