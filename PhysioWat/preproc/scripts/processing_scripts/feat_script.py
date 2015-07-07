@@ -26,6 +26,8 @@ from sklearn.qda import QDA
 from sklearn.metrics import *
 from scipy import stats
 import time
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import f_classif
 from matplotlib.backends.backend_pdf import PdfPages
 
 
@@ -51,7 +53,7 @@ classifiers = {
 
 classifiersDefaultParameters = {
         'KNN': KNeighborsClassifier(),
-        #'SVM': SVC(kernel='linear'),
+        'SVM': SVC(kernel='linear'),
         'DCT': DecisionTreeClassifier(),
         'RFC': RandomForestClassifier(),
         'ADA': AdaBoostClassifier(),
@@ -60,7 +62,7 @@ classifiersDefaultParameters = {
         }
     
 iterations = 5 #20 TRY
-cv_val = 4
+cv_val = 5
 
 def feat_boxplot(x):
     '''
@@ -100,15 +102,19 @@ def feat_boxplot(x):
             
     plt.style.use('ggplot')
     step = 30
-    data = pd.DataFrame()   
-    for k in range(0, x.shape[1], step):
+    end =  x.shape[1]
+    data = pd.DataFrame()
+    #ttest = np.zeros(end)
+    for k in range(0, end, step):
         for i in range(k, k+step):   #for each feature in your dataframe X
+            if i >= end : next()
             data0 = x.query('LAB == '+str(0)).iloc[:,i]   #calc the boxplot for 
                                                             #this class
             data1 = x.query('LAB == '+str(1)).iloc[:,i] 
             data = [data0, data1]
+            #ttest[i] = stats.ttest_ind(data0,data1)
             plt.subplot(5,6, (i%step)+1)                          #it will be deleted
-            plt.boxplot(data)
+            a = plt.boxplot(data)
             plt.axis('off')
             plt.title(x.columns[i], fontsize=5)
         plt.savefig('./figs/fig'+str(k)+'.png')
@@ -195,7 +201,7 @@ def quick_fat(in_data, te_data, alg): # stand for quick Fit And Test
     te_data = te_data[te_data.columns[:-1]]
     in_data = in_data[in_data.columns[:-1]]
 
-    y_pred = f.predict(f.get_selected_clf(in_data, in_tar, alg), te_data, te_tar )
+    y_pred = predict(get_selected_clf(in_data, in_tar, alg), te_data, te_tar )
     return te_tar.values , y_pred
     
 def get_selected_clf(X, Y, alg):
@@ -254,7 +260,7 @@ def predict(clf, testX, testY):
 
 
 
-def deep_alg_fat(in_data, te_data): #stans for Deep Algorithms Fit & Test
+def deep_alg_fat(in_data, te_data): #stays for Deep Algorithms Fit & Test
     '''
     Have to work on it.
     It perform a test on all the algorithms, but just only
@@ -381,6 +387,7 @@ def bestAlg(fe_data, metric):
         print loc_metric
         print loc_clf
         
+    #print 'the error is under this line'
     #    in_tar = fe_data.LAB
     #    in_data = fe_data[fe_data.columns[:-1]]
     #    
@@ -395,7 +402,7 @@ def bestAlg(fe_data, metric):
     #        mean_sum += scores.mean()
     #        std_sum  += scores.std()
     #    quick_res = np.array([(mean_sum/big_iterations), (std_sum/big_iterations)])
-    return the_clf #, quick_res  #,metric
+    return the_clf, metric #, quick_re
     
 def bestfit(fe_data, alg, metric):
     '''
@@ -471,7 +478,7 @@ def bestfit(fe_data, alg, metric):
 
 
 def bestfit_KNN(fe_data, alg, metric):  # ok
-    NNlist = [1, 3, 5, 7, 9, 11]  #TRY
+    NNlist = [1, 3, 5]#, 7, 9, 11]  #TRY
     my_met = np.zeros((len(NNlist), 3))
     
     for nn in NNlist:
@@ -492,13 +499,13 @@ def bestfit_KNN(fe_data, alg, metric):  # ok
     
     
 def bestfit_SVM(fe_data, alg, metric):
-    Klist = ['linear', 'rbf', 'sigmoid']
+    Klist = ['linear', 'rbf']#, 'sigmoid']
     bestC = bestMet = 0.
-    Clist = [ 10**i for i in range(-2,8)]#range(-5,8) ] TRY
+    Clist = [ 10**i for i in range(-1,3)]#range(-5,8) ] TRY
     my_met = np.matrix([0,0,0,0])
     for k, kernel in enumerate(Klist):
         for C in Clist:
-            print kernel, C
+            # print kernel, C
             clf = classifiers[alg](kernel, C)          
             mean_local, err_local = iterate_crossvalidation(clf, fe_data, metric)
             in_vec = np.array([C, mean_local, err_local, k])
@@ -510,7 +517,8 @@ def bestfit_SVM(fe_data, alg, metric):
         #plt.show()
     
     bestkernel = Klist[int(my_met[my_met[:,1].argmax(),3])]
-    bestC = Clist[my_met[:,1].argmax()]
+    bestC = Clist[int(my_met[my_met[:,1].argmax(),0])]
+        
     my_met = my_met[1:, :]
     clf = classifiers[alg](bestkernel, bestC)
     return clf, my_met[:,1].max()
@@ -551,7 +559,7 @@ def bestfit_QDA(fe_data, alg, metric):  #ok
     
     
 def bestfit_LDA(fe_data, alg, metric):
-    SRlist = ['svd', 'lsqr', 'eigen']
+    SRlist = ['svd', 'lsqr']#, 'eigen']
     my_met = np.zeros((len(SRlist), 3))
     
     for k, solver in enumerate(SRlist):
@@ -569,7 +577,7 @@ def bestfit_LDA(fe_data, alg, metric):
     #plt.xscale('log') #just if a parameter is exponentially growing
     ##plt.show()
 
-    print  my_met
+    # print  my_met
     bestsolver = SRlist[my_met[:,1].argmax()]
     clf = classifiers[alg](bestsolver)
     
@@ -577,8 +585,8 @@ def bestfit_LDA(fe_data, alg, metric):
     
 #watch out... this is a particular matrix... 65s for 75cvs
 def bestfit_ADA(fe_data, alg, metric):
-    NElist = [i*50 for i in range(1,50)]#201)] TRY
-    LRlist = [i*0.25 for i in range(2,6)]#9) ] TRY
+    NElist = [i*50 for i in range(5,10)]#(1, 201)] TRY
+    LRlist = [i*0.25 for i in range(2,5)]#9) ] TRY
     my_met = np.zeros((len(NElist), len(LRlist)))
     err_met = np.zeros((len(NElist), len(LRlist)))
     #j, tstop = 0, 0
@@ -602,8 +610,8 @@ def bestfit_ADA(fe_data, alg, metric):
     
 #watch out... this is a particular matrix    6m for 300cvs
 def bestfit_RFC(fe_data, alg, metric):
-    NElist = [i*25 for i in range(1,5)]#20)] TRY
-    MFlist = [1, 1., 'sqrt']#, 'log2', None] TRY
+    NElist = [i*25 for i in range(99,100,10)]#20)] TRY
+    MFlist = [1, 'sqrt', None]#, 'log2' ] TRY
     my_met = np.zeros((len(NElist), len(MFlist)))
     err_met = np.zeros((len(NElist), len(MFlist)))
     for n_est in NElist:
@@ -634,8 +642,8 @@ def normalize(df):
         
     #colnames = df.columns
     lab = df.LAB
-    #df = df[df.columns[:-1]]
-    df = df[df.columns[:18]]
+    df = df[df.columns[:-1]]
+    #df = df[df.columns[:18]]
     df = (df-df.mean(axis=0))/df.std(axis=0)
     normdf = pd.concat((df, lab), axis=1)
     normdf=normdf.dropna(axis=1,how='any')
@@ -645,7 +653,7 @@ def iterate_crossvalidation(clf, fe_data, metric):
     mean_sum = 0.
     std_sum = 0.
     for i in range(iterations):
-        print 'it_cv ',i
+        #print 'it_cv ',i
         fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
         in_tar = fe_data.LAB
         in_data = fe_data[fe_data.columns[:-1]]
@@ -674,13 +682,42 @@ def split(df):
     
     return train, test
    
+def cut_feature(df, k):
+    label = df.LAB
+    df = df[df.columns[:-1]]
+    pippo = SelectKBest(f_classif, k=k).fit(df, label)
+    return np.append(pippo.get_support(), True)
+   
+def bestfeatn(input_data, deepk):
+    space = np.linspace(0, input_data.shape[1], num=deepk).astype(np.int64)
+    for i in space:
+        sel_cut = cut_feature(input_data, i)
+        train_data = input_data.ix[:,sel_cut]
+        test_data = input_data.ix[:,sel_cut]
+        loc_clf = bestfit(train_data, alg='RFC', 1)
+        
+        y_true = test_data.LAB
+        te_data = test_data[test_data.columns[:-1]]
+        y_pred = predict(loc_clf, te_data, y_true )
+        dic_metric, conf_mat = get_report(y_true, y_pred)
+        dic_metric.
+        
+            y_true, y_pred = quick_fat(train_data, test_data, 'RFC') ???
+
+        
+   
 if __name__ == '__main__':
     print 'Starting main...'    
     localdir = '/home/andrea/Work/data/Physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
     input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv', index_col=None)
     
     norm_data = normalize(input_data)
-    train_data, test_data = split(norm_data)
+    train_data_ext, test_data_ext = split(norm_data)
+
+    #feature selection
+    selected_feat = cut_feature(train_data_ext, k=10)
+    train_data = train_data_ext.ix[:,selected_feat]
+    test_data = test_data_ext.ix[:,selected_feat]
 
     #run on algs
     clf, metric = bestAlg(train_data, 1)
@@ -697,7 +734,7 @@ if __name__ == '__main__':
     
     #not up to date#
     #uncomment the following line if you want to try also with random labels
-#    data1.LAB = np.random.permutation(data1.LAB)
+    train_data.LAB = np.random.permutation(train_data.LAB)
 #    clf, metric = bestAlg(data1, 1)
 #    #clf, metric = bestfit(data1, 'LDA',1)
 #    y_true = data3.LAB
