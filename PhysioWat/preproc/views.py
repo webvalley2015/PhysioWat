@@ -5,9 +5,9 @@ from .forms import filterAlg, downsampling, BVP_Form, EKG_Form, GSR_Form, Inerti
 from PhysioWat.models import Experiment, Recording, SensorRawData
 from django.contrib import messages
 from .jsongen import getavaliabledatavals
-from scripts.processing_scripts import tools, filters, IBI
+from scripts.processing_scripts import tools, filters, IBI, windowing
 from scripts.processing_scripts.GSR import preproc as GSR_preproc
-from scripts.processing_scripts.inertial import preproc as inertial_preproc
+from scripts.processing_scripts.inertial import extract_features_acc, extract_features_gyr, extract_features_mag, preproc as inertial_preproc
 import numpy as np
 from StringIO import StringIO
 
@@ -208,34 +208,28 @@ def select_record(request, id_num):
 
 
 def test(request):
-    ID = 10
-    SAMP_F = 64
+    ID = 1
+    columns_out=["TIME", "ACCX", "ACCY", "ACCZ", "GYRX", "GYRY", "GYRZ", "MAGX", "MAGY", "MAGZ", "LAB"]
 
-    # load data from the file
-    rawdata = tools.load_raw_db(ID)
+    sensAccCoeff=8*9.81/32768
+    sensGyrCoeff=2000/32768
+    sensMagCoeff=0.007629
 
-    # filter the signal
-    # the user selects the parameters, with default suggested
-    filterType = 'butter'
-    F_PASS = 2
-    F_STOP = 6
-    ILOSS = 0.1
-    IATT = 40
-    filtered_signal = filters.filterSignal(rawdata, SAMP_F, passFr=F_PASS, stopFr=F_STOP, LOSS=ILOSS, ATTENUATION=IATT,
-                                           filterType=filterType)
-    # filtered_signal = rawdata
+    data, columns_in = tools.load_raw_db(ID)
 
-    # extraction peaks from the signal
-    # the user selects the parameters, with default suggested
-    delta = 1
-    peaks = IBI.getPeaksIBI(filtered_signal, SAMP_F, delta)
+    t=tools.selectCol(data, columns_in, "TIME")
+    lab=tools.selectCol(data, columns_in, "LAB")
 
-    # calculation of the IBI
-    # the user selects the parameters, with default suggested
-    minFr = 40
-    maxFr = 200
-    ibi = IBI.max2interval(peaks[:, 0], minFr, maxFr)
+    print t
 
-    tools.putPreprocArrayintodb(ID, ibi, np.array(["timestamp", "IBI"]))
+    acc, temp_col_acc= inertial_preproc(data, columns_in, "ACC", sensAccCoeff)
+    gyr, temp_col_gyr= inertial_preproc(data, columns_in, "GYR", sensGyrCoeff)
+    mag, temp_col_mag= inertial_preproc(data, columns_in, "MAG", sensMagCoeff)
+
+    data_out, col_out=tools.merge_arrays([acc, gyr, mag], [temp_col_acc, temp_col_gyr, temp_col_mag])
+    print "DATA", data_out
+    print "COL", col_out
+
+    tools.putPreprocArrayintodb(ID, np.column_stack((t, acc, gyr, mag, lab)), np.array(columns_out) )
 
     return render(request, 'preproc/experiments.html', {'name_list': ["exp1"]})

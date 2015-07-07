@@ -1,9 +1,9 @@
 from __future__ import division
 import numpy as np
 import json
-# from PhysioWat.models import Recording, SensorRawData
+from PhysioWat.models import Recording, SensorRawData
 from StringIO import StringIO
-# from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
+from PhysioWat.models import Preprocessed_Recording, Preprocessed_Data
 import csv
 
 
@@ -86,18 +86,18 @@ def gen_bateman(mx, T1, T2, fsamp=4, gsr=None):
         return bateman, t_bat
 
 
-# Deprecated
-def plotter(filename):
-    '''
-    :param filename: file to plot
-    :return: nothing, just plot
-    '''
-    data = load_file(filename)
-    plt.figure()
-    plt.plot(data[:, 0], data[:, 1])
-    plt.xlabel("Time")
-    plt.ylabel("GSR (nS)")
-    plt.show()
+# # Deprecated
+# def plotter(filename):
+#     '''
+#     :param filename: file to plot
+#     :return: nothing, just plot
+#     '''
+#     data = load_file(filename)
+#     plt.figure()
+#     plt.plot(data[:, 0], data[:, 1])
+#     plt.xlabel("Time")
+#     plt.ylabel("GSR (nS)")
+#     plt.show()
 
 
 def load_file(filename, header=1, sep=";"):
@@ -119,9 +119,11 @@ def load_raw_db(recordingID):
         ll = []
         for key in table.dict_keys:
             ll.append(record.store[key])
+
         alldata += ','.join(ll) + '\n'
-    datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
-    return datacsv
+
+    datacsv = np.genfromtxt(StringIO('\n'.join(alldata.split('\n')[1:])), delimiter=',')
+    return datacsv, table.dict_keys
     # results = cursor.fetchall()
 
 def load_preproc_db(recordingID):
@@ -282,15 +284,60 @@ def selectCol(vect, head, cols):
     elif type(head) is not np.ndarray:
         raise ValueError("head is neither a np.ndarray or a list")
 
+    for i in range(len(head)):
+        head[i]=head[i].upper()
+
     if type(cols) is str:
-        cols=[cols]
+        if cols=="TIME" or cols=="TIMESTAMP":
+            cols=["TIME", "TIMESTAMP"]
+        else:
+            cols=[cols]
     elif type(cols) is not list and type(cols) is not np.ndarray:
         raise ValueError("\"Che cazzo ti sei fumato?\" cols must be a str, list or np.ndarray #droga #ilfumouccide #illy")
+
     mask=np.zeros(len(head), dtype=bool)
 
     for col in cols:
         mask = (mask) | (head==col)
+
     result=vect[:, mask]
+
     if result.shape[1]==1 :
         result=result.flatten()
+    elif len(result)==0:
+        raise IndexError("No column named "+", ".join(cols))
+
     return result
+
+def merge_arrays(arrays, labels):
+    '''
+    Merges the arrays and the labels in a single array and labels array
+    :param arrays: list of np.arrays
+    :param labels: list of np.array for labels
+    :return: array and labels both as np.array
+    '''
+    result=[]
+    result_labels=[]
+
+    for i in range(len(arrays)):
+        for j in range(len(labels[i])):
+            if labels[i][j] not in result_labels:
+                result.append(arrays[i][j])
+                result_labels.append(labels[i][j])
+
+    if "TIME" in result_labels:
+        idx=result_labels.index("TIME")
+        temp=result[idx]
+        result.pop(idx)
+        result_labels.pop(idx)
+        result.insert(0, temp)
+        result_labels.insert(0, "TIME")
+    if "LAB" in result_labels:
+        idx=result_labels.index("LAB")
+        temp=result[idx]
+        result.pop(idx)
+        result_labels.pop(idx)
+        result.append(temp)
+        result_labels.append("LAB")
+
+    return np.array(result), np.array(result_labels)

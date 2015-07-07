@@ -293,10 +293,16 @@ def remove_spikes(data, FSAMP, TH=0.005):
     data_out = f(t_out)
     return t_out, data_out
 
-def preproc(data, cols, T1=0.75, T2=2, MX=1, DELTA_PEAK=0.02, FS=None, k_near=5, grid_size=5, s=0.2):
+def preproc(data, cols, T1=0.75, T2=2, MX=1, DELTA_PEAK=0.02, k_near=5, grid_size=5, s=0.2):
     gsr=selectCol(data, cols, "GSR")
     t_gsr=selectCol(data, cols, "TIME")
-    labs=selectCol(data, cols, "LAB")
+
+    try:
+        labs=selectCol(data, cols, "LAB")
+    except IndexError as e:
+        print e.message
+        labs=np.zeros(data.shape[0])
+
     output_cols=["TIME", "DRV", "PHA", "TNC", "LAB"]
     TIME_DRV, DRV, PH_DRV, TN_DRV = estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, k_near, grid_size, s)
     result=np.column_stack((TIME_DRV, DRV, PH_DRV, TN_DRV, labs))

@@ -5,7 +5,6 @@ from scipy.signal import gaussian, convolve, filtfilt, filter_design, freqz
 import numpy as np
 from IBI import getPeaksIBI
 #DEBUG ONLY
-import matplotlib.pyplot as plt
 
 def smoothGaussian(X,sigma=5, switch=True):
     """
@@ -40,8 +39,8 @@ def filtfiltFilter (SIGNAL, F_PASS, F_STOP, F_SAMP, LOSS, ATTENUATION, ftype = '
     ws = np.array(F_STOP)/nyq
     b, a = filter_design.iirdesign(wp, ws, LOSS, ATTENUATION, ftype = ftype)
     plot = False    
-    if plot:
-        mfreqz(b,a, wp, ws)
+    # if plot:
+    #     mfreqz(b,a, wp, ws)
     filtered_signal = filtfilt(b, a, SIGNAL)
     return filtered_signal
 
@@ -101,23 +100,23 @@ def matched_filter(signal, SAMP_F, t_start_good_ecg, t_end_good_ecg, peak_bef = 
 
 #DEBUG ONLY
 #Plot frequency and phase response
-def mfreqz(b,a, wp, ws):
-    w,h = freqz(b,a)
-    h_dB = 20 * np.log10 (abs(h))
-    ax1 = plt.subplot(211)
-    plt.plot(w/max(w),h_dB)
-    plt.vlines(wp, np.min(h_dB), np.max(h_dB), 'g', linewidth = 2)
-    plt.vlines(ws, np.min(h_dB), np.max(h_dB), 'r', linewidth = 2)
-    plt.ylim(np.min(h_dB), np.max(h_dB))
-    plt.ylabel('Magnitude (db)')
-    plt.xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
-    plt.title(r'Frequency response; order A: '+str(len(a))+' order B: '+str(len(b)))
-    plt.subplot(212, sharex = ax1)
-    h_Phase = np.unwrap(np.arctan2(np.imag(h),np.real(h)))
-    plt.plot(w/max(w),h_Phase)
-    plt.vlines(wp, np.min(h_Phase), np.max(h_Phase), 'g', linewidth = 2)
-    plt.vlines(ws, np.min(h_Phase), np.max(h_Phase), 'r', linewidth = 2)
-    plt.ylabel('Phase (radians)')
-    plt.xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
-    plt.title(r'Phase response')
-    plt.subplots_adjust(hspace=0.5)
+# def mfreqz(b,a, wp, ws):
+#     w,h = freqz(b,a)
+#     h_dB = 20 * np.log10 (abs(h))
+#     ax1 = plt.subplot(211)
+#     plt.plot(w/max(w),h_dB)
+#     plt.vlines(wp, np.min(h_dB), np.max(h_dB), 'g', linewidth = 2)
+#     plt.vlines(ws, np.min(h_dB), np.max(h_dB), 'r', linewidth = 2)
+#     plt.ylim(np.min(h_dB), np.max(h_dB))
+#     plt.ylabel('Magnitude (db)')
+#     plt.xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
+#     plt.title(r'Frequency response; order A: '+str(len(a))+' order B: '+str(len(b)))
+#     plt.subplot(212, sharex = ax1)
+#     h_Phase = np.unwrap(np.arctan2(np.imag(h),np.real(h)))
+#     plt.plot(w/max(w),h_Phase)
+#     plt.vlines(wp, np.min(h_Phase), np.max(h_Phase), 'g', linewidth = 2)
+#     plt.vlines(ws, np.min(h_Phase), np.max(h_Phase), 'r', linewidth = 2)
+#     plt.ylabel('Phase (radians)')
+#     plt.xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
+#     plt.title(r'Phase response')
+#     plt.subplots_adjust(hspace=0.5)
