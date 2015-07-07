@@ -198,7 +198,7 @@ def downsampling(data, FS_NEW, switch=True, t_col=0):
 
     FSAMP=int(round(1/(data[1,t_col]-data[0,t_col])))
     if FSAMP <= FS_NEW or FSAMP % FS_NEW != 0:
-        raise ValueError("FS_NEW should be lower than FSAMP and one of its divisors #illy")
+        raise ValueError("FS_NEW (%d) should be lower than FSAMP (%d) and one of its divisors #illy" % (FS_NEW, FSAMP))
     N_SAMP = FSAMP / FS_NEW
 
     indexes = np.arange(len(data))
