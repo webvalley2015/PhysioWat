@@ -11,4 +11,3 @@ class experiments(ModelForm):
     class Meta:
         model = Experiment
         fields = ['name', 'description', 'token']
-

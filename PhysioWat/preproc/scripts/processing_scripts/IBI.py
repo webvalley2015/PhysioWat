@@ -102,7 +102,7 @@ def max2interval(peaks, minrate=40, maxrate=200):
     #calculates the labels foreach time in timeRR
     labelRR = get_row_for_col(timed_lbls, timeRR)[:,1]
     #the result contains a 2D array with the times and the ibi
-    return np.column_stack((timeRR, RR, labelRR))
+    return np.column_stack((timeRR, RR, labelRR)), ["TIME", "IBI", "LAB"]
 
 
 def calculateTDindexes(RR):

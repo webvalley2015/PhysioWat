@@ -7,6 +7,8 @@ import filters as ourFilters
 import tools as ourTools
 import IBI
 import windowing
+#debug
+import matplotlib.pyplot as plt
 
 def loadEKG(filename):
     '''
@@ -26,13 +28,16 @@ if __name__ == '__main__':
     
     #load data from the file
     rawdata = loadEKG(fileName)
+    #DEBUG ONLY, create a new ideal timestamp
+    temp_ts = np.arange(0, rawdata.shape[0]/SAMP_F, 1.0/SAMP_F)
+    rawdata[:,0] = temp_ts
     #SAMP_F = int(round(1/(rawdata[1,0]-rawdata[0,0]))) se i dati di Nicola non avessero il timestamp buggato
-    
     #downsampling
     #the user selects the parameters, with default suggested
     new_f = SAMP_F
-    downsampled_data = ourTools.downsampling(rawdata, SAMP_F, new_f)
+    downsampled_data = ourTools.downsampling(rawdata, new_f, switch=False)
     
+
     #filter
     #the user selects the parameters, with default suggested
     filterType = None
@@ -41,11 +46,17 @@ if __name__ == '__main__':
     ILOSS = 0
     IATT = 0
     filtered_signal = ourFilters.filterSignal(downsampled_data[:,1], SAMP_F, passFr = F_PASS, stopFr = F_STOP, LOSS = ILOSS, ATTENUATION = IATT, filterType = filterType)
+    '''
+    #filter 2
+    #the user selects the parameters, with default suggested
+    start_good_beats = 1290 #this parameter hasn't a default, this number is only for the example used in this algorithm
+    end_good_beats = 1360 #this parameter hasn't a default, this number is only for the example used in this algorithm
+    plen_bef = 0.35
+    plen_aft = 1
+    filtered_signal = ourFilters.matched_filter(downsampled_data, SAMP_F, start_good_beats, end_good_beats, plen_bef, plen_aft)
+    print 'filtered' '''
     
     #compact timestamp, signal and labels for the next processes
-    #DEBUG ONLY, create a new ideal timestamp
-    temp_ts = np.arange(0, rawdata.shape[0]/SAMP_F, 1.0/SAMP_F)
-
     total_signal = np.column_stack((temp_ts, filtered_signal, downsampled_data[:,2]))
 
     
@@ -53,13 +64,17 @@ if __name__ == '__main__':
     #the user selects the parameters, with default suggested
     delta = 0.2
     peaks = IBI.getPeaksIBI(total_signal,SAMP_F, delta)
+    #print 'plotting...'
+    #plt.plot(temp_ts, filtered_signal)
+    #plt.plot(peaks[:,0], peaks[:,1], 'o')
+    #plt.show()
     
     #calculation of the IBI
     #the user selects the parameters, with default suggested
     minFr = 40
     maxFr = 200
     ibi = IBI.max2interval(peaks, minFr, maxFr)
-
+    
     ourTools.array_labels_to_csv(ibi, np.array(["timestamp", "IBI", "labels"]), "./output/preproc_"+fileName[7:-4]+".csv")
 
     #-----FEATURES EXTRACTION-----
