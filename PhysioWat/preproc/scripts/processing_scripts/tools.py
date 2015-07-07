@@ -137,7 +137,7 @@ def load_preproc_db(recordingID):
             ll.append(record.store[key])
         alldata += ','.join(ll) + '\n'
     datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
-    return datacsv
+    return datacsv, table.dict_keys
     # results = cursor.fetchall()
 
 
@@ -252,7 +252,7 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_fu
     pr.save()
 
     for row in csvreader:
-        Preprocessed_Data(pp_recording=pr.id, store=dict(zip(dictky, row))).save()
+        Preprocessed_Data(pp_recording_id=pr.id, store=dict(zip(dictky, row))).save()
 
     print csvreader
 
@@ -318,8 +318,10 @@ def merge_arrays(arrays, labels):
     '''
     for arr in arrays:
         print arr.shape,
+    print "<- INPUT"
     for lab in labels:
         print len(lab),
+    print "<-COLUMNS"
     result=[]
     result_labels=[]
 
@@ -345,5 +347,6 @@ def merge_arrays(arrays, labels):
         result_labels.append("LAB")
     for arr in result:
          print arr.shape,
+    print "<-OUTPUT"
 
     return np.array(result), np.array(result_labels)

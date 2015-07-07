@@ -194,9 +194,7 @@ def select_record(request, id_num):
 
 def test(request):
     ID = 1
-    columns_out=["TIME", "ACCX", "ACCY", "ACCZ", "GYRX", "GYRY", "GYRZ", "MAGX", "MAGY", "MAGZ", "LAB"]
-    applied_func=[]
-    preproc_funcs_parameters=dict()
+    funcs_par=dict()
     sensAccCoeff=8*9.81/32768
     sensGyrCoeff=2000/32768
     sensMagCoeff=0.007629
@@ -212,14 +210,15 @@ def test(request):
     #     lab=np.zeros(t.shape[0])
     #     pass
 
-    acc, temp_col_acc= inertial_preproc(data, columns_in, "ACC", sensAccCoeff)
-    gyr, temp_col_gyr= inertial_preproc(data, columns_in, "GYR", sensGyrCoeff)
-    mag, temp_col_mag= inertial_preproc(data, columns_in, "MAG", sensMagCoeff)
-    applied_func.append("intertial.preproc")
-    preproc_funcs_parameters.update({"inertial.preproc": str(sensAccCoeff)})
+    data_out, columns_out=inertial_preproc(data, columns_in, sensAccCoeff, sensGyrCoeff, sensMagCoeff)
+    funcs_par.update({"inertial.preproc": {"coeffAcc":str(sensAccCoeff), "coeffGyr":str(sensGyrCoeff), "coeffMag":str(sensMagCoeff)}})
 
-    data_out, col_out=tools.merge_arrays([acc, gyr, mag], [temp_col_acc, temp_col_gyr, temp_col_mag])
+    tools.putPreprocArrayintodb(ID, data_out, np.array(columns_out), funcs_par.keys(), funcs_par.values() )
 
-    tools.putPreprocArrayintodb(ID, data_out, np.array(columns_out), applied_func, preproc_funcs_parameters )
+    return render(request, 'preproc/experiments.html', {'name_list': ["exp1"]})
+
+def test2(request):
+    ID = 1
+    preproc_data=tools.load_preproc_db(ID)
 
     return render(request, 'preproc/experiments.html', {'name_list': ["exp1"]})

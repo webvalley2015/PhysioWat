@@ -172,7 +172,7 @@ def concat_string(array, str):
         result.append(element+str)
     return np.array(result)
 
-def preproc(data, cols, data_type, coeff):
+def preproc(data, cols, coeffAcc=1, coeffGyr=1, coeffMag=1):
     '''
     :param data: the data
     :param cols: the olumns in input
@@ -180,19 +180,51 @@ def preproc(data, cols, data_type, coeff):
     :param data_type: ACC, GYR or MAG
     :return: aray and columns
     '''
+    col_acc=["ACCX", "ACCY", "ACCZ"]
+    col_gyr=["GYRX", "GYRY", "GYRZ"]
+    col_mag=["MAGX", "MAGY", "MAGZ"]
     time=selectCol(data, cols, "TIME")
-    data_out=selectCol(data, cols, [data_type+"X", data_type+"Y", data_type+"Z"])
-    print cols
+    try:
+        data_acc=selectCol(data, cols, col_acc)
+        present_acc=True
+    except IndexError as e:
+        print e.message
+        present_acc=False
+    try:
+        data_gyr=selectCol(data, cols, col_gyr)
+        present_gyr=True
+    except IndexError as e:
+        print e.message
+        present_gyr=False
+    try:
+        data_mag=selectCol(data, cols, col_mag)
+        present_mag=True
+    except IndexError as e:
+        print e.message
+        present_mag=False
 
     try:
         labs=selectCol(data, cols, "LAB")
-        print "TROVATO"
     except IndexError as e:
         print e.message
-        labs=np.array(np.zeros(data.shape[0]))
+        labs=np.zeros(data.shape[0])
         pass
 
     print "LAB", labs.shape
-    data_out=convert_units(data_out, coeff)
-    result=np.column_stack((time, data_out, labs))
-    return result, ["TIME", data_type+"X", data_type+"Y", data_type+"Z", "LAB"]
+    result=time
+    columns=["TIME"]
+    if present_acc:
+        data_acc=convert_units(data_acc, coeffAcc)
+        result=np.column_stack((result,data_acc))
+        columns += col_acc
+    if present_gyr:
+        data_gyr=convert_units(data_gyr, coeffGyr)
+        result=np.column_stack((result,data_gyr))
+        columns += col_gyr
+    if present_mag:
+        data_mag=convert_units(data_mag, coeffMag)
+        result=np.column_stack((result,data_mag))
+        columns += col_mag
+    result=np.column_stack((result, labs))
+    columns += ["LAB"]
+    return result, columns
