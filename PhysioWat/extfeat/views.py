@@ -28,7 +28,6 @@ def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!
 
             cols = jsongen.getavaliabledatavals(id_num)
 
-            DELTA=0 #TODO GET FROM DB!
             data="asdas" #TODO GET FROM DB!
 
             # vals = vals[1:]
@@ -58,9 +57,19 @@ def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!
         # store feats. in the db
         if (type == 'GSR'):
             data_in=selcol(data, cols, "PHA")
+            DELTA=0 #TODO GET FROM DB params!
             feat = extfeat_GSR(data_in, time, DELTA, window)
         if (type == 'inertial'):
-            escape = "escape2in"
+            col_acc=["ACCX", "ACCY", "ACCZ"]
+            col_gyr=["GYRX", "GYRY", "GYRZ"]
+            col_mag=["MAGX", "MAGY", "MAGZ"]
+
+            data_acc=selcol(data, cols, col_acc)
+            data_gyr=selcol(data, cols, col_gyr)
+            data_mag=selcol(data, cols, col_mag)
+
+
+
         if (type == "IBI"):
             escape = "escape3ibi"
 
