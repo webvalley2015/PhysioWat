@@ -55,23 +55,24 @@
                         <button type="button" class="btn btn-danger" onClick="show()">ShowAll</button>
                     {% endbuttons %}
                 </div>
-        </div>
-
-        </form>
-
-        options list:
-
-        <div id="options">
-            <form onsubmit="show_graph()" id="options_form">
-                <fieldset>
-                    {% for i in opt_list %}
-                        <input type="checkbox" name="{{ i }}" value="{{ i }}" id="{{ i }}"/>{{ i }}
-                    {% endfor %}
-                    {% buttons %}
-                        <button type="submit" id="select_submit" class="btn btn-success">Update Graph</button>
-                    {% endbuttons %}
-                </fieldset>
+       
             </form>
+
+            options list:
+            <div id="options">
+                <form onsubmit="show_graph()" id="options_form">
+                    <fieldset>
+                        <ul>
+                        {% for i in opt_list %}
+                            <li><input type="checkbox" name="{{ i }}" value="{{ i }}" id="{{ i }}"/>{{ i }}</li>
+                        {% endfor %}
+                        </ul>
+                        {% buttons %}
+                            <button type="submit" id="select_submit" class="btn btn-success">Update Graph</button>
+                        {% endbuttons %}
+                    </fieldset>
+                </form>
+            </div>
         </div>
     </div>
 {% endblock %}
