@@ -5,7 +5,7 @@ from __future__ import division
 
 import numpy as np
 import scipy.signal as spy
-from PhysioWat.PhysioWat.preproc.scripts.processing_scripts.tools import peakdet, gen_bateman
+from tools import peakdet, gen_bateman
 from filters import smoothGaussian
 from scipy.interpolate import interp1d
 # import matplotlib.pyplot as plt

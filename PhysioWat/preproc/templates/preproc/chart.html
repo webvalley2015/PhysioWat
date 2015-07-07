@@ -7,7 +7,7 @@
 
 {% block container %}
     <div class="content row">
-
+    <br><br><br><br>
         <div class="graphs col-md-8">
             <div class="processed-signal row">
                 <div id="processed-signal"></div>
@@ -22,16 +22,16 @@
             <ul class="nav nav-tabs" id="setting_nav">
                 {% csrf_token %}
                 {% for k,v in forms.items %}
+
                     <li role="presentation" class="active"><a href="#" id="nav_id_{{ k }}">{{ k }}</a></li>
+
                 {% endfor %}
             </ul>
 
-            {% csrf_token %}
-            <form action="page_to_which_send_the_form" method="post" enctype="multipart/form-data"> <!--RETURN TO DB? IT CONTAINS THE SETTING FOR THE ALGORITHM -->
-
             {% for i in alg_select %}
-                <a href='{% url 'chart_show' id_num i %}'>{{ i }}</a>
+                <a href={% url 'chart_show' id_num i %}>{{ i }}</a>
             {% endfor %}
+
 
             <form action="#" name="preproc" method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -50,8 +50,7 @@
 
                 <div>
                     {% buttons %}
-                        <button type="submit" id="select_submit" class="btn btn-success" href="ciao.html">Submit
-                        </button>
+                        <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
                         <button type="reset" class="btn btn-danger">Reset</button>
                         <button type="button" class="btn btn-danger" onClick="show()">ShowAll</button>
                     {% endbuttons %}
@@ -60,7 +59,7 @@
 
         </form>
 
-        {{ opt_list }}
+        options list:
 
         <div id="options">
             <form onsubmit="show_graph()" id="options_form">

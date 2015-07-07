@@ -5,13 +5,13 @@ from .jsongen import getavaliabledatavals
 # FileUpload form class.
 
 class downsampling(forms.Form):
-    FS_NEW = forms.IntegerField()
-    switch = forms.BooleanField()
+    apply_downsampling = forms.BooleanField()
+    FS_NEW = forms.IntegerField(required=False)
 
 
 class smoothGaussian(forms.Form):
-    sigma = forms.FloatField(min_value=0)
-    switch = forms.BooleanField()
+    apply_smooth = forms.BooleanField()
+    sigma = forms.FloatField(min_value=0, required=False)
 
 
 CHOICES = [("butter", "Butterworth"),
@@ -22,16 +22,17 @@ CHOICES = [("butter", "Butterworth"),
 
 
 class filterAlg(forms.Form):
-    passFr = forms.FloatField(min_value=0)
-    stopFr = forms.FloatField(min_value=0)
-    LOSS = forms.FloatField(min_value=0)
-    ATTENUATION = forms.FloatField(min_value=0)
-    filterType = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect())
+    apply_alg = forms.BooleanField()
+    passFr = forms.FloatField(min_value=0, required=False)
+    stopFr = forms.FloatField(min_value=0, required=False)
+    LOSS = forms.FloatField(min_value=0, required=False)
+    ATTENUATION = forms.FloatField(min_value=0, required=False)
+    filterType = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(), required=False)
 
 
 class remove_spike(forms.Form):
-    remove_spike = forms.BooleanField()
-    TH = forms.FloatField(min_value=0)
+    apply_spike = forms.BooleanField()
+    TH = forms.FloatField(min_value=0, required=False)
 
 
 class GSR(forms.Form):
@@ -50,7 +51,7 @@ class EKG(forms.Form):
     maxFr = forms.FloatField(min_value=0)
 
 
-class BVP(forms.Form):  # Uguale a quello sopra ma cambia un default
+class BVP(forms.Form):# Uguale a quello sopra ma cambia un default
     delta = forms.FloatField(min_value=0)
     minFr = forms.FloatField(min_value=0)
     maxFr = forms.FloatField(min_value=0)
