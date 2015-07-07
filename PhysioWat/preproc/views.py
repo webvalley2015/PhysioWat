@@ -1,14 +1,18 @@
 from django.shortcuts import render
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
-from .forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike, smoothGaussian
+<<<<<<< HEAD
+from forms import filterAlg, downsampling, BVP, EKG, GSR, inertial, remove_spike, smoothGaussian
+from PhysioWat.models import Experiment, Recording
+=======
+from .forms import filterAlg, downsampling, BVP, EKG, GSR, Inertial, remove_spike, smoothGaussian
 from PhysioWat.models import Experiment, Recording, SensorRawData
+>>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
 from django.contrib import messages
 from .jsongen import getavaliabledatavals
 from scripts.processing_scripts import tools, inertial, filters, IBI, GSR
 import numpy as np
 from StringIO import StringIO
-
 
 
 def QueryDb(recordingID):
@@ -23,21 +27,21 @@ def QueryDb(recordingID):
     datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
     return datacsv
 
-def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
 
-    #Andrew's crazy method to convert array to CSV-ish string??? IDK what it means, but IT WORKS!!!
+def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
+    # Andrew's crazy method to convert array to CSV-ish string??? IDK what it means, but IT WORKS!!!
     csvasstring = ",".join(preProcLabel.tolist()) + '\n'
     for dataarr in preProcArray:
         for dataval in dataarr:
-            csvasstring += str(dataval)+','
+            csvasstring += str(dataval) + ','
         csvasstring = csvasstring[:-1]
         csvasstring += '\n'
 
-    #Initiate the CSV Reader
+    # Initiate the CSV Reader
     csvreader = csv.reader(StringIO(csvasstring), delimiter=',')
     dictky = csvreader.next()
 
-    #Submit data to model and thus the database table
+    # Submit data to model and thus the database table
     pr = Preprocessed_Recording(recording_id=rec_id, dict_keys=dictky)
     pr.save()
 
@@ -47,7 +51,6 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
     return 0
 
 
-
 def show_chart(request, id_num, alg_type=""):
     template = "preproc/chart.html"
     # load all the algorithms forms
@@ -55,7 +58,7 @@ def show_chart(request, id_num, alg_type=""):
     if request.method == "POST":
         # PreprocSettings does not exists here will have an error!!!!
 
-        #NOTE 4 STEPHEN: I need the function to read the data from DB
+        data = QueryDb(id_num)
 
         if request.POST['apply_downsampling'] == "on":
             data = tools.downsampling(data, request.POST['FS_NEW'])
@@ -72,8 +75,9 @@ def show_chart(request, id_num, alg_type=""):
 
         if alg_type == "GSR":
             pre_data = GSR.estimate_drivers(data, request.POST['T1'], request.POST['T2'], request.POST['MX'],
-                                        request.POST['DELTA_PEAK'], request.POST['k_near'], request.POST['grid_size'],
-                                        request.POST['s'])
+                                            request.POST['DELTA_PEAK'], request.POST['k_near'],
+                                            request.POST['grid_size'],
+                                            request.POST['s'])
         elif alg_type == "EKG":
             peaks = IBI.getPeaksIBI(data, request.POST['delta'])
             pre_data = IBI.max2interval(peaks, request.POST['minFr'], request.POST['maxFr'])
@@ -96,6 +100,7 @@ def show_chart(request, id_num, alg_type=""):
                 return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': id_num, 'alg_type': res}))
             else:
                 alg_select = ["BVP", "EKG", "inertial", "GSR"]
+                existVar = False
         elif alg_type == "BVP":
             formDown = downsampling(initial={'apply_filter': False})
             formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False})
@@ -103,16 +108,19 @@ def show_chart(request, id_num, alg_type=""):
                 initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType': 'cheby2',
                          'apply_filter': True})
             formSpec = BVP(initial={'delta': 1, 'minFr': 40, 'maxFr': 200})
+            existVar = True
         elif alg_type == "EKG":
             formDown = downsampling(initial={'apply_filter': False})
             formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False})
             formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False})
             formSpec = EKG(initial={'delta': 0.2, 'minFr': 40, 'maxFr': 200})
+            existVar = True
         elif alg_type == "inertial":
             formDown = downsampling(initial={'apply_filter': False})
             formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False})
             formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False})
-            formSpec = inertial()
+            formSpec = Inertial()
+            existVar = True
         elif alg_type == "GSR":
             formPick = remove_spike(initial={'apply_filter': False})
             formDown = downsampling(initial={'apply_filter': False})
@@ -120,20 +128,19 @@ def show_chart(request, id_num, alg_type=""):
             formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False})
             formSpec = GSR(
                 initial={'T1': 0.75, 'T2': 2, 'MX': 1, 'DELTA_PEAK': 0.02, 'k_near': 5, 'grid_size': 5, 's': 0.2})
+            existVar = True
 
         opt_temp = getavaliabledatavals(id_num)
         opt_list = opt_temp[1:]
 
         context = {'forms': {'Filter': formFilt, 'Downpass': formDown,
-                             'Spike': formPick, 'Special': formSpec, 'Gaussian': formGau},
-                   'opt_list': opt_list, 'id_num': id_num, 'alg_select': alg_select}
+                             'Spike': formPick, str(alg_type) + '*': formSpec, 'Gaussian': formGau},
+                   'opt_list': opt_list, 'id_num': id_num, 'alg_select': alg_select, 'show_menu':existVar}
         return render(request, template, context)
 
 
 def searchInDesc(id_num):
-
     desc = str(Recording.objects.filter(id=id_num).values_list('description', flat=True)[0]).lower()
-    print desc
     found = ""
     if "bvp" in desc:
         if found == "":
@@ -181,13 +188,27 @@ def select_experiment(request):
                 err_log = True
                 num_exp = i[0]
         if err_log:
+<<<<<<< HEAD
+            return HttpResponseRedirect('/preproc/records/'+str(num_exp))
+=======
             return HttpResponseRedirect(reverse('record_selector', kwargs={'id_num': num_exp}))
+>>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
         else:
             messages.add_message(request, messages.ERROR, 'Error wrong password')
             return render(request, 'preproc/experiments.html', context)
     else:
         return render(request, 'preproc/experiments.html', context)
 
+<<<<<<< HEAD
+def getRecordsList(experimentId):
+    return Recording.objects.filter(experiment=experimentId).values_list('id', flat=True)
+
+def select_record(request, id_num):
+    print(id_num)
+    if request.method == 'POST':
+        record_id = request.POST.get('rec_name')
+        return HttpResponseRedirect('/preproc/chart/'+str(record_id))
+=======
 
 def getRecordsList(experimentId):
     return Recording.objects.filter(experiment=experimentId).values_list('id', flat=True).order_by('id')
@@ -198,12 +219,16 @@ def select_record(request, id_num):
         record_id = request.POST.get('rec_name')
         res = searchInDesc(id_num)
         return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': id_num, 'alg_type': res}))
+>>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
     else:
         name_list = getRecordsList(id_num)
         context = {'name_list': name_list}
         return render(request, 'preproc/records.html', context)
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
 def test(request):
     ID = 10
     SAMP_F = 64
@@ -235,4 +260,9 @@ def test(request):
 
     tools.putPreprocArrayintodb(ID, ibi, np.array(["timestamp", "IBI"]))
 
+<<<<<<< HEAD
+    return render(request,'preproc/experiments.html', {'name_list':["exp1"]})
+
+=======
     return render(request, 'preproc/experiments.html', {'name_list': ["exp1"]})
+>>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
