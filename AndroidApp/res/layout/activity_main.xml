@@ -165,6 +165,8 @@
             android:layout_margin="5dp"
             android:visibility="gone"
             android:src="@drawable/image1" />
+      	            
+
     </FrameLayout>
 
    
