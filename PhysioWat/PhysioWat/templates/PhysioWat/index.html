@@ -1,4 +1,5 @@
 {% extends 'PhysioWat/base.html' %}
+{% load staticfiles %}
 {% block container %}
 
     {{ a }}
@@ -6,34 +7,30 @@
     <div class="about" id="about">
 		<div class="container">
 			<div class="about-top">
-				<br>
-				<h3>WELCOME TO <span>PHYSIOWAT</span> A PHYSIOLOGICAL DATA ANALYSIS<br>WEB APPLICATION BY WEBVALLEY 2015</h3>
+				<br><br>
+				<h3>WELCOME TO <span>PHYSIOWAT</span> <br>This is a website for sensor data storage and its analysis. Here you can upload your data from different sensors and visualize graphs that permit you a better understanding.</h3>
 			</div>
 			<div class="about-bottom">
-				<div class="about-left" style="width: 95%;">
-					<br><img src="http://www.fbk.eu/sites/www.fbk.eu/files/styles/adaptive/public/logowvfbk-300_2.png?itok=q79kTwPA"><br>
-					<h4>Webvalley 2015: The Data Analysis of Wearabale Sensors</h4>
-					<p style="text-align: left; font-size: 1em;">&nbsp;&nbsp;&nbsp;&nbsp;
-WebValley aims to employ an EXLs3 inertial sensor to discover when an individual is engaging in several unique modes of hand flapping. Hand flapping is a phenotype associated with individuals on the autism spectrum. A properly developed sensor platform has the potential to accelerate autism research.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Machine learning has the potential to enhance diagnostic testing of autism spectrum disorder (ASD) as well as implementing new computer-supported intervention solutions. 
-<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-In this project we develop a machine learning method to analyze upper-body movement of children with ASD via specified kinematic analysis using a tri-axial sensor (EXLS….) certified as a medical device and originally developed for detection of fine motor atypical patterns in patients with Parkinson disease (RIF)/ 
-<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-After conducting experimentation and quantification, we reach a classification accuracy of 56% (Valerie’s decision tree using ONLY mean & variance, July 5th 10pm - will refine and hopefully improve accuracy by optimizing features used) by sifting through 2,000 features related to the subclasses of ASD and their subsequent unique characteristics. We can leverage these results to better understand the measured behavioral phenotype and its effect on patient development and future treatment. 
-<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-To limit potential invasiveness of experiment, data are sampled on the nondominant wrist. However, prime measurement locations include the dominant wrist, non-dominant upper arm, dominant ankle, non-dominant thigh, and hip. We have a sampling frequency of ___ (76.25 Hz), and each window of acceleration data represents ___ (6.7 seconds). Some of the features include mean and variance of acceleration.
-<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-
-
-</p>				
-					</div>
+				<div class="col-md-4 about-left">
+					<span class="bttl"> </span>
+					<h4>The project</h4>
+                    <img src="{% static 'image/logo_physiowat.png' %}" alt="Logo"/>
+					<p>Our project is focused on developing a novel web platform for Data Analytics of Wearable Sensors for REsearch. This platform implements also a connection to smartphones, on which it is possible to collect data from wearable sensors and store it on relational database. Researchers can upload their data and analyze the stored data online, visualize data in different graphs and save it. </p>
+				</div>
+				<div class="col-md-4 about-left">
+					<span class="tv"> </span>
+					<h4>The team</h4>
+					<p>We are a group of motivated and determined students aged 17-18 years old of different nationalities. We were provided with the opportunity of taking part in WebValley 2015. WebValley is the FBK summer school for dissemination of interdisciplinary research. The starting point is the philosophy of combining open source tools, FBK research products and the creativity of participants in order to solve a real problem using new technologies. </p>
+				</div>
+				<div class="col-md-4 about-left">
+					<span class="cup"> </span>
+					<h4>The case studies</h4>
+					<p>The 2015 WebValley project focuses on quantifying stereotype patterns in ASD children and on synch. of physiological responses in different relationships. </p>
 				</div>
 				<div class="clearfix"></div>
 			</div>
 		</div>
 	</div>
-
 
 
 {% endblock %}

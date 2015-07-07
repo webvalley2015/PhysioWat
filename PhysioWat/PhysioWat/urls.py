@@ -17,7 +17,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 import django.contrib.auth
 from PhysioWat import views
-from django.conf.urls.static import static
+from django.conf.urls.static import static, settings
 
 urlpatterns = [
     # all the urls to manage users
@@ -37,4 +37,5 @@ urlpatterns = [
     url(r'^/', views.login, name='login'),
     #redirect to feature extraction
     url(r'^extfeat/', include('extfeat.urls'), name='exfeat'),
+
 ]
