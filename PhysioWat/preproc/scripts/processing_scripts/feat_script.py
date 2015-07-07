@@ -61,7 +61,7 @@ classifiersDefaultParameters = {
         'QDA': QDA()
         }
     
-iterations = 5 #20 TRY
+iterations = 2 #20 TRY
 cv_val = 5
 
 def feat_boxplot(x, nam):
@@ -496,7 +496,7 @@ def bestfit_KNN(fe_data, alg, metric):  # ok
 def bestfit_SVM(fe_data, alg, metric):
     Klist = ['linear', 'rbf']#, 'sigmoid']
     bestC = bestMet = 0.
-    Clist = [ 10**i for i in range(-1,3)]#range(-5,8) ] TRY
+    Clist = [ 10**i for i in range(0,3)]#range(-5,8) ] TRY
     my_met = np.matrix([0,0,0,0])
     for k, kernel in enumerate(Klist):
         for C in Clist:
@@ -520,7 +520,7 @@ def bestfit_SVM(fe_data, alg, metric):
     
 
 def bestfit_DCT(fe_data, alg, metric):
-    MFlist = [1, 'sqrt', None]#, 'log2'] TRY
+    MFlist = [1, None]#, 'log2', 'sqrt'] TRY
     my_met = np.zeros((len(MFlist), 3))
     for k, max_f in enumerate(MFlist):
         clf = classifiers[alg](max_f)
@@ -580,7 +580,7 @@ def bestfit_LDA(fe_data, alg, metric):
     
 #watch out... this is a particular matrix... 65s for 75cvs
 def bestfit_ADA(fe_data, alg, metric):
-    NElist = [i*50 for i in range(5,10)]#(1, 201)] TRY
+    NElist = [i*50 for i in range(5,8)]#(1, 201)] TRY
     LRlist = [i*0.25 for i in range(2,5)]#9) ] TRY
     my_met = np.zeros((len(NElist), len(LRlist)))
     err_met = np.zeros((len(NElist), len(LRlist)))
@@ -637,7 +637,7 @@ def iterate_crossvalidation(clf, fe_data, metric):
     mean_sum = 0.
     std_sum = 0.
     for i in range(iterations):
-        #print 'it_cv ',i
+        print 'it_cv ',i
         fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
         in_tar = fe_data.LAB
         in_data = fe_data[fe_data.columns[:-1]]
@@ -688,43 +688,57 @@ def bestfeatn(input_data, intest_data):
         train_data = input_data.ix[:,sel_cut]
         test_data = intest_data.ix[:,sel_cut]
         #feat_boxplot(train_data, str(i))
-        #y_true, y_pred = quick_fat(train_data, test_data, 'RFC')
-        clf = bestfit(train_data, 'RFC', 1)
-        y_true = test_data.LAB
-        y_pred = predict(clf, test_data, y_true )        
+        y_true, y_pred = quick_fat(train_data, test_data, 'RFC')
+        #clf = bestfit(train_data, 'RFC', 1)
+        #y_true = test_data.LAB
+        #y_pred = predict(clf, test_data, y_true )        
         dic_metric, conf_mat = get_report(y_true, y_pred)
         my_met[k,:] = (i, dic_metric['ACC'])
     return  my_met
         
-        
+def import_bojan():
+    localdir = '/home/andrea/Work/data/BojanAnalisys/'
+    features = pd.read_table(filepath_or_buffer=localdir + 'features.txt', sep='\n', header=None)#, index_col=None, sep=',')
+    colnames = pd.Series(features[0])
+
+    xtest  = pd.read_csv(localdir+'X_test.txt', names=colnames, header=None, delim_whitespace=True)
+    xtrain = pd.read_csv(localdir+'X_train.txt', names=colnames, header=None, delim_whitespace=True)
+    ytest  = pd.read_csv(localdir+'y_test.txt', header=None,delim_whitespace=True)
+    ytest.columns = ['LAB']
+    ytrain = pd.read_csv(localdir+'y_train.txt', header=None, delim_whitespace=True)
+    ytrain.columns = ['LAB']
+    test = pd.concat((xtest,ytest), axis=1)
+    train = pd.concat((xtrain,ytrain), axis=1)
+    
+
    
 if __name__ == '__main__':
     print 'Starting main...'  
     #to import the dataset (extracted feature)
-    localdir = '/home/andrea/Work/data/BojanAnalisys/'
+    localdir = '/home/andrea/Work/data/Physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
     input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')#, index_col=None, sep=',')
     
     #to normalize the data (optional)
     norm_data = normalize(input_data)
-        
+            
     #feature selection
-    train_data, test_data = split(norm_data)
-    #res_mat = bestfeatn(train_data, test_data)
+    #train_data, test_data = split(norm_data)
+    res_mat = bestfeatn(train, test)
     #plot of feature selection
     plt.figure()
-    plt.plot(range(len(res_met)),res_mat[:,1])
+    plt.plot(range(len(res_mat)),res_mat[:,1])
     
     #search the best alg with the best classifier
     clf, metric = bestAlg(train_data, 1)
     
     #search the best parameter for the following alg
-    #    clf, metric = bestfit(train_data, 'DCT',1)
-    #    clf, metric = bestfit(train_data, 'RFC',1)    
-    #    clf, metric = bestfit(train_data, 'LDA',1)    
-    #    clf, metric = bestfit(train_data, 'QDA',1)    
-    #    clf, metric = bestfit(train_data, 'SVM',1)    
-    #    clf, metric = bestfit(train_data, 'KNN',1)    
-    #    clf, metric = bestfit(train_data, 'ADA',1)
+        #    clf, metric = bestfit(train_data, 'DCT',1)
+        #    clf, metric = bestfit(train_data, 'RFC',1)    
+        #    clf, metric = bestfit(train_data, 'LDA',1)    
+        #    clf, metric = bestfit(train_data, 'QDA',1)    
+        #    clf, metric = bestfit(train_data, 'SVM',1)    
+        #    clf, metric = bestfit(train_data, 'KNN',1)    
+        #    clf, metric = bestfit(train_data, 'ADA',1)
 
     #fit the model with the chosen alg  
     #just call the alg  
