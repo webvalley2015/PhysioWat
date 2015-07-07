@@ -39,15 +39,15 @@ names = ["Nearest Neighbors", "Support Vector Machine", "RBF SVM\t", "Decision T
 #classifiers is the pd.dictionary of the possible algorithms.
 # use as " classifiers[alg](set_parameters) " once you have them
 classifiers = {
-        #'KNN': lambda nn: KNeighborsClassifier(n_neighbors=nn),
-        #'SVM': lambda kernel, C : SVC(kernel=kernel, C=C),
-        #'DCT': lambda max_f: DecisionTreeClassifier(max_features=max_f),
+        'KNN': lambda nn: KNeighborsClassifier(n_neighbors=nn),
+        'SVM': lambda kernel, C : SVC(kernel=kernel, C=C),
+        'DCT': lambda max_f: DecisionTreeClassifier(max_features=max_f),
         'RFC': lambda n_est, max_f: RandomForestClassifier(n_estimators=n_est, 
                                                            max_features=max_f),
-        #'ADA': lambda n_est, l_rate: AdaBoostClassifier(n_estimators = n_est, 
-        #                                                learning_rate=l_rate),
-        #'LDA': lambda solver: LDA(solver),
-        #'QDA': lambda : QDA()
+        'ADA': lambda n_est, l_rate: AdaBoostClassifier(n_estimators = n_est, 
+                                                        learning_rate=l_rate),
+        'LDA': lambda solver: LDA(solver),
+        'QDA': lambda : QDA()
         }
         
 
@@ -64,7 +64,7 @@ classifiersDefaultParameters = {
 iterations = 5 #20 TRY
 cv_val = 5
 
-def feat_boxplot(x):
+def feat_boxplot(x, nam):
     '''
     This function makes a big BOX-WHISKER plot with all the 
     features passed in input, one bar for each class
@@ -83,22 +83,22 @@ def feat_boxplot(x):
         ready to be plotted with js libraries
     
     '''
-#    plt.style.use('ggplot')
-#    step = 20
-#    ttest = np.array(x.shape[1])
-#    for k in range(0, x.shape[1], step): #for each feature in your dataframe X
-#        for i in range(k, (k+step)):   
-#            data0 = x.query('LAB == '+str(0)).iloc[:,i]   #calc the boxplot for this class
-#            data1 = x.query('LAB == '+str(1)).iloc[:,i]   # and for this one
-#            #data2 = x.query('LAB == '+str(2)).iloc[:,i]   # ...
-#            #data3 = x.query('LAB == '+str(3)).iloc[:,i]
-#            #ttest[i] = stats.ttest_ind(data0,data1, equal_var = False)
-#            data = [data0, data1]#, data2, data3]
-#            plt.subplot(4, 5, (i%20)+1)                          #it will be deleted
-#            plt.boxplot(data)
-#            plt.title(x.columns[i], fontsize=7)
-#        #plt.savefig(pp, format='pdf')
-#        plt.savefig('fig'+str(k)+'.png')
+    #    plt.style.use('ggplot')
+    #    step = 20
+    #    ttest = np.array(x.shape[1])
+    #    for k in range(0, x.shape[1], step): #for each feature in your dataframe X
+    #        for i in range(k, (k+step)):   
+    #            data0 = x.query('LAB == '+str(0)).iloc[:,i]   #calc the boxplot for this class
+    #            data1 = x.query('LAB == '+str(1)).iloc[:,i]   # and for this one
+    #            #data2 = x.query('LAB == '+str(2)).iloc[:,i]   # ...
+    #            #data3 = x.query('LAB == '+str(3)).iloc[:,i]
+    #            #ttest[i] = stats.ttest_ind(data0,data1, equal_var = False)
+    #            data = [data0, data1]#, data2, data3]
+    #            plt.subplot(4, 5, (i%20)+1)                          #it will be deleted
+    #            plt.boxplot(data)
+    #            plt.title(x.columns[i], fontsize=7)
+    #        #plt.savefig(pp, format='pdf')
+    #        plt.savefig('fig'+str(k)+'.png')
             
     plt.style.use('ggplot')
     step = 30
@@ -107,22 +107,23 @@ def feat_boxplot(x):
     #ttest = np.zeros(end)
     for k in range(0, end, step):
         for i in range(k, k+step):   #for each feature in your dataframe X
-            if i >= end : next()
+            if i >= end :
+                break
             data0 = x.query('LAB == '+str(0)).iloc[:,i]   #calc the boxplot for 
                                                             #this class
             data1 = x.query('LAB == '+str(1)).iloc[:,i] 
             data = [data0, data1]
             #ttest[i] = stats.ttest_ind(data0,data1)
             plt.subplot(5,6, (i%step)+1)                          #it will be deleted
-            a = plt.boxplot(data)
+            plt.boxplot(data)
             plt.axis('off')
             plt.title(x.columns[i], fontsize=5)
-        plt.savefig('./figs/fig'+str(k)+'.png')
+        plt.savefig('./figs/fig'+str(nam)+'XXX'+str(k)+'.png')
     
     #plt.show()
     # return as you want      #not done yet
     
-def crossvalidate_1df_SVM(data, alg, k):
+def crossvalidate_1df(data, alg, k):
     '''
     This function use a k-fold crossvalidation to predict labels on the
     input database
@@ -164,7 +165,7 @@ def crossvalidate_1df_SVM(data, alg, k):
     for train_index, test_index in kf:
         X_train, X_test = data[train_index], data[test_index]
         y_train, y_test = sol[train_index], sol[test_index]      
-        predicted_labels = f.predict(f.get_selected_clf(X_train, y_train, alg), X_test, y_test )
+        predicted_labels = predict(get_selected_clf(X_train, y_train, alg), X_test, y_test )
         
     return sol, predicted_labels
 
@@ -321,24 +322,19 @@ def get_report(y_true, y_pred):
     '''
     report = {
         #'Accuracy (n)': accuracy_score(y_true, y_pred, normalize=False),
-        'Accuracy (%)': accuracy_score(y_true, y_pred),
-        'Zero-One Classification loss': zero_one_loss(y_true, y_pred),
-        #'Zero-One Classification loss': zero_one_loss(y_true, y_pred, normalize=False)
-        #what is y_score?!? to compute average_precision_score
-        'F-measure (macro)': f1_score(y_true, y_pred, average='macro'),
-        'F-measure (micro)': f1_score(y_true, y_pred, average='micro'),
-        'F-measure (weighted)': f1_score(y_true, y_pred, average='weighted'),
-        #the beta-value is unknown!!! fix it
-        'WeHarmMean prec&recall': fbeta_score(y_true, y_pred, average='weighted', beta=1),
-        'Hamming loss': hamming_loss(y_true, y_pred),
-        #hinge loss is missing! ( i get 6 classes in decision_function instead of 4)
-        'Jaccard distance': jaccard_similarity_score(y_true, y_pred),
-        'Precision score (macro)': precision_score(y_true, y_pred, average='macro'),
-        'Precision score (micro)': precision_score(y_true, y_pred, average='micro'), 
-        'Precision score (weighted)': precision_score(y_true, y_pred, average='weighted'),
-        'Recall score (macro)': recall_score(y_true, y_pred, average='macro'),
-        'Recall score (micro)': recall_score(y_true, y_pred, average='micro'), 
-        'Recall score (weighted)': recall_score(y_true, y_pred, average='weighted'), 
+        'ACC': accuracy_score(y_true, y_pred),
+        'F1M': f1_score(y_true, y_pred, average='macro'),
+        'F1m': f1_score(y_true, y_pred, average='micro'),
+        'F1W': f1_score(y_true, y_pred, average='weighted'),
+        'WHM': fbeta_score(y_true, y_pred, average='weighted', beta=1),
+        #'Hamming loss': hamming_loss(y_true, y_pred),
+        #'Jaccard distance': jaccard_similarity_score(y_true, y_pred),
+        'PRM': precision_score(y_true, y_pred, average='macro'),
+        'PRm': precision_score(y_true, y_pred, average='micro'), 
+        'PRW': precision_score(y_true, y_pred, average='weighted'),
+        'REM': recall_score(y_true, y_pred, average='macro'),
+        'REm': recall_score(y_true, y_pred, average='micro'), 
+        'REW': recall_score(y_true, y_pred, average='weighted'), 
     }
     conf_mat = confusion_matrix(y_true, y_pred)
 
@@ -609,8 +605,8 @@ def bestfit_ADA(fe_data, alg, metric):
     
 #watch out... this is a particular matrix    6m for 300cvs
 def bestfit_RFC(fe_data, alg, metric):
-    NElist = [i*25 for i in range(99,100,10)]#20)] TRY
-    MFlist = [1, 'sqrt', None]#, 'log2' ] TRY
+    NElist = [i*25 for i in range(40,45,10)]#20)] TRY
+    MFlist = [1,  None]#, 'log2','sqrt' ] TRY
     my_met = np.zeros((len(NElist), len(MFlist)))
     err_met = np.zeros((len(NElist), len(MFlist)))
     for n_est in NElist:
@@ -629,24 +625,13 @@ def bestfit_RFC(fe_data, alg, metric):
     return clf, my_met.max()
     
 def normalize(df):
-    #per ogni colonna in mezzo, devo normalizzare
-    #for i in xrange(len(df.columns)-1):
-    #    print i
-    #    temp_mean = df[[i]].mean()
-    #    temp_std = df[[i]].std()
-    #    df[[i]] -= temp_mean
-    #    df[[i]] /= temp_std
-    #l'ultima colonna contiene le labels
-    #return df
-        
-    #colnames = df.columns
     lab = df.LAB
     df = df[df.columns[:-1]]
-    #df = df[df.columns[:18]]
-    df = (df-df.mean(axis=0))/df.std(axis=0)
-    normdf = pd.concat((df, lab), axis=1)
-    normdf=normdf.dropna(axis=1,how='any')
-    return normdf
+    #df = df[df.columns[:3]]
+    df_norm = (df - df.mean(axis=0)) / df.std(axis=0)
+    df_norm = pd.concat((df, lab), axis=1)
+    df_norm = df_norm.dropna(how='any')
+    return df_norm
  
 def iterate_crossvalidation(clf, fe_data, metric):
     mean_sum = 0.
@@ -663,6 +648,7 @@ def iterate_crossvalidation(clf, fe_data, metric):
     mean_local = mean_sum/iterations
     err_local  = std_sum/iterations
     return mean_local, err_local
+
 
 def split(df):
     colnames = df.columns
@@ -689,35 +675,59 @@ def cut_feature(df, k):
     pippo = SelectKBest(f_classif, k=k).fit(df, label)
     return np.append(pippo.get_support(), True)
    
-def bestfeatn(input_data, deepk):
-    space = np.linspace(0, input_data.shape[1], num=deepk).astype(np.int64)
-    for i in space:
+def bestfeatn(input_data, intest_data):
+    #space = np.linspace(0, input_data.shape[1], num=deepk).astype(np.int64)
+    space = [1,2,3,4,5,10,15,20,25,50,100,200,1000,2000,5000,10000]
+    my_met = np.zeros((len(space),2))
+    end = input_data.shape[1]    
+    for k, i in enumerate(space):
+        if i >= end :
+            break
+        print i,
         sel_cut = cut_feature(input_data, i)
         train_data = input_data.ix[:,sel_cut]
-        test_data = input_data.ix[:,sel_cut]
-        loc_clf = bestfit(train_data, alg='RFC', 1)
-        
+        test_data = intest_data.ix[:,sel_cut]
+        #feat_boxplot(train_data, str(i))
+        #y_true, y_pred = quick_fat(train_data, test_data, 'RFC')
+        clf = bestfit(train_data, 'RFC', 1)
         y_true = test_data.LAB
-        te_data = test_data[test_data.columns[:-1]]
-        y_pred = predict(loc_clf, te_data, y_true )
+        y_pred = predict(clf, test_data, y_true )        
         dic_metric, conf_mat = get_report(y_true, y_pred)
-        dic_metric.
+        my_met[k,:] = (i, dic_metric['ACC'])
+    return  my_met
         
-            y_true, y_pred = quick_fat(train_data, test_data, 'RFC') ???
-
         
    
 if __name__ == '__main__':
-    print 'Starting main...'    
-    localdir = '/home/andrea/Work/data/Physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
-    input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv', index_col=None)
+    print 'Starting main...'  
+    #to import the dataset (extracted feature)
+    localdir = '/home/andrea/Work/data/BojanAnalisys/'
+    input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')#, index_col=None, sep=',')
     
+    #to normalize the data (optional)
     norm_data = normalize(input_data)
+        
+    #feature selection
     train_data, test_data = split(norm_data)
-    #run on algs
-    clf, metric = bestAlg(train_data, 1)
-    #clf, metric = bestfit(train_data, 'LDA',1)
+    #res_mat = bestfeatn(train_data, test_data)
+    #plot of feature selection
+    plt.figure()
+    plt.plot(range(len(res_met)),res_mat[:,1])
     
+    #search the best alg with the best classifier
+    clf, metric = bestAlg(train_data, 1)
+    
+    #search the best parameter for the following alg
+    #    clf, metric = bestfit(train_data, 'DCT',1)
+    #    clf, metric = bestfit(train_data, 'RFC',1)    
+    #    clf, metric = bestfit(train_data, 'LDA',1)    
+    #    clf, metric = bestfit(train_data, 'QDA',1)    
+    #    clf, metric = bestfit(train_data, 'SVM',1)    
+    #    clf, metric = bestfit(train_data, 'KNN',1)    
+    #    clf, metric = bestfit(train_data, 'ADA',1)
+
+    #fit the model with the chosen alg  
+    #just call the alg  
 
     y_true = test_data.LAB
     te_data = test_data[test_data.columns[:-1]]
