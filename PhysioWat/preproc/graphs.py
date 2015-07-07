@@ -12,7 +12,7 @@ class linegraph(HighChartsLineView):
         #get data type list
         vals = getavaliabledatavals(urlTmp['id_num'])
         #vals = vals[1:]
-        data = makejson("raw", urlTmp['id_num'], vals)
+        data = makejson(urlTmp['elab'], urlTmp['id_num'], vals)
         data = json.loads(data)
         #print "here"
         #print data
