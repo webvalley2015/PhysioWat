@@ -12,39 +12,40 @@ class viewFeatures(forms.Form):
     viewf = forms.ChoiceField(choices=my_choices,widget=forms.CheckboxSelectMultiple())
 
 class FeatPar(forms.Form):
-     my_choices =[('k_selected','Select the number of features'),('k_auto', 'Automatic number of features')]
-     FeatChoose = forms.ChoiceField(choices=my_choices,widget=forms.RadioSelect())
+     my_choices =[('k_auto', 'Automatic number of features'),('k_selected','Select the number of features')]
+     FeatChoose = forms.ChoiceField(choices=my_choices,widget=forms.RadioSelect(), initial='k_auto')
      feat_num = forms.IntegerField(min_value=0, initial=0)
 
 class TestParam(forms.Form):
-    test_percentage = forms.FloatField(min_value=1, initial=1)
+    test_percentage = forms.IntegerField(min_value=1, initial=1)
     number_of_iterations = forms.IntegerField(min_value=1, initial=1)
 
 class AlgChoose(forms.Form):
-    my_choices = [('knear','k nearest'),('svm', 'support vector machine'),('dectree','decison tree'),
-                  ('rndfor','random forest'),('adaboost','ada boost'),('lda','latent direct assocation'),
-                  ('quad_disc','quadratic discriminant analisys')]
-    alg_choice= forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect())
+    my_choices = [('KNN','k nearest'),('SVM', 'support vector machine'),('DCT','decison tree'),
+                  ('RFC','random forest'),('ADA','ada boost'),('LDA','latent direct assocation'),
+                  ('QDA','quadratic discriminant analisys')]
+    alg_choice= forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect(), initial='KNN')
 
 
 class AlgParam (forms.Form):
     my_choices = [('def','default parameters'),('auto','auto'),('pers','define parameters')]
-    parameter_choiche = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect())
+    parameter_choiche = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect(),initial='def')
 
 class SvmParam(forms.Form):
     my_choices=[('linear','linear'),('rbf','rbf'),('sigmoid','sigmoid')]
-    kernel = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect())
+    kernel = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect(), initial='linear')
     C = forms.IntegerField(min_value=1, initial=10)
 
 class KNearParam(forms.Form):
     k_neighbour = forms.IntegerField(min_value=1, initial=5)
 
 class DecTreeParam(forms.Form):
-    max_features = forms.IntegerField(min_value=1, initial=3)
+    my_choices= [('1','1'),('None','None'),('sqrt','square root'),('log2','log2')]
+    max_features = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect(), initial='1')
 
 class RndForParam(forms.Form):
     my_choices=[('1','1'),('None','None'),('sqrt','square root'),('log2','log 2')]
-    max_features = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect())
+    max_features = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect(), initial='1')
     number_estimators = forms.IntegerField(min_value=1, initial=1)
 
 class AdaBoostParam(forms.Form):
@@ -53,8 +54,12 @@ class AdaBoostParam(forms.Form):
 
 class LatDirAssParam(forms.Form):
     my_choices=[('svd','svd'),('lsqr','lsqr'),('eigen','eigen')]
-    solver = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect())
+    solver = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect(), initial='svd')
 
 class autoFitParam(forms.Form):
-    my_choices= [('a','a'),('v','v'),('c','c')]
+    my_choices= [('ACC','accuracy %'),('F1M','F-Test macro '),('F1m','F-Test micro'),('F1W','F-Test weighted'),
+                 ('WHM','Weighted Harmonic Mean of precision and recall'),('PRM','Precision Score Macro'),
+                 ('PRm','Precision Score Micro'), ('PRW','Precision Score Weighted'),
+                 ('REM','Recall Score Macro'),('REm','Recall Score Micro'),('REW','Recall Score Weighted')
+                 ]
     maxmimize = forms.ChoiceField(choices=my_choices,widget=forms.RadioSelect())
