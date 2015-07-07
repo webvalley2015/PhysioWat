@@ -14,7 +14,6 @@ class Experiment(models.Model):
     description = models.CharField(max_length=500, blank=True, null=True)
     token = models.CharField(max_length=50)
 
-
 class Recording(models.Model):
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
     device_name = models.CharField(max_length=50)
@@ -30,7 +29,12 @@ class SensorRawData(models.Model):
 
 class Preprocessed_Recording(models.Model):
     recording = models.ForeignKey(Recording, on_delete=models.CASCADE)
-    parameters = HStoreField(null=True, default=None)
+    applied_preproc_funcs_names = ArrayField(
+        models.CharField(max_length=50)
+    )
+    preproc_funcs_parameters = ArrayField(
+        HStoreField(blank=True, null=True)
+    )
     dict_keys = ArrayField(
         models.CharField(max_length=50, blank=True, null=True)
     )

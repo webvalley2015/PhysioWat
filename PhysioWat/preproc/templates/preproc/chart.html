@@ -63,6 +63,8 @@
                 </ul>
 
 
+
+
                 <form action="#" name="preproc" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     {% for k,v in forms.items %}
@@ -81,13 +83,11 @@
                     {% endfor %}
 
                     <div>
-                        {% if show_menu %}
                             {% buttons %}
                                 <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
                                 <button type="reset" class="btn btn-danger">Reset</button>
                                 <button type="button" class="btn btn-active" onClick="show()">ShowAll</button>
                             {% endbuttons %}
-                        {% endif %}
                     </div>
 
             </div>

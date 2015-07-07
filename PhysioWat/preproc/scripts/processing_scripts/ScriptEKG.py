@@ -36,7 +36,6 @@ if __name__ == '__main__':
     #the user selects the parameters, with default suggested
     new_f = SAMP_F
     downsampled_data = ourTools.downsampling(rawdata, new_f, switch=False)
-    
 
     #filter
     #the user selects the parameters, with default suggested
@@ -45,7 +44,7 @@ if __name__ == '__main__':
     F_STOP = 0
     ILOSS = 0
     IATT = 0
-    filtered_signal = ourFilters.filterSignal(downsampled_data[:,1], SAMP_F, passFr = F_PASS, stopFr = F_STOP, LOSS = ILOSS, ATTENUATION = IATT, filterType = filterType)
+    filtered_signal = ourFilters.filterSignal(downsampled_data, SAMP_F, passFr = F_PASS, stopFr = F_STOP, LOSS = ILOSS, ATTENUATION = IATT, filterType = filterType)
     '''
     #filter 2
     #the user selects the parameters, with default suggested
@@ -56,18 +55,14 @@ if __name__ == '__main__':
     filtered_signal = ourFilters.matched_filter(downsampled_data, SAMP_F, start_good_beats, end_good_beats, plen_bef, plen_aft)
     print 'filtered' '''
     
-    #compact timestamp, signal and labels for the next processes
-    total_signal = np.column_stack((temp_ts, filtered_signal, downsampled_data[:,2]))
-
-    
     #extraction peaks from the signal
     #the user selects the parameters, with default suggested
     delta = 0.2
-    peaks = IBI.getPeaksIBI(total_signal,SAMP_F, delta)
-    #print 'plotting...'
-    #plt.plot(temp_ts, filtered_signal)
-    #plt.plot(peaks[:,0], peaks[:,1], 'o')
-    #plt.show()
+    peaks = IBI.getPeaksIBI(filtered_signal,SAMP_F, delta)
+    print 'plotting...'
+    plt.plot(filtered_signal[:,0],filtered_signal[:,1])
+    plt.plot(peaks[:,0], peaks[:,1], 'o')
+    plt.show()
     
     #calculation of the IBI
     #the user selects the parameters, with default suggested
