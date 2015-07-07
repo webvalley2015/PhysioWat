@@ -37,17 +37,6 @@ var pass_form_input = document.getElementById("id_device");
 });
 
 
-$(document).ready(function()  {
-
-var pass_form_input = document.getElementById("id_description");
-
-    if (pass_form_input !== null) {
-        pass_form_input.setAttribute("style","display:none");
-    }
-
-
-});
-
 
 
 
@@ -62,30 +51,6 @@ var pass_form_input = document.getElementById("id_password");
 
 });
 
-
-
-$(document).ready(function()  {
-
-var pass_form_input = document.getElementById("BuSu");
-
-    if (pass_form_input !== null) {
-        pass_form_input.setAttribute("style","display:none");
-    }
-
-
-});
-
-
-$(document).ready(function()  {
-
-var pass_form_input = document.getElementById("BuRe");
-
-    if (pass_form_input !== null) {
-        pass_form_input.setAttribute("style","display:none");
-    }
-
-
-});
 
 
 
@@ -148,5 +113,6 @@ function increase_passage()
 	passage +=1
 	show_hide_upload(passage)
 }
+
 
 
