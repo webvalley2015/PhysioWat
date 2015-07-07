@@ -89,4 +89,4 @@ for start in data_snd:
 
 data_out = np.column_stack((data_out, label_col))
 
-np.savetxt("SUB"+subj+".csv", data_out, delimiter=",", header=",".join(columns_out), comments="")
+np.savetxt("SUB"+subj+".csv", data_out, delimiter=",", header=",".join(columns_out), comments="", fmt="%0.6f")

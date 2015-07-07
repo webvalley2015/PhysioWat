@@ -21,3 +21,23 @@ def scatter_error_bar_creator_2(accuracy, error):
 def mean_std(array):
     """ Unuseful function """
     return np.mean(array), np.std(array)
+
+def statistic_values(list): # argument: list of lists
+
+    """ computes statistical values needed for a box-plot """
+
+    data = np.array(list) # converts the list into a Numpy array called data
+    
+    def q14(array, axis=1): # first quartile
+        return np.median(array, axis=1) - np.std(array, axis=1)
+    def q34(array, axis=1): # third quartile
+        return np.median(array, axis=1) + np.std(array, axis=1)
+    functions = (np.amin, q14, np.median, q34, np.amax)
+
+    statistics = np.empty((data.shape[0],0)) # initialises numpy array called statistics
+
+    for i in functions:
+        statistics = np.hstack((statistics, i(data, axis=1).reshape(-1,1))) # append column to statistics at every iteration
+
+    return statistics
+

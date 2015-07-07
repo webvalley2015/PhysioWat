@@ -7,6 +7,12 @@ from .jsongen import getavaliabledatavals
 class downsampling(forms.Form):
     apply_downsampling = forms.BooleanField()
     FS_NEW = forms.IntegerField(required=False)
+    #
+    # def __init__(self, *args, **kwargs):
+    #     nome = kwargs.pop('nome', 'ciao')
+    #     super(downsampling, self).__init__(*args, **kwargs)
+    #     self.fields['FS_NEW']widget.attrs['name'] = nome
+
 
 
 class smoothGaussian(forms.Form):
@@ -58,7 +64,10 @@ class BVP_Form(forms.Form):# Uguale a quello sopra ma cambia un default
 
 
 class Inertial_Form(forms.Form):
-    coeff = forms.FloatField(min_value=0)
+    coeffAcc = forms.FloatField(min_value=0)
+    coeffGyr = forms.FloatField(min_value=0)
+    coeffMag = forms.FloatField(min_value=0)
+
 
 
 class choose_exp(forms.Form):
