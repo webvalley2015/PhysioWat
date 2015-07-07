@@ -41,9 +41,13 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_fu
     csvreader = csv.reader(StringIO(csvasstring), delimiter=',')
     dictky = csvreader.next()
 
+    print dictky
+
     # Submit data to model and thus the database table
     pr = Preprocessed_Recording(recording_id=rec_id, applied_preproc_funcs_names=applied_preproc_funcs_names, preproc_funcs_parameters=preproc_funcs_parameters,  dict_keys=dictky)
     pr.save()
+
+    print dictky
 
     for row in csvreader:
         Preprocessed_Data(pp_recording_id=pr.id, store=dict(zip(dictky, row))).save()
@@ -58,7 +62,9 @@ def show_chart(request, id_num, alg_type=""):
     # load all the algorithms forms
     # TODO discuss a way to obtain all the form dinamically
     if request.method == "POST":
+        print "GETTING DATA"
         raw_data, cols_in = QueryDb(id_num)
+        print "RAW_DATA ACQUIRED"
 
         # DATA TYPES in ALG TYPES:
         # 1 : BVP
@@ -69,6 +75,7 @@ def show_chart(request, id_num, alg_type=""):
         # iterate over the data types passed with url parameters
         for data_type in alg_type:
             count = int(data_type) - 1
+            print "PROCESSING DATA", mytype[count]
 
             try:
                 lab=selcol(raw_data, cols_in, "LAB")
@@ -106,14 +113,17 @@ def show_chart(request, id_num, alg_type=""):
 
             try:
                 if request.POST['{}-apply_downsampling'.format(mytype[count])] == "on":
+                    print "DOWNSAMPLING"
                     FS_NEW = float(request.POST['{}-FS_NEW'.format(mytype[count])])
                     data = tools.downsampling(data, FS_NEW)
                     funcs_par.update({"tools.downsampling":{"FS_NEW":str(FS_NEW)}})
             except:
+                print "ERROR DOWNSAMPLING"
                 pass
 
             try:
                 if request.POST['{}-apply_smooth'.format(mytype[count])] == "on":
+                    print "SMOOTHING"
                     sigma = float(request.POST['{}-sigma'.format(mytype[count])])
                     t=selcol(data, cols, "TIME")
                     data_col=cols[:]
@@ -124,10 +134,12 @@ def show_chart(request, id_num, alg_type=""):
                     funcs_par.update({"filters.smoothGaussian":{"sigma":str(sigma)}})
 
             except:
+                print "ERROR SMOOTH GAUSSIAN"
                 pass
 
             try:
                 if request.POST['{}-apply_alg_filter'.format(mytype[count])] == "on":
+                    print "FILTERING"
                     passFr = float(request.POST['{}-passFr'.format(mytype[count])])
                     stopFr = float(request.POST['{}-stopFr'.format(mytype[count])])
                     LOSS = float(request.POST['{}-LOSS'.format(mytype[count])])
@@ -137,11 +149,13 @@ def show_chart(request, id_num, alg_type=""):
                     funcs_par.update({"filters.filterSignal":{"passFr":str(passFr), "stopFr":str(stopFr), "LOSS":str(LOSS), "ATTENUATION":str(ATTENUATION), "filterType":str(filterType)}})
 
             except:
+                print "ERROR FILTER"
                 pass
-
+            print "START SPECIFIC PROCESSING"
             if data_type == "4":
                 try:
                     if request.POST['{}-apply_spike'.format(mytype[count])] == "on":
+                        print "REMOVING SPIKES"
                         TH = float(request.POST['{}-TH'.format(mytype[count])])
                         data_col=cols[:]
                         data_col.remove("TIME")
@@ -151,6 +165,7 @@ def show_chart(request, id_num, alg_type=""):
                         funcs_par.update({"GSR.remove_spikes":{"TH":str(TH)}})
 
                 except:
+                    print "ERROR SPIKES"
                     pass
 
             if data_type == "4":
@@ -189,8 +204,9 @@ def show_chart(request, id_num, alg_type=""):
                 pre_data, columns_out=inertial_preproc(data_labelled, cols_labelled, coeffAcc, coeffGyr, coeffMag)
                 funcs_par.update({"inertial.preproc": {"coeffAcc":str(coeffAcc), "coeffGyr":str(coeffGyr), "coeffMag":str(coeffMag)}})
 
+            print "FINISHED SPECIFIC PROCESSING"
             putPreprocArrayintodb(id_num, pre_data, columns_out, funcs_par.keys(), funcs_par.values())
-
+            print "FINISHED PUTTING IN DB"
             context = {'id_num': id_num, 'elab': 'proc'}
         return render(request, template, context)
 

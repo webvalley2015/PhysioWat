@@ -226,6 +226,11 @@ def dict_to_csv(d, filename):
     print d.keys()
     np.savetxt(filename, np.column_stack(feats), delimiter=",", header=",".join(d.keys()))
 
+def dict_to_arrays(d):
+    feats = []
+    for key, value in d.items():
+        feats.append(value)
+    return np.column_stack(feats), np.array(d.keys())
 
 def array_labels_to_csv(array, labels, filename):
     np.savetxt(filename, array, delimiter=",",fmt='%0.6f', header=",".join(labels.tolist()), comments="")

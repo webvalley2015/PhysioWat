@@ -7,7 +7,8 @@ from preproc.scripts.processing_scripts import windowing as wd
 from preproc.scripts.processing_scripts.GSR import extract_features as extfeat_GSR
 from preproc.scripts.processing_scripts.IBI import extract_IBI_features as extfeat_IBI
 from preproc.scripts.processing_scripts.inertial import extract_features_acc as extfeat_ACC, extract_features_mag as extfeat_MAG, extract_features_gyr as extfeat_GYR
-from preproc.scripts.processing_scripts.tools import selectCol as selcol
+from preproc.scripts.processing_scripts.tools import selectCol as selcol, dict_to_arrays
+import numpy as np
 
 
 def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
@@ -42,38 +43,48 @@ def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!
 
             time=selcol(data, cols, "TIME")
             labs=data["LAB"]    #template
-            print "aaa"
+
             a = a.cleaned_data
             if (a['type'] == 'contigous'):
-                window, labs = wd.get_windows_contiguos(time, labs, a['length'], a['step]'])
+                windows, winlab = wd.get_windows_contiguos(time, labs, a['length'], a['step]'])
 
             if (a['type'] == 'no_mix'):  # for the values, make reference to .forms --> windowing.!!!!
-                window, labs = wd.get_windows_no_mix(time, labs, a['length'], a['step]'])
+                windows, winlab = wd.get_windows_no_mix(time, labs, a['length'], a['step]'])
 
             if (a['type'] == 'full_label'):
-                window, labs = wd.get_windows_full_label(time, labs, a['length'], a['step]'])
+                windows, winlab = wd.get_windows_full_label(time, labs, a['length'], a['step]'])
 
         # extract features from result
         # store feats. in the db
         if (type == 'GSR'):
             data_in=selcol(data, cols, "PHA")
             DELTA=0 #TODO GET FROM DB params!
-            feat = extfeat_GSR(data_in, time, DELTA, window)
-        if (type == 'inertial'):
+            feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
+            feats, cols_out=dict_to_arrays(feat_dict)
+            feats=np.column_stack((feats, winlab))
+            feat_col=np.r_[cols_out, "LAB"]
+        elif (type == 'inertial'):
             col_acc=["ACCX", "ACCY", "ACCZ"]
             col_gyr=["GYRX", "GYRY", "GYRZ"]
             col_mag=["MAGX", "MAGY", "MAGZ"]
 
-            data_acc=selcol(data, cols, col_acc)
-            data_gyr=selcol(data, cols, col_gyr)
-            data_mag=selcol(data, cols, col_mag)
+            acc=selcol(data, cols, col_acc)
+            gyr=selcol(data, cols, col_gyr)
+            mag=selcol(data, cols, col_mag)
 
+            feats_acc, fcol_acc= extfeat_ACC(acc, time, col_acc, windows)
+            feats_gyr, fcol_gyr= extfeat_GYR(gyr, time, col_gyr, windows)
+            feats_mag, fcol_mag= extfeat_MAG(mag, time, col_mag, windows)
+            feats=np.column_stack([feats_acc, feats_gyr, feats_mag, winlab])
+            feat_col=np.r_[fcol_acc, fcol_gyr, fcol_mag, np.array(["LAB"])]
 
+        elif (type == "IBI"):
+            data_in=selcol(data, cols, "IBI")
+            feats, winlab = extfeat_IBI(np.column_stack((time, data_in)), windows, winlab)
+            feat_col=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
 
-        if (type == "IBI"):
-            escape = "escape3ibi"
-
-            # after having extracted the fieatures --> save on db
+        data_out=np.concatenate((feats, winlab))
+        columns_out=np.r_[feat_col, "LAB"]
     else:
         form = windowing()
         template = "extfeat/choose_alg.html"
