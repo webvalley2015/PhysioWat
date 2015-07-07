@@ -4,10 +4,11 @@ Accelerometer, Gyroscope, Magnetometer
 '''
 from __future__ import division
 import numpy as np
+from tools import selectCol
 
 def convert_units(data, coeff = 1):
     '''
-    :param data: accelerometer, gyroscope OR magnetometer data as a pandas.DataFrame with x, y, z indexes. Do not
+    :param data: accelerometer, gyroscope OR magnetometer data as a numpy.array with x, y, z indexes. Do not
                  pass more than 1 sensor data at a time!! np.array
     :param coeff: coefficient to multiply to convert the units
     :param prefix: "acc", "gyr" or "mag" (accelerometer, gyroscope or magnetoscope
@@ -170,3 +171,18 @@ def concat_string(array, str):
     for element in array:
         result.append(element+str)
     return np.array(result)
+
+def preproc(data, cols, data_type, coeff):
+    '''
+    :param data: the data
+    :param cols: the olumns in input
+    :param coeff: the conversion rate
+    :param data_type: ACC, GYR or MAG
+    :return: aray and columns
+    '''
+    time=selectCol(data, cols, "TIME")
+    data_out=selectCol(data, cols, [data_type+"X", data_type+"Y", data_type+"Z"])
+    labs=selectCol(data, cols, "LABELS")
+    data_out=convert_units(data_out, coeff)
+    result=np.column_stack((time, data_out, labs))
+    return result, ["TIME", data_type+"X", data_type+"Y", data_type+"Z", "LAB"]

@@ -138,7 +138,8 @@ public class MainActivity extends Activity implements
 	    
 	    //private String[] ConnectedDevicesNames = new String[MaxNodes];
 	    
-	    public String dirName, dirName2,update_name_log,file_name_log;
+	    public String dirName, dirName2,update_name_log;
+	    public static String file_name_log;
 	    File root;
 	    //private int day, month, year,l_num;
 	    private File log_file;
@@ -397,6 +398,11 @@ public class MainActivity extends Activity implements
 		if (id ==R.id.action_save_devices)
 			ConnectionManager.saveDevices();
 		
+		if (id ==R.id.action_send_server) {
+			Intent serverPostIntent = new Intent(this, FileChooser.class);
+    	    MainActivity.this.startActivity(serverPostIntent);
+		}
+		
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -551,7 +557,7 @@ public class MainActivity extends Activity implements
             		text = "Try to connect to Server...";
             	
             	else
-            		text = "Please capture Data first";
+            		text = "Please capture Data first or choose a existing File";
             	
             	//sampleText.setText("blabla");
             		
@@ -561,7 +567,7 @@ public class MainActivity extends Activity implements
             	
             
             	
-            	if (serverProtocolState) {
+            	if (!serverProtocolState) {
             		
             		writeLogMessage.writeLogMessage("Try to reach 192.168.210.183:5432", false);
             		ConnectServer connectServer = new ConnectServer();
@@ -588,14 +594,19 @@ public class MainActivity extends Activity implements
             		}.start();
             		
             	}
+            	
+            	
+            	
+            	ConnectServer connectServer = new ConnectServer();
+            	connectServer.execute();
             }
         });
 
     }
     
-  
+  /*
     
-	private class ConnectServer extends AsyncTask<Void, String, Void> {
+	public class ConnectServer extends AsyncTask<Void, String, Void> {
 
 	    @Override
 	    protected Void doInBackground(Void... params) {
@@ -641,7 +652,7 @@ public class MainActivity extends Activity implements
 	        }
 	        
 	        
-	        /*
+	        
 	        try {
 	        HttpClient httpclient = new DefaultHttpClient();
 	        HttpPost httppost = new HttpPost(url);
@@ -653,7 +664,7 @@ public class MainActivity extends Activity implements
 	        //HttpResponse response = httpclient.execute(httppost);
 	        //Do something with response...
 	        }
-	         */
+	         
 	        
 
 	        try {
@@ -708,6 +719,7 @@ public class MainActivity extends Activity implements
 	                Toast.LENGTH_SHORT).show();
 	    }
 	}
+	*/
 	
     //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	
