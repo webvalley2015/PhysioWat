@@ -56,7 +56,7 @@ def idealize(root, subj):
 
     data_out = np.column_stack((data_out, label_col))
 
-    np.savetxt(subj+".csv", data_out, delimiter=",", header=",".join(columns_out), comments="")
+    np.savetxt(subj+".csv", data_out, delimiter=",", header=",".join(columns_out), comments="", fmt="%0.6f")
 switch=raw_input("Do you want to process one file at a time (o) or every file (e)? (o/e) ")=="o"
 if switch:
     root=raw_input("Root dir (F/U/L): ")
@@ -65,6 +65,9 @@ if switch:
     subj=raw_input("Subject (ex F01_M): ")
     idealize(root, subj)
 else:
+    root=raw_input("Root dir (where you can find F, U and L folders): ")
+    if root[-1]!="/":
+        root+="/"
     msg="Number of patients in "
     types={"F":int(raw_input(msg+"F: ")), "L":int(raw_input(msg+"L: ")), "U":int(raw_input(msg+"U: "))}
     for type, n in types.items():
@@ -76,7 +79,7 @@ else:
 
             for sex in ["M", "F"]:
                 try:
-                    print "Nicola/"+type+"/",type+i+"_"+sex
-                    idealize("Nicola/"+type+"/", type+i+"_"+sex)
+                    print root+type+"/",type+i+"_"+sex
+                    idealize(root+type+"/", type+i+"_"+sex)
                 except IOError as e:
                     print "#ILLY"

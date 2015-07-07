@@ -2,15 +2,17 @@ from django.shortcuts import render
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from .forms import filterAlg, downsampling, BVP_Form, EKG_Form, GSR_Form, Inertial_Form, remove_spike, smoothGaussian
-from PhysioWat.models import Experiment, Recording, SensorRawData
+from PhysioWat.models import Experiment, Recording, SensorRawData, Preprocessed_Recording, Preprocessed_Data
 from django.contrib import messages
 from .jsongen import getavaliabledatavals
 from scripts.processing_scripts import tools, filters, IBI, windowing
-from scripts.processing_scripts.GSR import preproc as GSR_preproc
+from scripts.processing_scripts.tools import selectCol as selcol
+from scripts.processing_scripts.GSR import remove_spikes, preproc as GSR_preproc
 from scripts.processing_scripts.inertial import extract_features_acc, extract_features_gyr, extract_features_mag, \
     preproc as inertial_preproc
 import numpy as np
 from StringIO import StringIO
+import csv
 
 
 def QueryDb(recordingID):
@@ -26,9 +28,9 @@ def QueryDb(recordingID):
     return datacsv, table.dict_keys
 
 
-def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
+def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_funcs_names, preproc_funcs_parameters):
     # Andrew's crazy method to convert array to CSV-ish string??? IDK what it means, but IT WORKS!!!
-    csvasstring = ",".join(preProcLabel.tolist()) + '\n'
+    csvasstring = ",".join(preProcLabel) + '\n'
     for dataarr in preProcArray:
         for dataval in dataarr:
             csvasstring += str(dataval) + ','
@@ -40,11 +42,11 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel):
     dictky = csvreader.next()
 
     # Submit data to model and thus the database table
-    pr = Preprocessed_Recording(recording_id=rec_id, dict_keys=dictky)
+    pr = Preprocessed_Recording(recording_id=rec_id, applied_preproc_funcs_names=applied_preproc_funcs_names, preproc_funcs_parameters=preproc_funcs_parameters,  dict_keys=dictky)
     pr.save()
 
     for row in csvreader:
-        Preprocessed_Data(pp_recording=pr.id, store=dict(zip(dictky, row))).save()
+        Preprocessed_Data(pp_recording_id=pr.id, store=dict(zip(dictky, row))).save()
 
     return 0
 
@@ -56,8 +58,7 @@ def show_chart(request, id_num, alg_type=""):
     # load all the algorithms forms
     # TODO discuss a way to obtain all the form dinamically
     if request.method == "POST":
-
-        data, cols = QueryDb(id_num)
+        raw_data, cols_in = QueryDb(id_num)
 
         # DATA TYPES in ALG TYPES:
         # 1 : BVP
@@ -65,70 +66,130 @@ def show_chart(request, id_num, alg_type=""):
         # 3 : inertial
         # 4 : GSR
 
-        print request.POST
-
         # iterate over the data types passed with url parameters
         for data_type in alg_type:
             count = int(data_type) - 1
 
             try:
+                lab=selcol(raw_data, cols_in, "LAB")
+            except IndexError as e:
+                print e.message
+                lab=np.zeros(raw_data.shape[0])
+                pass
+
+            if data_type=="1":
+                bvp=selcol(raw_data, cols_in,"BVP")
+                time=selcol(raw_data, cols_in, "TIME")
+                data=np.column_stack((time, bvp))
+                cols=["TIME", "BVP"]
+
+            elif data_type=="2":
+                ekg=selcol(raw_data, cols_in,"EKG")
+                time=selcol(raw_data, cols_in, "TIME")
+                data=np.column_stack((time, ekg))
+                cols=["TIME", "EKG"]
+
+            elif data_type=="3":
+                keep_col=["ACCX", "ACCY", "ACCZ", "GYRX", "GYRY", "GYRZ", "MAGX", "MAGY", "MAGZ"]
+                inertial=selcol(raw_data, cols_in, keep_col)
+                time=selcol(raw_data, cols_in, "TIME")
+                data=np.column_stack((time, inertial))
+                cols=["TIME"]+keep_col
+
+            elif data_type=="4":
+                gsr=selcol(raw_data, cols_in, "GSR")
+                time=selcol(raw_data, cols_in, "TIME")
+                data=np.column_stack((time, gsr))
+                cols=["TIME", "GSR"]
+
+            funcs_par={}
+
+            try:
                 if request.POST['{}-apply_downsampling'.format(mytype[count])] == "on":
-                    FS_NEW = request.POST['{}-FS_NEW'.format(mytype[count])]
+                    FS_NEW = float(request.POST['{}-FS_NEW'.format(mytype[count])])
                     data = tools.downsampling(data, FS_NEW)
+                    funcs_par.update({"tools.downsampling":{"FS_NEW":str(FS_NEW)}})
             except:
                 pass
 
             try:
                 if request.POST['{}-apply_smooth'.format(mytype[count])] == "on":
-                    sigma = request.POST['{}-sigma'.format(mytype[count])]
-                    data = filters.smoothGaussian(data, sigma)
+                    sigma = float(request.POST['{}-sigma'.format(mytype[count])])
+                    t=selcol(data, cols, "TIME")
+                    data_col=cols[:]
+                    data_col.remove("TIME")
+                    data_only=selcol(data, cols, data_col)
+                    data_only = filters.smoothGaussian(data_only, sigma)
+                    data=np.column_stack((t, data_only))
+                    funcs_par.update({"filters.smoothGaussian":{"sigma":str(sigma)}})
+
             except:
                 pass
 
             try:
                 if request.POST['{}-apply_alg_filter'.format(mytype[count])] == "on":
-                    passFr = request.POST['{}-passFr'.format(mytype[count])]
-                    stopFr = request.POST['{}-stopFr'.format(mytype[count])]
-                    LOSS = request.POST['{}-LOSS'.format(mytype[count])]
-                    ATTENUATION = request.POST['{}-ATTENUATION'.format(mytype[count])]
-                    filterType = request.POST['{}-filterType'.format(mytype[count])]
+                    passFr = float(request.POST['{}-passFr'.format(mytype[count])])
+                    stopFr = float(request.POST['{}-stopFr'.format(mytype[count])])
+                    LOSS = float(request.POST['{}-LOSS'.format(mytype[count])])
+                    ATTENUATION = float(request.POST['{}-ATTENUATION'.format(mytype[count])])
+                    filterType = float(request.POST['{}-filterType'.format(mytype[count])])
                     data = filters.filterSignal(data, passFr, stopFr, LOSS, ATTENUATION, filterType)
+                    funcs_par.update({"filters.filterSignal":{"passFr":str(passFr), "stopFr":str(stopFr), "LOSS":str(LOSS), "ATTENUATION":str(ATTENUATION), "filterType":str(filterType)}})
+
             except:
                 pass
 
             if data_type == "4":
                 try:
                     if request.POST['{}-apply_spike'.format(mytype[count])] == "on":
-                        TH = request.POST['{}-TH'.format(mytype[count])]
-                        data = GSR.remove_spikes(data, TH)
+                        TH = float(request.POST['{}-TH'.format(mytype[count])])
+                        data_col=cols[:]
+                        data_col.remove("TIME")
+                        data_only=selcol(data, cols, data_col)
+                        t, data_only = remove_spikes(data_only, sigma)
+                        data=np.column_stack((t, data_only))
+                        funcs_par.update({"GSR.remove_spikes":{"TH":str(TH)}})
+
                 except:
                     pass
 
             if data_type == "4":
-                T1 = request.POST['{}-T1'.format(mytype[count])]
-                T2 = request.POST['{}-T2'.format(mytype[count])]
-                MX = request.POST['{}-MX'.format(mytype[count])]
-                DELTA_PEAK = request.POST['{}-DELTA_PEAK'.format(mytype[count])]
-                k_near = request.POST['{}-k_near'.format(mytype[count])]
-                grid_size = request.POST['{}-grid_size'.format(mytype[count])]
-                s = request.POST['{}-s'.format(mytype[count])]
-                pre_data, columns_out = GSR_preproc(data, cols, T1, T2, MX, DELTA_PEAK, k_near, grid_size, s)
+                T1 = float(request.POST['{}-T1'.format(mytype[count])])
+                T2 = float(request.POST['{}-T2'.format(mytype[count])])
+                MX = float(request.POST['{}-MX'.format(mytype[count])])
+                DELTA_PEAK = float(request.POST['{}-DELTA_PEAK'.format(mytype[count])])
+                k_near = float(request.POST['{}-k_near'.format(mytype[count])])
+                grid_size = float(request.POST['{}-grid_size'.format(mytype[count])])
+                s = float(request.POST['{}-s'.format(mytype[count])])
+                data_labelled=np.column_stack((data, lab))
+                cols_labelled=cols+["LAB"]
+                pre_data, columns_out = GSR_preproc(data_labelled, cols_labelled, T1, T2, MX, DELTA_PEAK, k_near, grid_size, s)
+                funcs_par.update({"GSR.preproc":{"T1":str(T1), "T2":str(T2), "MX":str(MX), "DELTA_PEAK":str(DELTA_PEAK), "k_near":str(k_near), "grid_size":str(grid_size), "s":str(s)}})
+
 
             if data_type == "1" or data_type == "2":
-                SAMP_F = int(round(1 / (data[1, 0] - data[0, 0])))
-                delta = request.POST['{}-delta'.format(mytype[count])]
-                peaks = IBI.getPeaksIBI(data, SAMP_F, delta)
-                minFr = request.POST['{}-minFr'.format(mytype[count])]
-                maxFr = request.POST['{}-maxFr'.format(mytype[count])]
+                t=selcol(data, cols, "TIME")
+                SAMP_F = int(round(1 / (t[1] - t[0])))
+                delta = float(request.POST['{}-delta'.format(mytype[count])])
+                data_labelled=np.column_stack((data, lab))
+                cols_labelled=cols+["LAB"]
+                peaks = IBI.getPeaksIBI(data_labelled, SAMP_F, delta)
+                minFr = float(request.POST['{}-minFr'.format(mytype[count])])
+                maxFr = float(request.POST['{}-maxFr'.format(mytype[count])])
                 pre_data, columns_out = IBI.max2interval(peaks, minFr, maxFr)
+                funcs_par.update({"IBI.getPeaksIBI":{"delta":str(delta)}})
+                funcs_par.update({"IBI.max2intervals":{"minFr":str(minFr), "maxFr":str(maxFr)}})
 
-            # if data_type == "3":
-            #     coeff = request.POST['{}-coeff'.format(mytype[count])]
-            #
-            #     data_type = "ACC"  # Or GYR or MAG
-            #     pre_data = inertial_preproc(data, cols, data_type, coeff)
+            if data_type == "3":
+                coeffAcc = float(request.POST['{}-coeffAcc'.format(mytype[count])])
+                coeffGyr = float(request.POST['{}-coeffGyr'.format(mytype[count])])
+                coeffMag = float(request.POST['{}-coeffMag'.format(mytype[count])])
+                data_labelled=np.column_stack((data, lab))
+                cols_labelled=cols+["LAB"]
+                pre_data, columns_out=inertial_preproc(data_labelled, cols_labelled, coeffAcc, coeffGyr, coeffMag)
+                funcs_par.update({"inertial.preproc": {"coeffAcc":str(coeffAcc), "coeffGyr":str(coeffGyr), "coeffMag":str(coeffMag)}})
 
-            # putPreprocArrayintodb(id_num, pre_data, columns_out)
+            putPreprocArrayintodb(id_num, pre_data, columns_out, funcs_par.keys(), funcs_par.values())
 
             context = {'id_num': id_num, 'elab': 'proc'}
         return render(request, template, context)
@@ -165,7 +226,7 @@ def show_chart(request, id_num, alg_type=""):
                 formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[count])
                 formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False},
                                      prefix=mytype[count])
-                formSpec = Inertial_Form()
+                formSpec = Inertial_Form(initial={'coeffAcc': 1, 'coeffGyr': 1, 'coeffMag':1}, prefix=mytype[count])##
                 inertial_tmp = {'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt, 'formSpec': formSpec}
             if "4" in alg_type:
                 count = 3
@@ -259,12 +320,10 @@ def select_record(request, id_num):
 
 def test(request):
     ID = 1
-    columns_out = ["TIME", "ACCX", "ACCY", "ACCZ", "GYRX", "GYRY", "GYRZ", "MAGX", "MAGY", "MAGZ", "LAB"]
-    applied_func = []
-    preproc_funcs_parameters = dict()
-    sensAccCoeff = 8 * 9.81 / 32768
-    sensGyrCoeff = 2000 / 32768
-    sensMagCoeff = 0.007629
+    funcs_par=dict()
+    sensAccCoeff=8*9.81/32768
+    sensGyrCoeff=2000/32768
+    sensMagCoeff=0.007629
 
     data, columns_in = tools.load_raw_db(ID)
 
@@ -277,14 +336,15 @@ def test(request):
     #     lab=np.zeros(t.shape[0])
     #     pass
 
-    acc, temp_col_acc = inertial_preproc(data, columns_in, "ACC", sensAccCoeff)
-    gyr, temp_col_gyr = inertial_preproc(data, columns_in, "GYR", sensGyrCoeff)
-    mag, temp_col_mag = inertial_preproc(data, columns_in, "MAG", sensMagCoeff)
-    applied_func.append("intertial.preproc")
-    preproc_funcs_parameters.update({"inertial.preproc": str(sensAccCoeff)})
+    data_out, columns_out=inertial_preproc(data, columns_in, sensAccCoeff, sensGyrCoeff, sensMagCoeff)
+    funcs_par.update({"inertial.preproc": {"coeffAcc":str(sensAccCoeff), "coeffGyr":str(sensGyrCoeff), "coeffMag":str(sensMagCoeff)}})
 
-    data_out, col_out = tools.merge_arrays([acc, gyr, mag], [temp_col_acc, temp_col_gyr, temp_col_mag])
+    tools.putPreprocArrayintodb(ID, data_out, np.array(columns_out), funcs_par.keys(), funcs_par.values() )
 
-    tools.putPreprocArrayintodb(ID, data_out, np.array(columns_out), applied_func, preproc_funcs_parameters)
+    return render(request, 'preproc/experiments.html', {'name_list': ["exp1"]})
+
+def test2(request):
+    ID = 1
+    preproc_data=tools.load_preproc_db(ID)
 
     return render(request, 'preproc/experiments.html', {'name_list': ["exp1"]})
