@@ -37,7 +37,7 @@
 
         {% csrf_token %}
 <br><br><br><br>
-<div id="Experiment_schifo" margin-top="15px"> 
+<div id="Experiment_schifo" margin-top="15px">
         <label for="experiment">Experiment </label></div>
         <select name="experiment" class="form-control" id="sel">
             {% for c in experiments %}
@@ -51,7 +51,7 @@
 <button id="button1" class="btn btn-succes" onclick="increase_passage()">Next Step</button>
 </div>
 <!--<button id="button1" class="btn btn-success" onclick="increase_passage()">Next step</button>-->
-        
+
     {% if messages %}
         <ul class="messages">
             {% for message in messages %}

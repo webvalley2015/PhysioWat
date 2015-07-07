@@ -28,6 +28,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <activity android:label="@string/title_activity_settings" android:name="com.niklas.datalogging.FileChooser"/>
         <activity
             android:name="com.niklas.datalogging.DeviceListActivity"
             android:configChanges="orientation|keyboardHidden"

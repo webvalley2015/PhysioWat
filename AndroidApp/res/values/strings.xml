@@ -58,6 +58,7 @@
     <string name="device_list_3">Device 3</string>
     <string name="logfile_headline">Syslog:</string>
     <string name="logfile_sample">Samples:</string>
+    <string name="chooseServer">Chose file for upload</string>
    
     
 

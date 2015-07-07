@@ -1,0 +1,33 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+	
+    <Button 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:id="@+id/browse"
+        android:text="Browse" />
+    
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/browse"
+        android:layout_marginTop="20dp"
+        android:id="@+id/selected"
+        android:textStyle="bold"
+        android:textColor="#4189E1"
+        android:textSize="20sp"
+        android:text="Selected file" />
+    
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/selected"
+        android:layout_marginTop="20dp"
+        android:id="@+id/file_path"
+        android:text="No file has been selected"
+        android:textSize="18sp" />
+    
+</RelativeLayout>
