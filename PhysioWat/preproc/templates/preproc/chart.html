@@ -22,9 +22,9 @@
             <ul class="nav nav-tabs" id="setting_nav">
                 {% csrf_token %}
                 {% for k,v in forms.items %}
-
-                    <li role="presentation" class="active"><a href="#" id="nav_id_{{ k }}">{{ k }}</a></li>
-
+                    {% if v %}
+                        <li role="presentation" class="active"><a href="#" id="nav_id_{{ k }}">{{ k }}</a></li>
+                    {% endif %}
                 {% endfor %}
             </ul>
 
@@ -49,11 +49,13 @@
                 {% endfor %}
 
                 <div>
+                {% if show_menu %}
                     {% buttons %}
                         <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
                         <button type="reset" class="btn btn-danger">Reset</button>
                         <button type="button" class="btn btn-danger" onClick="show()">ShowAll</button>
                     {% endbuttons %}
+                {% endif %}
                 </div>
         </div>
 
