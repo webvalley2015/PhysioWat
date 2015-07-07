@@ -137,7 +137,7 @@ def load_preproc_db(recordingID):
             ll.append(record.store[key])
         alldata += ','.join(ll) + '\n'
     datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
-    return datacsv
+    return datacsv, table.dict_keys
     # results = cursor.fetchall()
 
 
@@ -228,7 +228,7 @@ def dict_to_csv(d, filename):
 
 
 def array_labels_to_csv(array, labels, filename):
-    np.savetxt(filename, array, delimiter=",", header=",".join(labels.tolist()), comments="")
+    np.savetxt(filename, array, delimiter=",",fmt='%0.6f', header=",".join(labels.tolist()), comments="")
 
 #Puts data int the preprocessed array into the database
 def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_funcs_names, preproc_funcs_parameters):
@@ -250,7 +250,7 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_fu
     pr.save()
 
     for row in csvreader:
-        Preprocessed_Data(pp_recording=pr.id, store=dict(zip(dictky, row))).save()
+        Preprocessed_Data(pp_recording_id=pr.id, store=dict(zip(dictky, row))).save()
 
     print csvreader
 
@@ -288,6 +288,8 @@ def selectCol(vect, head, cols):
     if type(cols) is str:
         if cols=="TIME" or cols=="TIMESTAMP":
             cols=["TIME", "TIMESTAMP"]
+        elif cols=="GSR" or cols=="EDA":
+            cols=["GSR", "EDA"]
         else:
             cols=[cols]
     elif type(cols) is not list and type(cols) is not np.ndarray:
@@ -316,8 +318,10 @@ def merge_arrays(arrays, labels):
     '''
     for arr in arrays:
         print arr.shape,
+    print "<- INPUT"
     for lab in labels:
         print len(lab),
+    print "<-COLUMNS"
     result=[]
     result_labels=[]
 
@@ -343,5 +347,6 @@ def merge_arrays(arrays, labels):
         result_labels.append("LAB")
     for arr in result:
          print arr.shape,
+    print "<-OUTPUT"
 
     return np.array(result), np.array(result_labels)

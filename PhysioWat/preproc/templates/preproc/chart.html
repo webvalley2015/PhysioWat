@@ -66,9 +66,8 @@
 		    </form>
 	         </div>
 
-
-
             </div>
+
 
             <div class="col-md-5" style="margin-top: 40px; padding-left:20px">
 	<form action="#" name="preproc" method="post" enctype="multipart/form-data">
@@ -103,6 +102,7 @@
                                 <button type="reset" class="btn btn-danger">Reset</button>
                                 <button type="button" class="btn btn-active" onClick="show()">Show All</button>
                             {% endbuttons %}
+
                     </div>
 
             </div>
@@ -184,7 +184,7 @@
 
         var global_data = NaN;
 
-        $.getJSON("{% url 'chart_getdata' id_num %}", function (data) {
+        $.getJSON("{% url 'chart_getdata' id_num elab %}", function (data) {
             global_data = data;
             show_graph();
         });
