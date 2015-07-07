@@ -54,3 +54,7 @@ class AdaBoostParam(forms.Form):
 class LatDirAssParam(forms.Form):
     my_choices=[('svd','svd'),('lsqr','lsqr'),('eigen','eigen')]
     solver = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect())
+
+class autoFitParam(forms.Form):
+    my_choices= [('a','a'),('v','v'),('c','c')]
+    maxmimize = forms.ChoiceField(choices=my_choices,widget=forms.RadioSelect())

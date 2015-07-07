@@ -59,7 +59,7 @@ def show_chart(request, id_num, alg_type=""):
     # TODO discuss a way to obtain all the form dinamically
     if request.method == "POST":
         raw_data, cols_in = QueryDb(id_num)
-        print request.POST
+
         # DATA TYPES in ALG TYPES:
         # 1 : BVP
         # 2 : EKG
@@ -179,6 +179,7 @@ def show_chart(request, id_num, alg_type=""):
                 pre_data, columns_out = IBI.max2interval(peaks, minFr, maxFr)
                 funcs_par.update({"IBI.getPeaksIBI":{"delta":str(delta)}})
                 funcs_par.update({"IBI.max2intervals":{"minFr":str(minFr), "maxFr":str(maxFr)}})
+
             if data_type == "3":
                 coeffAcc = float(request.POST['{}-coeffAcc'.format(mytype[count])])
                 coeffGyr = float(request.POST['{}-coeffGyr'.format(mytype[count])])
@@ -300,10 +301,7 @@ def select_experiment(request):
 
 
 def getRecordsList(experimentId):
-    return Recording.objects.filter(experiment=experimentId).values_list('id', flat=True).order_by('id')
-def getRecordsListDesc(experimentId):
-    return Recording.objects.filter(experiment=experimentId).values_list('description', flat=True)
-
+    return Recording.objects.filter(experiment=experimentId).values_list('id', 'description').order_by('id')
 
 def select_record(request, id_num):
     if request.method == 'POST':
@@ -311,8 +309,7 @@ def select_record(request, id_num):
         return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': record_id, 'alg_type': ""}))
     else:
         name_list = getRecordsList(id_num)
-        desc_list = getRecordsListDesc(id_num)
-        d = dict(zip(name_list, desc_list))
+        d = dict(name_list)
         context = {'dict': d}
         return render(request, 'preproc/records.html', context)
 
