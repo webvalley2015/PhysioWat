@@ -43,6 +43,12 @@
         </div>
     </form>
 
+<div align="right" class="form-cnt">
+<button id="button1" class="btn btn-succes" onclick="increase_passage()">Next Step</button>
+</div>
+<!--<button id="button1" class="btn btn-success" onclick="increase_passage()">Next step</button>-->
+
+
     {% if messages %}
         <ul class="messages">
             {% for message in messages %}
@@ -50,7 +56,53 @@
             {% endfor %}
         </ul>
     {% endif %}
+
 {% endblock %}
+
+{% block app_specific_js %}
+<!--id_description display:none-->
+<script>
+$(document).ready(function()  {
+var pass_form_input = document.getElementById("id_description");
+
+    if (pass_form_input !== null) {
+console.log("ada");
+        pass_form_input.setAttribute("style","display:none");
+
+    }
+});
+
+//end script display none-->
+//buttons display none-->
+
+$(document).ready(function()  {
+
+var pass_form_input = document.getElementById("BuSu");
+
+    if (pass_form_input !== null) {
+        pass_form_input.setAttribute("style","display:none");
+    }
+
+
+});
+
+
+$(document).ready(function()  {
+
+var pass_form_input = document.getElementById("BuRe");
+
+    if (pass_form_input !== null) {
+        pass_form_input.setAttribute("style","display:none");
+    }
+
+
+});
+
+</script>
+{% endblock %}
+
+
+
 
 <!-- btn btn-succes
 

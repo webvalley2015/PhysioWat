@@ -126,6 +126,4 @@ TEMPLATE_DIRS = (
 LOGIN_REDIRECT_URL = '/'
 
 #where to store uploaded csv before deleting them all
-MEDIA_URL = '/media/'
-
 
