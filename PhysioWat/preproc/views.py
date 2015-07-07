@@ -17,15 +17,20 @@ import csv
 
 def QueryDb(recordingID):
     table = Recording.objects.get(id=recordingID)
-    data = SensorRawData.objects.filter(recording_id=recordingID)
-    alldata = (','.join(table.dict_keys) + '\n').replace(' ', '')
-    for record in data:
+    data = SensorRawData.objects.filter(recording_id=recordingID).order_by(id)
+    # alldata = (','.join(table.dict_keys) + '\n').replace(' ', '')
+    retarray=np.array([])
+    ll = []
+    for key in table.dict_keys:
+        ll.append(data[0].store[key])
+    retarray=np.append((retarray,ll))
+    for record in data[1:]:
         ll = []
         for key in table.dict_keys:
             ll.append(record.store[key])
-        alldata += ','.join(ll) + '\n'
-    datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
-    return datacsv, table.dict_keys
+        retarray=np.vstack((retarray,ll))
+    # datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
+    return retarray, table.dict_keys
 
 
 def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_funcs_names, preproc_funcs_parameters):
