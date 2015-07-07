@@ -17,13 +17,13 @@ import csv
 
 def QueryDb(recordingID):
     table = Recording.objects.get(id=recordingID)
-    data = SensorRawData.objects.filter(recording_id=recordingID).order_by(id)
+    data = SensorRawData.objects.filter(recording_id=recordingID).order_by('id')
     # alldata = (','.join(table.dict_keys) + '\n').replace(' ', '')
     retarray=np.array([])
     ll = []
     for key in table.dict_keys:
         ll.append(data[0].store[key])
-    retarray=np.append((retarray,ll))
+    retarray=np.append(retarray,ll)
     for record in data[1:]:
         ll = []
         for key in table.dict_keys:

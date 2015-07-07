@@ -3,14 +3,31 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from .forms import windowing, viewFeatures, FeatPar, TestParam, AlgChoose, AlgParam, SvmParam, KNearParam, DecTreeParam, \
     RndForParam, AdaBoostParam, LatDirAssParam, autoFitParam
-from preproc import jsongen
 from preproc.scripts.processing_scripts import windowing as wd
 from preproc.scripts.processing_scripts.GSR import extract_features as extfeat_GSR
 from preproc.scripts.processing_scripts.IBI import extract_IBI_features as extfeat_IBI
 from preproc.scripts.processing_scripts.inertial import extract_features_acc as extfeat_ACC, extract_features_mag as extfeat_MAG, extract_features_gyr as extfeat_GYR
 from preproc.scripts.processing_scripts.tools import selectCol as selcol, dict_to_arrays
+from PhysioWat.models import Experiment, Preprocessed_Recording, Preprocessed_Data
 import numpy as np
 
+
+def QueryDb(recordingID):   #TODO NOT TESTED YET, IT MAY SUCK
+    table = Preprocessed_Recording.objects.get(id=recordingID)
+    data = Preprocessed_Data.objects.filter(recording_id=recordingID).order_by('id')
+    # alldata = (','.join(table.dict_keys) + '\n').replace(' ', '')
+    retarray=np.array([])
+    ll = []
+    for key in table.dict_keys:
+        ll.append(data[0].store[key])
+    retarray=np.append(retarray,ll)
+    for record in data[1:]:
+        ll = []
+        for key in table.dict_keys:
+            ll.append(record.store[key])
+        retarray=np.vstack((retarray,ll))
+    # datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
+    return retarray, table.dict_keys
 
 def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
 
@@ -27,10 +44,8 @@ def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!
             # label = GET THE COLUMN OF THE LABEL FROM THE DB (ASK RICCARDO)
             # those prevoious 2 variabliles were for windowing. as i wrote, ask riccardo for further inforation
             # after having done the db stuffs, please un-comment the 2 variabiles and feel free to delete this 2 comments
-
-            cols = jsongen.getavaliabledatavals(id_num)
-
-            data="asdas" #TODO GET FROM DB!
+            ID=25 #TODO test value!, get from user
+            data, cols = QueryDb(ID)
 
             # vals = vals[1:]
             # print vals
@@ -57,35 +72,58 @@ def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!
 
         # extract features from result
         # store feats. in the db
-        if (type == 'GSR'):
+        if 'PHA' in cols:   #GSR
             data_in=selcol(data, cols, "PHA")
             DELTA=0 #TODO GET FROM DB params!
             feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
             feats, cols_out=dict_to_arrays(feat_dict)
             feats=np.column_stack((feats, winlab))
             feat_col=np.r_[cols_out, "LAB"]
-        elif (type == 'inertial'):
+        elif 'ACCX' or 'GYRX' or 'MAGX' in cols:
             col_acc=["ACCX", "ACCY", "ACCZ"]
             col_gyr=["GYRX", "GYRY", "GYRZ"]
             col_mag=["MAGX", "MAGY", "MAGZ"]
+            try:
+                acc=selcol(data, cols, col_acc)
+                thereIsAcc=True
+            except ValueError as e:
+                print e
+                thereIsAcc=False
+            try:
+                gyr=selcol(data, cols, col_gyr)
+                thereIsGyr=True
+            except ValueError as e:
+                print e
+                thereIsGyr=False
+            try:
+                mag=selcol(data, cols, col_mag)
+                thereIsMag=True
+            except ValueError as e:
+                print e
+                thereIsMag=False
+            feat_col=np.array(["LAB"])
+            feats=winlab[:]
+            if thereIsAcc:
+                feats_acc, fcol_acc= extfeat_ACC(acc, time, col_acc, windows)
+                feats=np.column_stack([feats_acc, feats])
+                feat_col=np.r_[fcol_acc, feat_col]
+            if thereIsGyr:
+                feats_gyr, fcol_gyr= extfeat_GYR(gyr, time, col_gyr, windows)
+                feats=np.column_stack([feats_gyr, feats])
+                feat_col=np.r_[fcol_gyr, feat_col]
+            if thereIsMag:
+                feats_mag, fcol_mag= extfeat_MAG(mag, time, col_mag, windows)
+                feats=np.column_stack([feats_mag, feats])
+                feat_col=np.r_[fcol_mag, feat_col]
 
-            acc=selcol(data, cols, col_acc)
-            gyr=selcol(data, cols, col_gyr)
-            mag=selcol(data, cols, col_mag)
-
-            feats_acc, fcol_acc= extfeat_ACC(acc, time, col_acc, windows)
-            feats_gyr, fcol_gyr= extfeat_GYR(gyr, time, col_gyr, windows)
-            feats_mag, fcol_mag= extfeat_MAG(mag, time, col_mag, windows)
-            feats=np.column_stack([feats_acc, feats_gyr, feats_mag, winlab])
-            feat_col=np.r_[fcol_acc, fcol_gyr, fcol_mag, np.array(["LAB"])]
-
-        elif (type == "IBI"):
+        elif 'IBI' in cols:
             data_in=selcol(data, cols, "IBI")
             feats, winlab = extfeat_IBI(np.column_stack((time, data_in)), windows, winlab)
             feat_col=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
 
         data_out=np.concatenate((feats, winlab))
         columns_out=np.r_[feat_col, "LAB"]
+
     else:
         form = windowing()
         template = "extfeat/choose_alg.html"
