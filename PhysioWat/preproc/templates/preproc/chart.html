@@ -2,7 +2,7 @@
 {% load static %}
 {% load highcharts_tags %}
 {% block app_specific_css %}
-    {% load bootstrap3 %}
+{% load bootstrap3 %}
 {% endblock %}
 
 {% block container %}
@@ -33,7 +33,11 @@
 <br>
 <div style="width:90%; margin:0 auto;">
     <div class="content row">
+<<<<<<< HEAD
 	<br><br><br><br>
+=======
+    <br><br><br><br>
+>>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
         <div class="graphs col-md-8">
             <div class="processed-signal row">
                 <div id="processed-signal"></div> <!-- THIS IS ANOTHER DIV FOR ANOTHER GRAPH, IT DOES NOT CONTAIN ANITHING NOW --> 
@@ -48,14 +52,26 @@
             <ul class="nav nav-tabs" id="setting_nav">
                 {% csrf_token %}
                 {% for k,v in forms.items %}
-                    <li role="presentation" class="active"><a href="#" id="nav_id_{{ k }}">{{ k }}</a></li>
+                    {% if v %}
+                        <li role="presentation" class="active"><a href="#" id="nav_id_{{ k }}">{{ k }}</a></li>
+                    {% endif %}
                 {% endfor %}
             </ul>
 
+<<<<<<< HEAD
             {% csrf_token %}
             <form action="page_to_which_send_the_form" method="post" enctype="multipart/form-data" style="padding-bottom: 15px;">
+=======
+            {% for i in alg_select %}
+                <a href={% url 'chart_show' id_num i %}>{{ i }}</a>
+            {% endfor %}
 
+>>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
+
+            <form action="#" name="preproc" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
                 {% for k,v in forms.items %}
+<<<<<<< HEAD
                     <!-- in the end, this contains a form. wich tag is better? div, what? boh-->
                     <div id="div_id_{{ k }}" style="display:none">
 
@@ -64,20 +80,39 @@
                         <br>
                         <br>
                     </div>
+=======
+                    <!-- in the end, this contains a form. wich tag is better? div, what?-->
+                    {% if v %}
+                        <div id="div_id_{{ k }}" style="display:none">
+
+                            <br>
+                            {% bootstrap_form v %}
+                            <br>
+                            <br>
+                        </div>
+                    {% endif %}
+>>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
                 {% endfor %}
 
                 <div>
+                {% if show_menu %}
                     {% buttons %}
-                        <button type="submit" id="select_submit" class="btn btn-success" href="ciao.html">Submit
-                        </button>
+                        <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
                         <button type="reset" class="btn btn-danger">Reset</button>
                         <button type="button" class="btn btn-active" onClick="show()">ShowAll</button>
                     {% endbuttons %}
+                {% endif %}
                 </div>
         </div>
 
         </form>
+<<<<<<< HEAD
 <p align="center">Signals</p>
+=======
+
+        options list:
+
+>>>>>>> aa413fc7f928adbd93f65179609909b2a60255bb
         <div id="options">
             <form onsubmit="show_graph()" id="options_form">
                 <fieldset style="padding-left:20px">
@@ -173,7 +208,7 @@
                     }
                 }
             }
-            $('#temporary-processing').highcharts('StockChart', dataTmp);
+            $('#temporary-processing').highcharts('StockChart',dataTmp);
         }
 
         //prevent page from reload on submit
