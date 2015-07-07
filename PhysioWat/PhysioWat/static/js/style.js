@@ -94,13 +94,13 @@ function show_hide_upload(passage){
 	}
 	if (passage==2) {
 		document.getElementById("id_password").style.display = 'block';
-		//document.getElementById("BuSu").style.display = 'block';
-		//document.getElementById("BuRe").style.display = 'block';
+		document.getElementById("BuSu").style.display = 'block';
+		document.getElementById("BuRe").style.display = 'block';
 		document.getElementById("div_step_3").setAttribute("style","background-color:#6699FF; color:white; border-right:2px solid #6699FF; height:100%; text-align: center; padding-top:3.8%");
 	} else {
 		document.getElementById("id_password").style.display = 'none';
-		//document.getElementById("BuSu").style.display = 'none';
-		//document.getElementById("BuRe").style.display = 'none';
+		document.getElementById("BuSu").style.display = 'none';
+		document.getElementById("BuRe").style.display = 'none';
 		document.getElementById("div_step_3").setAttribute("style","background-color:#F6F6F6; color:black; border-right:2px solid #6699FF; height:100%; text-align: center; padding-top:3.8%");
 	}
 }
