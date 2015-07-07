@@ -132,6 +132,8 @@ def show_chart(request, id_num, alg_type=""):
 def searchInDesc(id_num):
 
     desc = str(Recording.objects.filter(id=id_num).values_list('description', flat=True)[0]).lower()
+    # cols = Recording.objects.filter(id=id_num).values_list('dict_keys', flat=True)
+    # print "Columns", cols
     print desc
     found = ""
     if "bvp" in desc:
