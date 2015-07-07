@@ -4,13 +4,12 @@ from django.core.urlresolvers import reverse
 from .forms import windowing, viewFeatures, FeatPar, TestParam, AlgChoose, AlgParam, SvmParam, KNearParam, DecTreeParam, \
     RndForParam, AdaBoostParam, LatDirAssParam, autoFitParam
 from preproc import jsongen
-from preproc.scripts.processing_scripts import windowing as wd , feat_script as fs
+from preproc.scripts.processing_scripts import windowing as wd
 from preproc.scripts.processing_scripts.GSR import extract_features as extfeat_GSR
 from preproc.scripts.processing_scripts.IBI import extract_IBI_features as extfeat_IBI
 from preproc.scripts.processing_scripts.inertial import extract_features_acc as extfeat_ACC, extract_features_mag as extfeat_MAG, extract_features_gyr as extfeat_GYR
 from preproc.scripts.processing_scripts.tools import selectCol as selcol
-import numpy as np
-#import pandas as pd
+
 
 def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
 
@@ -91,14 +90,7 @@ def ml_input(request):  # obviously, it has to be added id record and everything
 
         print mydict
 
-        #GET FEATURED DATA FORM DB
-        #localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
-        #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')#, index_col=None, sep=',')
 
-        # if 'norm' in mydict['viewf']:
-        #     input_data=fs.normalize(input_data)
-        #
-        # print(input_data)
 
         return render(request,"machine_learning/form_error.html")
 
