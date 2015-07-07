@@ -59,7 +59,7 @@ def show_chart(request, id_num, alg_type=""):
     # TODO discuss a way to obtain all the form dinamically
     if request.method == "POST":
         raw_data, cols_in = QueryDb(id_num)
-        print request.POST
+
         # DATA TYPES in ALG TYPES:
         # 1 : BVP
         # 2 : EKG
@@ -179,6 +179,7 @@ def show_chart(request, id_num, alg_type=""):
                 pre_data, columns_out = IBI.max2interval(peaks, minFr, maxFr)
                 funcs_par.update({"IBI.getPeaksIBI":{"delta":str(delta)}})
                 funcs_par.update({"IBI.max2intervals":{"minFr":str(minFr), "maxFr":str(maxFr)}})
+
             if data_type == "3":
                 coeffAcc = float(request.POST['{}-coeffAcc'.format(mytype[count])])
                 coeffGyr = float(request.POST['{}-coeffGyr'.format(mytype[count])])
