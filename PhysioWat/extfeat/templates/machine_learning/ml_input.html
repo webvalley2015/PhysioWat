@@ -125,7 +125,7 @@
         $('#mlParSet_4 :input:checked').each(function (i, elem) {  choosen_opt= elem.value});
         //console.log(choosen_opt);
 
-        if(choosen_opt == "pers"){
+        if(choosen_opt == "pers"){        // IF YOU WANT THE PERSONALIZED PARAMETERS, SHOW THEM (DIFFERENT FOR EACH ALG)
             if(choosen_alg == "quad_disc")
                 alert("the quadratic discriminant analisys has no personalized options. Please switch to default or autofit ");
 
@@ -143,12 +143,23 @@
 
              {% endfor %}
         }
-        if(choosen_opt == "auto"){
+        if(choosen_opt == "auto"){  // IF YOU WANT THE AUTOTRAIN, then show the choices
             console.log("ciaociaociaociaociaoilli");
             $('#autoFitParamChoose').show();
-            if(typeof $ == 'undefined')
-                console.log("pirla");
+            $('#mlParSet_5').hide();
+            //if(typeof $ == 'undefined')
+                 //console.log("pirla");
         }
+        else{        //IF YOU WANT THE DEFAULT PARAMETERS,
+           $('#autoFitParamChoose').hide();
+        }
+
+        if(choosen_opt == "def")
+        {
+        $('#autoFitParamChoose').hide();
+            $('#mlParSet_5').hide();
+        }
+
 
 
     }
