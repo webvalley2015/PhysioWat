@@ -39,7 +39,7 @@ def getfeaturedata(recordingID):
         uncleanedfile.close()
         file.close()
     filecleaned = open(fpath+'p','r')
-
+    #TODO replace the dictkey fucntion with a pull from the recoding database
     getkeys = csv.DictReader(filecleaned, delimiter=',')
     jsonstring = "{\"series\":["
     jsonstring += "{\"data\": ["
