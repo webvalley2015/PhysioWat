@@ -1,5 +1,30 @@
 {% extends 'PhysioWat/base.html' %}
 {% block container %}
+
+<br><br>
+<!--Creating the divs to dispay the name of the step-->
+<div class="form-cnt">
+
+<div width="100%" height="100%" style="border-radius:10px 10px 10px 10px; border: 2px solid #6699FF; padding:0%; postion:abolute; height:4em;" class="col-md-12">
+
+<!--step 1-->
+<!--style="	border-top-left-radius:10px ; border-bottom-left-radius:10px ;background-color:#6699FF; color:white; border-right:2px solid #6699FF; height:100%;text-align: center; padding-top:3.8%"-->
+	<div id="div_step_1" align="left"  width="33%"  class="col-md-4">
+	Step 1
+	</div>
+<!--step 2-->
+<!--style="border-right:2px solid #6699FF; height:100%; text-align: center; padding-top:3.8%" -->
+	<div id="div_step_2" align="center"  width="33%"  class="col-md-4">
+	Step 2
+	</div>
+<!--step 3-->
+<!--style="	border-top-right-radius:10px ; border-bottom-right-radius:10px ;text-align: center;height:100%; padding-top:3.8%"-->
+	<div id="div_step_3" align="right"  width="33%" height="100%" class="col-md-4" >
+	Step 3
+	</div>
+</div>
+</div>
+<!--end steps-->
     <form action="#" method="post" enctype="multipart/form-data" class="form-cnt">
         {% csrf_token %}
     <br><br>
@@ -13,7 +38,7 @@
 
         <br><br>
         <div class="btn-fix">
-            <input type="password" name="password" required="true">
+            <input type="password" name="token" required="true">
             <input type="submit" value="Select">
         </div>
 
