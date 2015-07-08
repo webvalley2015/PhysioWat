@@ -41,7 +41,7 @@ def QueryDb(recordingID):   #JUST COPY, PASTE AND CHANGED RECORDS
     return retarray, mykeys
 
 def WritePathtoDB(fname, pp_rec_id):
-    FeatExtractedData(pp_recording=pp_rec_id, path_to_file=fname).save()
+    FeatExtractedData(pp_recording_id=pp_rec_id, path_to_file=fname).save()
 
 def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
 
