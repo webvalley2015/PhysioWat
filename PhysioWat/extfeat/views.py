@@ -17,13 +17,14 @@ from sklearn import cross_validation
 from sklearn.cross_validation import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
+
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.lda import LDA
 from sklearn.qda import QDA
 from sklearn.metrics import *
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
-from PhysioWat.models import Experiment, Preprocessed_Recording, Preprocessed_Data
+from PhysioWat.models import Experiment, Preprocessed_Recording, Preprocessed_Data, FeatExtractedData
 
 def QueryDb(recordingID):   #JUST COPY, PASTE AND CHANGED RECORDS
     table = Preprocessed_Recording.objects.get(id=recordingID)
@@ -38,6 +39,9 @@ def QueryDb(recordingID):   #JUST COPY, PASTE AND CHANGED RECORDS
     retarray.astype(float)
 
     return retarray, mykeys
+
+def WritePathtoDB(fname, pp_rec_id):
+    FeatExtractedData(pp_recording_id=pp_rec_id, path_to_file=fname).save()
 
 def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
 
@@ -160,32 +164,39 @@ def ml_input(request):  # obviously, it has to be added id record and everything
 
         num_iteration = mydict['number_of_iterations']
 
-        train_data, test_data = ft.split(input_data)
+        #train_data, test_data = ft.split(input_data)
 
         algorithm = mydict['alg_choice'][0]
         print algorithm
-
+        flag = True
         if 'viewf' in mydict:
             if 'norm' in mydict['viewf']:
                 input_data = ft.normalize(input_data)
+
+            train_data, test_data = ft.split(input_data)
+            flag = False
             if 'sel' in mydict['viewf']:
                 # print "i have selected the first stuff!"
                 if 'k_selected' in mydict['FeatChoose']:
                     num_feat = mydict['feat_num']
                     if (num_feat <= 0):
                         return render(request, "machine_learning/form_error.html")
-                    # train_data, test_data = ft.getfeat(train_data, test_data, k) #RETURNS 2 SUBSET DF GIVEN IN INPUT THE TRAIN DATA, THE TEST DATA, AND THE NUMBER OF FEATS
+                    # todo train_data, test_data = ft.getfeat(train_data, test_data, k) #RETURNS 2 SUBSET DF GIVEN IN INPUT THE TRAIN DATA, THE TEST DATA, AND THE NUMBER OF FEATS
                     print "getfeat non defined"
 
                 if ('k_auto' in mydict['FeatChoose']):
-                    #train_data, test_data, feat_acc_plot = ft.bestfeatn(train_data, test_data)
+                    train_data, test_data, feat_acc_plot = ft.bestfeatn(train_data, test_data)
                     # TODO modify the fucntion
                     pass
-
+        if(flag == True):
+            train_data, test_data = ft.split(input_data)
         print "dopo il case del viewf"
 
+        if algorithm == 'ALL' and 'auto' not in mydict['parameter_choiche']:
+              return render(request, "machine_learning/form_error.html")
+
         if 'def' in mydict['parameter_choiche']:
-            clf = ft.quick_crossvalidation(train_data, alg=algorithm)
+            clf = ft.quick_crossvalidate(train_data, alg=algorithm)
 
 
 
@@ -218,13 +229,15 @@ def ml_input(request):  # obviously, it has to be added id record and everything
             if (algorithm == 'LDA'):
                 solver = mydict['solver']
                 # todo clf = ft.pers_crossvalidation1(train_data, algorithm, solver)
-        #if 'auto' in mydict[]
+        if 'auto' in mydict['parameter_choiche']:
+            metrics = mydict['maximize'][0]
+            print " hai scelto   ->"
+            print  metrics
+            clf = ft.bestfit(train_data, algorithm, metrics)[0]
+
+        dic_metric, conf_mat = ft.machineLearningPrediction(clf,test_data)
 
 
-
-        # print "pedot idiot -------------------"
-        # print  input_data
-        return render(request, "machine_learning/blablacar_error.html")
 
     else:
         template = "machine_learning/ml_input.html"
