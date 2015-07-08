@@ -39,9 +39,11 @@ def extract_IBI_features(data, cols, windows, labels):
         startt = windows[tindex][0]
         endt = windows[tindex][1]
         this_win = values[(times >= startt)&(times < endt)]
-        if this_win.size == 0:
-            res_labels.pop(tindex)
-        result.append(calculateHRVindexes(this_win))
+        if this_win.size <= 1:
+            res_labels[tindex]=np.nan
+        else:
+            result.append(calculateHRVindexes(this_win))
+    res_labels=res_labels[res_labels!=np.nan]
     return np.nan_to_num(result), res_labels
 
 
@@ -116,12 +118,13 @@ def max2interval(peaks, cols,  minrate=40, maxrate=200):
 
 
 def calculateTDindexes(RR):
+    print "RR:", RR.shape
     #calculates Time domain indexes
     RRmean=np.mean(RR)
     RRSTD= np.std(RR)            
     
     RRDiffs=np.diff(RR) 
-        
+    print "RRDiffs: ", RRDiffs.shape
     RRDiffs50 = [x for x in np.abs(RRDiffs) if x>50]
     pNN50=100.0*len(RRDiffs50)/len(RRDiffs)
     RRDiffs25 = [x for x in np.abs(RRDiffs) if x>25]
