@@ -201,7 +201,7 @@ def my_predict(clf, testX, testY):
     
     '''
     labels_predict = clf.predict(testX)
-    score = clf.score(testX, testY)
+    #score = clf.score(testX, testY)
     #print "Accuracy %.5f" % (score)
     return labels_predict
 
@@ -445,13 +445,13 @@ def bestfit_KNN(fe_data, alg, metric):  # ok
     
     
 def bestfit_SVM(fe_data, alg, metric):
-    Klist = ['linear', 'rbf']#, 'sigmoid']
-    bestC = bestMet = 0.
-    Clist = [ 10**i for i in range(0,3)]#range(-5,8) ] TRY
+    Klist = ['linear', 'rbf']#, 'sigmoid'] TRY
+    bestC = 0.
+    Clist = [ 10**i for i in range(1,3)]#range(-5,8) ] TRY
     my_met = np.matrix([0,0,0,0])
     for k, kernel in enumerate(Klist):
         for C in Clist:
-            # print kernel, C
+            print kernel, C
             clf = classifiers[alg](kernel, C)          
             mean_local, err_local = iterate_crossvalidation(clf, fe_data, metric)
             in_vec = np.array([C, mean_local, err_local, k])
@@ -462,8 +462,9 @@ def bestfit_SVM(fe_data, alg, metric):
         #plt.xscale('log') #just if a parameter is exponentially growing
         #plt.show()
     
+    my_met = my_met[1:,:]
     bestkernel = Klist[int(my_met[my_met[:,1].argmax(),3])]
-    bestC = Clist[int(my_met[my_met[:,1].argmax(),0])]
+    bestC = int(my_met[my_met[:,1].argmax(),0])
         
     my_met = my_met[1:, :]
     clf = classifiers[alg](bestkernel, bestC)
@@ -651,12 +652,12 @@ def normalize(df):
     df_norm = df_norm.dropna(how='any')
     return df_norm
 
-def split(df):
+def split(df, how_much):    #need to be float between 0 and 1
     colnames = df.columns
 
     b = df.LAB
     a = df[df.columns[:-1]]
-    a_train, a_test, b_train, b_test = train_test_split(a, b, test_size=0.25, random_state=42)
+    a_train, a_test, b_train, b_test = train_test_split(a, b, test_size=how_much, random_state=42)
     
     a_train = pd.DataFrame(a_train)
     b_train = pd.DataFrame(b_train)
@@ -706,6 +707,7 @@ def bestfeatn(input_data, intest_data):
         #y_true = test_data.LAB
         #y_pred = my_predict(clf, test_data, y_true )        
         dic_metric, conf_mat = get_report(y_true, y_pred)
+        print conf_mat
         my_met[k,:] = (i, dic_metric['ACC']) #to improve here better
         if dic_metric['ACC'] > best_feat_num[1]:
             best_feat_num[1] = dic_metric['ACC']
@@ -752,7 +754,11 @@ def import_bojan():
     test = pd.concat((xtest,ytest), axis=1)
     train = pd.concat((xtrain,ytrain), axis=1)
     
-
+def test_learning(clf, test_data):
+    y_true = test_data.LAB
+    te_data = test_data[test_data.columns[:-1]]
+    y_pred = my_predict(clf, te_data, y_true )
+    return get_report(y_true, y_pred)
    
 if __name__ == '__main__':
     print 'Starting main...'  
@@ -764,7 +770,7 @@ if __name__ == '__main__':
     norm_data = normalize(input_data)
             
     #feature selection
-    train_data, test_data = split(norm_data)
+    train_data, test_data = split(norm_data, 0.5)
     train_data, test_data, my_met, listoflistsofbest = bestfeatn(train_data, test_data)
     #train_data, test_data, listofbest = getfeatnumber( train_data, test_data, 10)
     
@@ -775,35 +781,7 @@ if __name__ == '__main__':
     #search the best alg with the best classifier
     clf, metric = bestAlg(train_data, 'ACC')
     
-    #search the best parameter for the following alg
-        #    clf, metric = bestfit(train_data, 'DCT',1)
-        #    clf, metric = bestfit(train_data, 'RFC',1)    
-        #    clf, metric = bestfit(train_data, 'LDA',1)    
-        #    clf, metric = bestfit(train_data, 'QDA',1)    
-        #    clf, metric = bestfit(train_data, 'SVM',1)    
-        #    clf, metric = bestfit(train_data, 'KNN',1)    
-        #    clf, metric = bestfit(train_data, 'ADA',1)
-
-    #fit the model with the chosen alg  
-    #just call the alg  
-
-    y_true = test_data.LAB
-    te_data = test_data[test_data.columns[:-1]]
-    y_pred = my_predict(clf, te_data, y_true )
-    dic_metric, conf_mat = get_report(y_true, y_pred)
-    
+    dic_metric, conf_mat = test_learning(clf, test_data)
     
     print dic_metric
     print conf_mat
-    
-    #not up to date#
-    #uncomment the following line if you want to try also with random labels
-    #train_data.LAB = np.random.permutation(train_data.LAB)
-#    clf, metric = bestAlg(data1, 1)
-#    #clf, metric = bestfit(data1, 'LDA',1)
-#    y_true = data3.LAB
-#    te_data = data3[data3.columns[:-1]]
-#    y_pred = my_predict(clf, te_data, y_true )
-#    dic_metric, conf_mat = get_report(y_true, y_pred)
-#    print dic_metric
-#    print conf_mat

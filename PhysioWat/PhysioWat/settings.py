@@ -112,7 +112,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-MEDIA_ROOT = '/home/riccardo/PhysioWat_fedata/'
+MEDIA_ROOT = 'PhysioWat/static/data/'
 
 STATIC_URL = '/static/'
 

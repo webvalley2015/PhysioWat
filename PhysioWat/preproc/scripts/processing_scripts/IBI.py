@@ -43,7 +43,7 @@ def extract_IBI_features(data, cols, windows, labels):
             res_labels[tindex]=np.nan
         else:
             result.append(calculateHRVindexes(this_win))
-    res_labels=res_labels[res_labels!=np.nan]
+    res_labels=res_labels[~np.isnan(res_labels)]
     return np.nan_to_num(result), res_labels
 
 
