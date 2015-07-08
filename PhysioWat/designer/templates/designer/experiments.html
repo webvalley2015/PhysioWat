@@ -2,7 +2,8 @@
 {% block container %}
     <br>
     <form action="#" method="post" enctype="multipart/form-data" class="form-cnt" >
-    <h1>Create a New Experiment</h1><br>
+    <br>
+    <h1>Create a New Experiment</h1><br><br>
         {% csrf_token %}
         {% include "includes/bootstrap_fordbgroup.html" %}
 
@@ -12,10 +13,9 @@
     width: 60%;
     border:3px solid #d20800;
     padding: 10px;">
-    {% for message in messages %}
-
-    <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
+        {% for message in messages %}
+            <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
 </ul>
 {% endif %}
 {% endblock %}
