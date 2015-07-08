@@ -172,7 +172,7 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         if 'viewf' in mydict:
             if 'norm' in mydict['viewf']:
                 input_data = ft.normalize(input_data)
-
+                #print input_data
             train_data, test_data = ft.split(input_data)
             flag = False
             if 'sel' in mydict['viewf']:
@@ -185,7 +185,7 @@ def ml_input(request):  # obviously, it has to be added id record and everything
                     print "getfeat non defined"
 
                 if ('k_auto' in mydict['FeatChoose']):
-                    train_data, test_data, feat_acc_plot = ft.bestfeatn(train_data, test_data)
+                    train_data, test_data, feat_acc_plot = ft.bestfeatn(train_data, test_data) # TODO TOO MANY VALUES TO UNPACK!
                     # TODO modify the fucntion
                     pass
         if(flag == True):
@@ -237,7 +237,15 @@ def ml_input(request):  # obviously, it has to be added id record and everything
 
         dic_metric, conf_mat = ft.machineLearningPrediction(clf,test_data)
 
+        #CALL OTHER FUNCTIONS / GET OTHER DATAS/
+        #final_ml_page(request, result_dict=dic_metric, conf_mat=conf_mat)
+#---------------------------------------------------------------------------------------
+# TODO HERE STARTS THE FINAL PART OF THE MACHINE LEARNING, WHICH IS NO MORE PROCESSING BUT JUST RENDERING THE FORM (and getting the json)
+#-------------------------------------------------------------------------------
 
+        template = "machine_learning/results.html"
+        context = {'results': dic_metric,'conf_mat':conf_mat}
+        return render(request,template,context)
 
     else:
         template = "machine_learning/ml_input.html"
@@ -278,3 +286,11 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         print context['forms']
         print '-' * 60
         return render(request, template, context)
+
+
+def final_ml_page(request, result_dict, conf_mat):
+    print conf_mat
+    print type(result_dict)
+
+    #PROCESS CONFUSION MAT AND WHATHEVER ELSE WITH ANDREW'S FUNCTION!!!!
+

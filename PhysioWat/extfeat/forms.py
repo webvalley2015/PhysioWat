@@ -4,7 +4,7 @@ from django import forms
 class windowing(forms.Form):
     my_choices= [('contigous','continous windowing'), ('no_mix','not mixed windowing'), ('full_label','full label windowing')]
     type = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect())
-    length = forms.FloatField(min_value=0.000001, initial=1)
+    length = forms.FloatField(min_value=0.00001, initial=1)
     step = forms.FloatField(min_value=0.000001, initial=1)
 
 class viewFeatures(forms.Form):
@@ -62,4 +62,4 @@ class autoFitParam(forms.Form):
                  ('PRm','Precision Score Micro'), ('PRW','Precision Score Weighted'),
                  ('REM','Recall Score Macro'),('REm','Recall Score Micro'),('REW','Recall Score Weighted')
                  ]
-    maximize = forms.ChoiceField(choices=my_choices,widget=forms.RadioSelect())
+    maximize = forms.ChoiceField(choices=my_choices,widget=forms.RadioSelect(), initial='ACC')
