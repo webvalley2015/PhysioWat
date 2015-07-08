@@ -14,8 +14,10 @@ class linegraph(HighChartsLineView):
         vals = getavaliabledatavals(urlTmp['id_num'])
         data = makejson(urlTmp['elab'], urlTmp['id_num'], vals)
         data = json.loads(data)
+
+        timestamplist =['time','TIME', 'Time', 'TimeStamp','timeStamp', 'timestamp','Timestamp']
         for i in data['series']:
-            if (i['name'] == 'timeStamp'):
+            if (i['name'] in timestamplist):
                 times = i['data']
 
         for i in data['series']:
@@ -40,16 +42,16 @@ class linegraph2(HighChartsMultiAxesView):
             data = Preprocessed_Data.objects.filter(recording_id=urlTmp['id_num']).order_by('id')
             self.title = 'Preprocessed Data'
 
-
-        self.yaxis = {'title': {'text': ''}, 'min': 0}
+        print "NEL GETDATA!!!!!!!!!!!!!!"
+        #print data
+        self.yaxis = {'title': {'text': ''}}
         data_tmp = [i.store for i in data]
         self.series = []
         tmp = {k: (map(float,map(itemgetter(k), data_tmp))) for k in data_tmp[0]}
-
+        print tmp
         for k in tmp.keys():
-            tmplist = [[tmp['TIME'][i], tmp[k][i]] for i in xrange(len(tmp[k]))]
+            tmplist = [   [tmp['TIME'][i]*1000, tmp[k][i]] for i in xrange(len(tmp[k]))]
             self.series.append({'data': tmplist, 'name': k})
-
         #vals = vals[1:]
         # data = makejson(urlTmp['elab'], urlTmp['id_num'], vals)
         # data = json.loads(data)
@@ -68,5 +70,7 @@ class linegraph2(HighChartsMultiAxesView):
         #     i['data'] = [ [times[cont], i['data'][cont]  ] for cont in range(len(i['data'])) ]
         # #print data['series']
         data = super(linegraph2, self).get_data()
+        #print data
+
         data['chart'] = {"renderTo":"#temporary-processing"}
         return data

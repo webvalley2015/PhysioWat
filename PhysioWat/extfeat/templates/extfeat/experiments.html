@@ -2,7 +2,7 @@
 {% block container %}
 
 <br><br><br><br><br>
-  <h1>Select Experiment</h1>
+  <h1>Feature Extraction - Select Experiment to Perform Feature Extraction</h1>
 
 <!--Creating the divs to dispay the name of the step-->
 <div class="form-cnt">
@@ -44,19 +44,13 @@
             <br>
             <input type="submit" value="Select">
         </div>
+    {% if messages %}
+        {% include "includes/error_messages.html" %}
+    {% endif %}
 
     </form>
-<br>
-    {% if messages %}
-<br>
-        <ul class="messages" style="margin: auto;
-    width: 60%;
-    border:3px solid #d20800;
-    padding: 10px;">
-            {% for message in messages %}
-                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+
+    
+
 
 {% endblock %}
