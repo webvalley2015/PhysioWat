@@ -227,15 +227,13 @@ def show_chart(request, id_num, alg_type=""):
 
             if data_type == "1" or data_type == "2":
                 t=selcol(data, cols, "TIME")
-                print data.shape
-                SAMP_F = int(round(1 / (t[1] - t[0])))
                 delta = float(request.POST['{}-delta'.format(mytype[count])])
                 data_labelled=np.column_stack((data, lab))
                 cols_labelled=cols+["LAB"]
-                peaks = IBI.getPeaksIBI(data_labelled, SAMP_F, delta)
+                peaks, cols_temp = IBI.getPeaksIBI(data_labelled, cols_labelled, delta, mytype[count])
                 minFr = float(request.POST['{}-minFr'.format(mytype[count])])
                 maxFr = float(request.POST['{}-maxFr'.format(mytype[count])])
-                pre_data, columns_out = IBI.max2interval(peaks, minFr, maxFr)
+                pre_data, columns_out = IBI.max2interval(peaks, cols_temp, minFr, maxFr)
                 funcs_par.update({"IBI.getPeaksIBI":{"delta":str(delta)}})
                 funcs_par.update({"IBI.max2intervals":{"minFr":str(minFr), "maxFr":str(maxFr)}})
 
@@ -361,7 +359,7 @@ def select_experiment(request):
 
 
 def getRecordsList(experimentId):
-    return Recording.objects.filter(experiment=experimentId).values_list('id', 'description').order_by('id')
+    return Recording.objects.filter(experiment=experimentId).values_list('id', 'device_name', 'description', 'dict_keys', 'ts').order_by('id')
 
 def select_record(request, id_num):
     if request.method == 'POST':
@@ -369,38 +367,5 @@ def select_record(request, id_num):
         return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': record_id, 'alg_type': ""}))
     else:
         name_list = getRecordsList(id_num)
-        d = dict(name_list)
-        context = {'dict': d}
+        context = {'name_list': name_list}
         return render(request, 'preproc/records.html', context)
-
-
-def test(request):
-    ID = 1
-    funcs_par=dict()
-    sensAccCoeff=8*9.81/32768
-    sensGyrCoeff=2000/32768
-    sensMagCoeff=0.007629
-
-    data, columns_in = tools.load_raw_db(ID)
-
-    # t=tools.selectCol(data, columns_in, "TIME")
-    #
-    # try:
-    #     lab=tools.selectCol(data, columns_in, "LAB")
-    # except IndexError as e:
-    #     print e.message
-    #     lab=np.zeros(t.shape[0])
-    #     pass
-
-    data_out, columns_out=inertial_preproc(data, columns_in, sensAccCoeff, sensGyrCoeff, sensMagCoeff)
-    funcs_par.update({"inertial.preproc": {"coeffAcc":str(sensAccCoeff), "coeffGyr":str(sensGyrCoeff), "coeffMag":str(sensMagCoeff)}})
-
-    tools.putPreprocArrayintodb(ID, data_out, np.array(columns_out), funcs_par.keys(), funcs_par.values() )
-
-    return render(request, 'preproc/experiments.html', {'name_list': ["exp1"]})
-
-def test2(request):
-    ID = 1
-    preproc_data=tools.load_preproc_db(ID)
-
-    return render(request, 'preproc/experiments.html', {'name_list': ["exp1"]})
