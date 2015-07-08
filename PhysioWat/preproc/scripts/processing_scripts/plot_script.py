@@ -1,4 +1,5 @@
 import numpy as np
+from PhysioWat.models import MLData
 
 def scatter_error_bar_creator(mat):
     """Given a Numpy array with columns (x,y,error), returns two Numpy arrays: one with columns (x,y) called "mat_data" and the other with columns (y-error,y+error) called "mat_error"""
@@ -16,10 +17,6 @@ def scatter_error_bar_creator_2(accuracy, error):
     mat_modified = np.hstack((mat_modified, (accuracy - error).flatten().reshape((-1,1)))) #y-error
     mat_modified = np.hstack((mat_modified, (accuracy + error).flatten().reshape((-1,1)))) #y+error
     return mat_modified
-
-def mean_std(array):
-    """ Unuseful function """
-    return np.mean(array), np.std(array)
 
 def statistic_values(list): # argument: list of lists
 
@@ -40,3 +37,11 @@ def statistic_values(list): # argument: list of lists
 
     return statistics
 
+def convert_PandaDataFrame_to_ListOfLists_2D(data):
+    return data.values.tolist()
+
+def convert_PandaDataFrame_to_ListOfLists_3D(data):
+    return data.values.tolist()
+
+def MltoDB(list, feid):
+    MLData(fe_id=feid, binary_result=list)

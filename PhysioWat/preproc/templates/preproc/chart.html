@@ -75,7 +75,7 @@
 
             <div class="col-md-5" style="margin-top: 40px; padding-left:20px">
 	<form action="#" name="preproc" method="post" enctype="multipart/form-data">
-	    <ul class="nav nav-tabs" id="setting_nav">
+	    <ul class="nav nav-tabs btn btn-md" id="setting_nav">
                 {% for k,v in forms.items %}
                     {% if v %}
                         <li role="presentation" class="active">
@@ -109,9 +109,11 @@
 
                     <div>
                             {% buttons %}
+                                <br>
                                 <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
                                 <button type="reset" class="btn btn-danger">Reset</button>
                                 <button type="button" class="btn btn-active" onClick="show()">Show All</button>
+                                <button class="btn btn-primary">New Button</button>
                             {% endbuttons %}
 
                     </div>

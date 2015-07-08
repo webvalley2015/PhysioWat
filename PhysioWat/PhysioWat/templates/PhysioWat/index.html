@@ -38,17 +38,17 @@
             <div class="about-top">
                 <br><br>
 
-
-                <div style="width:200px; height:50px; position:absolute; right:20px; margin-top:5px; background-color: #4B697C;"><a href="{% url 'experiment_creator' %}"><span>Create a New Experiment</span></a></div>
+                
+                <!-- <div style="width:200px;height:50px;position: absolute; right: 20px; margin-top: 5px; solid #80CCFF;"><span style="position: absolute; right: 20px; margin-top: 5px;"><a href="{% url 'experiment_creator' %}"><span>Create a New Experiment</span></a></span></div>-->
 
                 <h1>
-                    <div style="font-size: 40px; color: #333;">WELCOME TO <span>PhysioWAT </span></div>
-                    <br/>
+                    <div style="font-size: 40px; color: #333;">Welcome to <span>PhysioWat </span></div>
+                    <br>
                 </h1>
                 <p style="width:80%; margin-left:auto; margin-right:auto; color: #555;">This is a web platform for
                     sensor data
-                    storage and analysis. It allows you to upload data, process them by extracting features and visualize
-                    them through suitable graphs. </p>
+                    storage and analysis. It allows you to upload data, process it by extracting features, and visualize
+                    it through suitable graphs. </p><br>
 
                 <br/>
 
@@ -111,7 +111,7 @@
                                 commissioned and supported by the ABP-lab, UniTN, NTY and ODFLab. Other than the raw data we
                                 were
                                 given,
-                                we also collected "synthetical data" with wearable sensors.
+                                we also collected "synthetic data" with wearable sensors.
                             </p>
                         </div>
                         <!-- /.col-lg-4 -->
@@ -119,6 +119,13 @@
                     <!-- /.row -->
                 </div>
             </div>
+        </div>
+
+        <div class="container" align="center">
+                <br><br>
+                <h1>Ready to get started? Use the button below to create a new experiment and analyze the data you have collected.</h1>
+                <br>
+                <a href="{% url 'experiment_creator' %}"><button class="btn btn-success btn-lg">Create a New Experiment</button></a>
         </div>
 
 
