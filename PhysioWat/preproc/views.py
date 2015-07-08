@@ -31,7 +31,7 @@ def QueryDb(recordingID):
 
 
 def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_funcs_names, preproc_funcs_parameters):
-    # Andrew's crazy method to convert array to CSV-ish string??? IDK what it means, but IT WORKS!!!
+    # Andrew's method to convert array to CSV string???
     csvasstring = ",".join(preProcLabel) + '\n'
     for dataarr in preProcArray:
         for dataval in dataarr:

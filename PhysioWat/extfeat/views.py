@@ -17,13 +17,14 @@ from sklearn import cross_validation
 from sklearn.cross_validation import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
+
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.lda import LDA
 from sklearn.qda import QDA
 from sklearn.metrics import *
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
-from PhysioWat.models import Experiment, Preprocessed_Recording, Preprocessed_Data
+from PhysioWat.models import Experiment, Preprocessed_Recording, Preprocessed_Data, FeatExtractedData
 
 def QueryDb(recordingID):   #JUST COPY, PASTE AND CHANGED RECORDS
     table = Preprocessed_Recording.objects.get(id=recordingID)
@@ -38,6 +39,9 @@ def QueryDb(recordingID):   #JUST COPY, PASTE AND CHANGED RECORDS
     retarray.astype(float)
 
     return retarray, mykeys
+
+def WritePathtoDB(fname, pp_rec_id):
+    FeatExtractedData(pp_recording=pp_rec_id, path_to_file=fname).save()
 
 def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
 
