@@ -126,9 +126,11 @@
         //console.log(choosen_opt);
 
         if(choosen_opt == "pers"){        // IF YOU WANT THE PERSONALIZED PARAMETERS, SHOW THEM (DIFFERENT FOR EACH ALG)
-            if(choosen_alg == "quad_disc")
+            if(choosen_alg == "QDA"){
                 alert("the quadratic discriminant analisys has no personalized options. Please switch to default or autofit ");
-
+                $('#autoFitParamChoose').hide();
+                $('#mlParSet_5').hide();
+            }
             choosen_alg = "form_" + choosen_alg
             console.log (choosen_alg);
             var temp;
