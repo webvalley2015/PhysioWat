@@ -22,7 +22,7 @@ class TestParam(forms.Form):
 
 class AlgChoose(forms.Form):
     my_choices = [('KNN','k nearest'),('SVM', 'support vector machine'),('DCT','decison tree'),
-                  ('RFC','random forest'),('ADA','ada boost'),('LDA','latent direct assocation'),
+                  ('RFC','random forest'),('ADA','adaboost'),('LDA','latent direct assocation'),
                   ('QDA','quadratic discriminant analisys')]
     alg_choice= forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect(), initial='KNN')
 

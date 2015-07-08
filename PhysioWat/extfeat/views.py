@@ -162,8 +162,23 @@ def ml_input(request):  # obviously, it has to be added id record and everything
                 pass
             if (algorithm == 'SVM'):
                 kernel = mydict['kernel']
-
-
+                C = mydict['C']
+                # todo clf = ft.pers_crossvalidation2(train_data, algorithm, kernel, C)
+                pass
+            if (algorithm == 'RFC'):
+                max_features = mydict['max_features']
+                number_estimators = mydict['number_estimators']
+                # TODO clf = ft.pers_crossvalidation2(train_data, algorithm, max_features, number_estimators)
+                pass
+            if (algorithm == 'ADA'):
+                number_estimators = mydict['number_estimators']
+                learning_rate = mydict['learning_rate']
+                # todo clf = ft.pers_crossvalidation2(train_data, algorithm, number_estimators, learning_rate)
+                pass
+            if (algorithm == 'LDA'):
+                solver = mydict['solver']
+                # todo clf = ft.pers_crossvalidation1(train_data, algorithm, solver)
+        #if 'auto' in mydict[]
 
 
 
