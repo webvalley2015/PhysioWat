@@ -7,8 +7,6 @@ class Sensor(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)
     description = models.CharField(max_length=50, blank=True, null=True)
 
-
-
 class Experiment(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=500, blank=True, null=True)
@@ -46,4 +44,9 @@ class Preprocessed_Data(models.Model):
 class FeatExtractedData(models.Model):
     pp_recording = models.ForeignKey(Preprocessed_Recording, on_delete=models.CASCADE)
     parameters = HStoreField(null=True, default=None)
-    path_to_file = models.TextField()
+    path_to_file = models.TextField()  # To become FileField...
+
+class MLData(models.Model):
+    fe = models.ForeignKey(FeatExtractedData, on_delete=models.CASCADE)
+    parameters = HStoreField(null=True, default=None)
+    binary_result = models.BinaryField()
