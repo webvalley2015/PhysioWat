@@ -3,7 +3,7 @@ Considerations for the PhysioWAT App - Bluetooth range, titles for txt files, & 
 Spectrum is indeed very wide. We successfully collected data on a few stereotypy movements, as well as other movements such as playing a guitar, hitting sticks together, and playing the drums.
 
 Notes from 7/7 field trial
-Sensors: 128 → Tommaso, 126 → Pietro, 175 → girl(?), 184 → Nicola
+Sensors: 128 → Tommaso, 126 → Pietro, 175 → unknown boy, 184 → Nicola
 16:25
 16:26 start Tommaso (128) and Pietro (126)
 	P: playing guitar
