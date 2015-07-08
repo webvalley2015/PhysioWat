@@ -18,23 +18,20 @@ import csv
 def QueryDb(recordingID):
     table = Recording.objects.get(id=recordingID)
     data = SensorRawData.objects.filter(recording_id=recordingID).order_by('id')
-    # alldata = (','.join(table.dict_keys) + '\n').replace(' ', '')
-    retarray=np.array([])
-    ll = []
-    for key in table.dict_keys:
-        ll.append(data[0].store[key])
-    retarray=np.append(retarray,ll)
-    for record in data[1:]:
-        ll = []
-        for key in table.dict_keys:
-            ll.append(record.store[key])
-        retarray=np.vstack((retarray,ll))
-    # datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
-    return retarray, table.dict_keys
+
+    retarray = np.zeros((len(data), len(table.dict_keys)))
+    mykeys = data[0].store.keys()
+    # [j for i in bb for j,z in enumerate(cc) if z == i]
+
+    for i in xrange(len(data)):
+        retarray[i] = [float(j) for j in data[i].store.values()]
+    retarray.astype(float)
+
+    return retarray, mykeys
 
 
 def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_funcs_names, preproc_funcs_parameters):
-    # Andrew's crazy method to convert array to CSV-ish string??? IDK what it means, but IT WORKS!!!
+    # Andrew's method to convert array to CSV string???
     csvasstring = ",".join(preProcLabel) + '\n'
     for dataarr in preProcArray:
         for dataval in dataarr:
@@ -46,13 +43,9 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_fu
     csvreader = csv.reader(StringIO(csvasstring), delimiter=',')
     dictky = csvreader.next()
 
-    print dictky
-
     # Submit data to model and thus the database table
     pr = Preprocessed_Recording(recording_id=rec_id, applied_preproc_funcs_names=applied_preproc_funcs_names, preproc_funcs_parameters=preproc_funcs_parameters,  dict_keys=dictky)
     pr.save()
-
-    print dictky
 
     for row in csvreader:
         Preprocessed_Data(pp_recording_id=pr.id, store=dict(zip(dictky, row))).save()
@@ -67,9 +60,10 @@ def show_chart(request, id_num, alg_type=""):
     # load all the algorithms forms
     # TODO discuss a way to obtain all the form dinamically
     if request.method == "POST":
+        print request.POST
         print "GETTING DATA"
         raw_data, cols_in = QueryDb(id_num)
-        print "RAW_DATA ACQUIRED"
+        print "RAW_DATA ACQUIRED: type", type(raw_data), raw_data.dtype
 
         # DATA TYPES in ALG TYPES:
         # 1 : BVP
@@ -85,7 +79,7 @@ def show_chart(request, id_num, alg_type=""):
             try:
                 lab=selcol(raw_data, cols_in, "LAB")
             except IndexError as e:
-                print e.message
+                print e.message.message
                 lab=np.zeros(raw_data.shape[0])
                 pass
 
@@ -102,10 +96,43 @@ def show_chart(request, id_num, alg_type=""):
                 cols=["TIME", "EKG"]
 
             elif data_type=="3":
-                keep_col=["ACCX", "ACCY", "ACCZ", "GYRX", "GYRY", "GYRZ", "MAGX", "MAGY", "MAGZ"]
-                inertial=selcol(raw_data, cols_in, keep_col)
-                time=selcol(raw_data, cols_in, "TIME")
-                data=np.column_stack((time, inertial))
+                col_acc=["ACCX", "ACCY", "ACCZ"]
+                col_gyr=["GYRX", "GYRY", "GYRZ"]
+                col_mag=["MAGX", "MAGY", "MAGZ"]
+                keep_col=[]
+
+                try:
+                    acc=selcol(raw_data, cols_in, col_acc)
+                    keep_col += col_acc
+                    thereIsAcc=True
+                except IndexError as e:
+                    print "NO ACC:"+e.message
+                    thereIsAcc=False
+
+                try:
+                    gyr=selcol(raw_data, cols_in, col_gyr)
+                    keep_col += col_gyr
+                    thereIsGyr=True
+                except IndexError as e:
+                    print "NO GYR:"+e.message
+                    thereIsGyr=False
+
+                try:
+                    mag=selcol(raw_data, cols_in, col_mag)
+                    keep_col += col_mag
+                    thereIsMag=True
+                except IndexError as e:
+                    print "NO MAG:"+e.message
+                    thereIsMag=False
+
+                data=selcol(raw_data, cols_in, "TIME")
+                if thereIsAcc:
+                    data=np.column_stack((data, acc))
+                if thereIsGyr:
+                    data=np.column_stack((data, gyr))
+                if thereIsMag:
+                    data=np.column_stack((data, mag))
+
                 cols=["TIME"]+keep_col
 
             elif data_type=="4":
@@ -120,10 +147,15 @@ def show_chart(request, id_num, alg_type=""):
                 if request.POST['{}-apply_downsampling'.format(mytype[count])] == "on":
                     print "DOWNSAMPLING"
                     FS_NEW = float(request.POST['{}-FS_NEW'.format(mytype[count])])
-                    data = tools.downsampling(data, FS_NEW)
+                    data_labelled=np.column_stack((data, lab))
+                    cols_labelled=cols+["LAB"]
+                    data_labelled = tools.downsampling(data_labelled, FS_NEW)
+                    lab=selcol(data_labelled, cols_labelled, "LAB")
+                    data=selcol(data_labelled, cols_labelled, cols)
                     funcs_par.update({"tools.downsampling":{"FS_NEW":str(FS_NEW)}})
-            except:
+            except Exception as e:
                 print "ERROR DOWNSAMPLING"
+                print e.message
                 pass
 
             try:
@@ -134,12 +166,14 @@ def show_chart(request, id_num, alg_type=""):
                     data_col=cols[:]
                     data_col.remove("TIME")
                     data_only=selcol(data, cols, data_col)
-                    data_only = filters.smoothGaussian(data_only, sigma)
+                    for i in range(data_only.shape[1]):
+                        data_only[:,i] = filters.smoothGaussian(data_only[:,1], sigma)
                     data=np.column_stack((t, data_only))
                     funcs_par.update({"filters.smoothGaussian":{"sigma":str(sigma)}})
 
-            except:
+            except Exception as e:
                 print "ERROR SMOOTH GAUSSIAN"
+                print e.message
                 pass
 
             try:
@@ -149,14 +183,17 @@ def show_chart(request, id_num, alg_type=""):
                     stopFr = float(request.POST['{}-stopFr'.format(mytype[count])])
                     LOSS = float(request.POST['{}-LOSS'.format(mytype[count])])
                     ATTENUATION = float(request.POST['{}-ATTENUATION'.format(mytype[count])])
-                    filterType = float(request.POST['{}-filterType'.format(mytype[count])])
+                    filterType = str(request.POST['{}-filterType'.format(mytype[count])])
                     data = filters.filterSignal(data, passFr, stopFr, LOSS, ATTENUATION, filterType)
                     funcs_par.update({"filters.filterSignal":{"passFr":str(passFr), "stopFr":str(stopFr), "LOSS":str(LOSS), "ATTENUATION":str(ATTENUATION), "filterType":str(filterType)}})
 
-            except:
+            except Exception as e:
                 print "ERROR FILTER"
+                print e.message
                 pass
+
             print "START SPECIFIC PROCESSING"
+
             if data_type == "4":
                 try:
                     if request.POST['{}-apply_spike'.format(mytype[count])] == "on":
@@ -169,8 +206,9 @@ def show_chart(request, id_num, alg_type=""):
                         data=np.column_stack((t, data_only))
                         funcs_par.update({"GSR.remove_spikes":{"TH":str(TH)}})
 
-                except:
+                except Exception as e:
                     print "ERROR SPIKES"
+                    print e.message
                     pass
 
             if data_type == "4":
@@ -189,14 +227,13 @@ def show_chart(request, id_num, alg_type=""):
 
             if data_type == "1" or data_type == "2":
                 t=selcol(data, cols, "TIME")
-                SAMP_F = int(round(1 / (t[1] - t[0])))
                 delta = float(request.POST['{}-delta'.format(mytype[count])])
                 data_labelled=np.column_stack((data, lab))
                 cols_labelled=cols+["LAB"]
-                peaks = IBI.getPeaksIBI(data_labelled, SAMP_F, delta)
+                peaks, cols_temp = IBI.getPeaksIBI(data_labelled, cols_labelled, delta, mytype[count])
                 minFr = float(request.POST['{}-minFr'.format(mytype[count])])
                 maxFr = float(request.POST['{}-maxFr'.format(mytype[count])])
-                pre_data, columns_out = IBI.max2interval(peaks, minFr, maxFr)
+                pre_data, columns_out = IBI.max2interval(peaks, cols_temp, minFr, maxFr)
                 funcs_par.update({"IBI.getPeaksIBI":{"delta":str(delta)}})
                 funcs_par.update({"IBI.max2intervals":{"minFr":str(minFr), "maxFr":str(maxFr)}})
 
@@ -226,8 +263,8 @@ def show_chart(request, id_num, alg_type=""):
         else:
             if "1" in alg_type:
                 count = 0
-                formDown = downsampling(initial={'apply_filter': False}, prefix=mytype[count])
-                formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[count])
+                formDown = downsampling(initial={'apply_downsampling': False}, prefix=mytype[count])
+                formGau = smoothGaussian(initial={'sigma': 2, 'apply_smooth': False}, prefix=mytype[count])
                 formFilt = filterAlg(
                     initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType': 'cheby2',
                              'apply_filter': True}, prefix=mytype[count])
@@ -235,25 +272,25 @@ def show_chart(request, id_num, alg_type=""):
                 bvp_tmp = {'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt, 'formSpec': formSpec}
             if "2" in alg_type:
                 count = 1
-                formDown = downsampling(initial={'apply_filter': False}, prefix=mytype[count])
-                formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[count])
+                formDown = downsampling(initial={'apply_downsampling': False}, prefix=mytype[count])
+                formGau = smoothGaussian(initial={'sigma': 2, 'apply_smooth': False}, prefix=mytype[count])
                 formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False},
                                      prefix=mytype[count])
                 formSpec = EKG_Form(initial={'delta': 0.2, 'minFr': 40, 'maxFr': 200}, prefix=mytype[count])
                 ekg_tmp = {'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt, 'formSpec': formSpec}
             if "3" in alg_type:
                 count = 2
-                formDown = downsampling(initial={'apply_filter': False}, prefix=mytype[count])
-                formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[count])
+                formDown = downsampling(initial={'apply_downsampling': False}, prefix=mytype[count])
+                formGau = smoothGaussian(initial={'sigma': 2, 'apply_smooth': False}, prefix=mytype[count])
                 formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False},
                                      prefix=mytype[count])
                 formSpec = Inertial_Form(initial={'coeffAcc': 1, 'coeffGyr': 1, 'coeffMag':1}, prefix=mytype[count])##
                 inertial_tmp = {'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt, 'formSpec': formSpec}
             if "4" in alg_type:
                 count = 3
-                formPick = remove_spike(initial={'apply_filter': False}, prefix=mytype[count])
-                formDown = downsampling(initial={'apply_filter': False}, prefix=mytype[count])
-                formGau = smoothGaussian(initial={'sigma': 2, 'apply_filter': False}, prefix=mytype[count])
+                formPick = remove_spike(initial={'apply_spike': False}, prefix=mytype[count])
+                formDown = downsampling(initial={'apply_downsampling': False}, prefix=mytype[count])
+                formGau = smoothGaussian(initial={'sigma': 2, 'apply_smooth': False}, prefix=mytype[count])
                 formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False},
                                      prefix=mytype[count])
                 formSpec = GSR_Form(
@@ -322,7 +359,7 @@ def select_experiment(request):
 
 
 def getRecordsList(experimentId):
-    return Recording.objects.filter(experiment=experimentId).values_list('id', 'description').order_by('id')
+    return Recording.objects.filter(experiment=experimentId).values_list('id', 'device_name', 'description', 'dict_keys', 'ts').order_by('id')
 
 def select_record(request, id_num):
     if request.method == 'POST':
@@ -330,8 +367,7 @@ def select_record(request, id_num):
         return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': record_id, 'alg_type': ""}))
     else:
         name_list = getRecordsList(id_num)
-        d = dict(name_list)
-        context = {'dict': d}
+        context = {'name_list': name_list}
         return render(request, 'preproc/records.html', context)
 
 
@@ -349,7 +385,7 @@ def test(request):
     # try:
     #     lab=tools.selectCol(data, columns_in, "LAB")
     # except IndexError as e:
-    #     print e
+    #     print e.message
     #     lab=np.zeros(t.shape[0])
     #     pass
 

@@ -50,7 +50,11 @@
                     <div id="temporary-processing"></div>
                     <!-- THIS IS THE DIV CONTAINIG THE GRAPH -->
                 </div>
-                options list:
+                <div class="temporary-processing1 row">
+                    <div id="temporary-processing1"></div>
+                    <!-- THIS IS THE DIV CONTAINIG THE GRAPH -->
+                </div>
+               {% comment %} options list:
 		<div id="options" style="margin-left:2px">
 		    <form onsubmit="show_graph()" id="options_form">
 		        <fieldset>
@@ -64,7 +68,7 @@
 		            {% endbuttons %}
 		        </fieldset>
 		    </form>
-	         </div>
+	         </div>{% endcomment %}
 
             </div>
 
@@ -182,15 +186,24 @@
 
         hide();
 
-        var global_data = NaN;
+        //var global_data = NaN;
 
-        $.getJSON("{% url 'chart_getdata' id_num elab %}", function (data) {
-            global_data = data;
-            show_graph();
+        $.getJSON("{% url 'chart_getdata' id_num "raw" %}", function (data) {
+            //var global_data = data;
+            $('#temporary-processing').highcharts('StockChart', data);
+            //show_graph();
         });
 
+        {% if elab == "proc" %}
+            $.getJSON("{% url 'chart_getdata' id_num elab %}", function (data) {
+            //var global_data = data;
+            $('#temporary-processing1').highcharts('StockChart', data);
+            //show_graph();
+        });
+        {% endif %}
 
-        function show_graph() {
+
+        {% comment %}function show_graph() {
             var allVals = [];
             $('#options :input:checked').each(function (i, elem) {
                 allVals.push(elem.value);
@@ -211,13 +224,13 @@
                     }
                 }
             }
-            $('#temporary-processing').highcharts('StockChart', dataTmp);
+            $('#temporary-processing').highcharts('StockChart', global_data);
         }
 
         //prevent page from reload on submit
         $('#options_form').on('submit', function (e) {
             e.preventDefault();
-        });
+        });{% endcomment %}
     </script>
 
 {% endblock app_specific_js %}

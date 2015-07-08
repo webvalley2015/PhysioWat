@@ -14,7 +14,6 @@ Created on Wed Jul  1 17:10:50 2015
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import cross_validation
 from sklearn.cross_validation import train_test_split
@@ -28,7 +27,7 @@ from scipy import stats
 import time
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
-from matplotlib.backends.backend_pdf import PdfPages
+# from matplotlib.backends.backend_pdf import PdfPages
 
 
 # names is the list containig the names of the possible 
@@ -123,7 +122,7 @@ def feat_boxplot(x, nam):
     #plt.show()
     # return as you want      #not done yet
     
-def crossvalidate_1df(data, alg, k):
+def quick_crossvalidate(data, alg):
     '''
     This function use a k-fold crossvalidation to predict labels on the
     input database
@@ -168,7 +167,6 @@ def crossvalidate_1df(data, alg, k):
         predicted_labels = predict(get_selected_clf(X_train, y_train, alg), X_test, y_test )
         
     return sol, predicted_labels
-
    
 def quick_fat(in_data, te_data, alg): # stand for quick Fit And Test
     '''
@@ -204,6 +202,7 @@ def quick_fat(in_data, te_data, alg): # stand for quick Fit And Test
 
     y_pred = predict(get_selected_clf(in_data, in_tar, alg), te_data, te_tar )
     return te_tar.values , y_pred
+    
     
 def get_selected_clf(X, Y, alg):
     '''
@@ -675,6 +674,7 @@ def cut_feature(df, k):
     pippo = SelectKBest(f_classif, k=k).fit(df, label)
     return np.append(pippo.get_support(), True)
    
+
 def bestfeatn(input_data, intest_data):
     #space = np.linspace(0, input_data.shape[1], num=deepk).astype(np.int64)
     space = [1,2,3,4,5,10,15,20,25,50,100,200,1000,2000,5000,10000]
@@ -691,11 +691,26 @@ def bestfeatn(input_data, intest_data):
         y_true, y_pred = quick_fat(train_data, test_data, 'RFC')
         #clf = bestfit(train_data, 'RFC', 1)
         #y_true = test_data.LAB
-        #y_pred = predict(clf, test_data, y_true )        
+        #y_pred = predict(clf, test_data, y_true )
         dic_metric, conf_mat = get_report(y_true, y_pred)
         my_met[k,:] = (i, dic_metric['ACC'])
     return  my_met
+    #it should return as getfeatnumber and a plottable obj
         
+        
+
+def pers_crossvalidation1(data, alg, par):
+    clf = classifiersDefaultParameters[0]
+    return clf
+    
+def pers_crossvalidation1(data, alg, par1, par2):
+    clf = classifiersDefaultParameters[0]
+    return clf  
+
+def getfeatnumber(df_in, df_te, k):
+    #return the dfin e dfte of len "best k feat"
+    return df_in, df_te, res_met
+
 def import_bojan():
     localdir = '/home/andrea/Work/data/BojanAnalisys/'
     features = pd.read_table(filepath_or_buffer=localdir + 'features.txt', sep='\n', header=None)#, index_col=None, sep=',')
@@ -722,7 +737,7 @@ if __name__ == '__main__':
     norm_data = normalize(input_data)
             
     #feature selection
-    #train_data, test_data = split(norm_data)
+    train_data, test_data = split(norm_data)
     res_mat = bestfeatn(train, test)
     #plot of feature selection
     plt.figure()
@@ -740,14 +755,14 @@ if __name__ == '__main__':
         #    clf, metric = bestfit(train_data, 'KNN',1)    
         #    clf, metric = bestfit(train_data, 'ADA',1)
 
-    #fit the model with the chosen alg  
-    #just call the alg  
-
+    #fit the model with the chosen alg
+    #just call the alg
+def machineLearningPrediction(clf, test_data):
     y_true = test_data.LAB
     te_data = test_data[test_data.columns[:-1]]
     y_pred = predict(clf, te_data, y_true )
     dic_metric, conf_mat = get_report(y_true, y_pred)
-    
+    return dic_metric, conf_mat
     
     print dic_metric
     print conf_mat
