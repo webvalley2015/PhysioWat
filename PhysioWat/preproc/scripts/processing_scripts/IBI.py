@@ -1,6 +1,6 @@
 from __future__ import division
 import numpy as np
-from tools import peakdet, get_row_for_col
+from tools import peakdet, get_row_for_col, selectCol as selcol
 
 #####################################
 ## NOTE
@@ -22,18 +22,19 @@ def calculateHRVindexes(RR):
     return Indexes
 
 
-def extract_IBI_features(data, windows, labels):
+def extract_IBI_features(data, cols, windows, labels):
     '''
     exetract the features  from an IBI with passed windows
     return: np.array containing the features of each window, the new labels (removes the ones corresponding to empty windows)
     data: the data from which extract the features, passed as a numpy array (N,2) with time and values in the two columns
     windows: numpy array containing the start and the end point (in time) of every windows
     labels: np.array containing the labels
+    cols: the column labels
     '''
     result = []
     res_labels = labels
-    times = data[:,0]
-    values = data[:,1]
+    times = selcol(data, cols, "TIME")
+    values = selcol(data, cols, "IBI")
     for tindex in xrange(len(windows)):
         startt = windows[tindex][0]
         endt = windows[tindex][1]
@@ -44,22 +45,25 @@ def extract_IBI_features(data, windows, labels):
     return np.nan_to_num(result), res_labels
 
 
-def getPeaksIBI(signal, SAMP_F, peakDelta):
+def getPeaksIBI(signal, cols, peakDelta, s_type):
     '''
     get the peaks for the ibi calculation
-    return: an nparrays (N,3), containing in order the time (in s), the height of the peak and the lables
+    return: an nparrays (N,3), containing in order the time (in s), the height of the peak and the lables and the column names
     signal: signal as np.array (N,3) in which search the peaks (columns: timestamp, signal, labels)
     peakDelta: minimum peak height
     SAMP_F: the sampling frequency of signal
+    cols: the column labels
+    s_type=signal type: BVP or GSR
     '''
-    timed_lbls = signal[:,[0,2]]
-    t = signal[:,0]
-    signal_vals = signal[:,1]
+    timed_lbls = selcol(signal, cols, ["TIME", "LAB"])
+    t = selcol(signal, cols,  "TIME")
+    signal_vals = selcol(signal ,cols, s_type)
     maxp, minp = peakdet(signal_vals, peakDelta, t)
     new_lbls = get_row_for_col(timed_lbls, maxp[:,0])[:,1]
-    return np.column_stack((maxp, new_lbls))
+    cols_out=["TIME", "PEAK", "LAB"]
+    return np.column_stack((maxp, new_lbls)), cols_out
 
-def max2interval(peaks, minrate=40, maxrate=200):
+def max2interval(peaks, cols,  minrate=40, maxrate=200):
     """
     Returns intervals from timesMax, after filtering possible artefacts based on rate range (rates in min^(-1))
     if two peaks are nearer than minrate or further than maxrate, the algorithm try to recognize if there's a false true or a peak missing
@@ -77,8 +81,8 @@ def max2interval(peaks, minrate=40, maxrate=200):
     # algoritmo alternativo
     # beat artifacts correction
     ##inizializzazioni
-    timed_lbls = peaks[:,[0,2]]
-    peaks_time = peaks[:,0]
+    timed_lbls = selcol(peaks, cols, ["TIME", "LAB"])
+    peaks_time = selcol(peaks, cols, "TIME")
     
     tprev=peaks_time[0]
     tfalse=tprev
@@ -100,7 +104,12 @@ def max2interval(peaks, minrate=40, maxrate=200):
             tfalse=tact #aggiorno falso picco
             tprev=tact #aggiorno tprev
     #calculates the labels foreach time in timeRR
-    labelRR = get_row_for_col(timed_lbls, timeRR)[:,1]
+    try:
+        labelRR = get_row_for_col(timed_lbls, timeRR)[:,1]
+    except IndexError as e:
+        print "NO LABELS: ", e.message
+        labelRR=np.array([])
+        pass
     #the result contains a 2D array with the times and the ibi
     return np.column_stack((timeRR, RR, labelRR)), ["TIME", "IBI", "LAB"]
 
