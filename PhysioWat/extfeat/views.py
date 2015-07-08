@@ -15,6 +15,7 @@ import pandas as pd
 import numpy as np
 from PhysioWat.settings import MEDIA_ROOT
 from time import time as get_timestamp
+from preproc.scripts.processing_scripts import pddbload
 import datetime
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import cross_validation
@@ -29,6 +30,23 @@ from sklearn.metrics import *
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
 from PhysioWat.models import Experiment, Preprocessed_Recording, Preprocessed_Data, FeatExtractedData
+
+
+def form_select_signal(id_record):
+    signal_list = Preprocessed_Recording.objects.filter(recording_id = id_record).values_list('id','dict_keys').order_by('id')
+    checkbox_in=[]
+    for ID, cols in signal_list:
+        if 'PHA' in cols:   #GSR
+            type_sig="GSR"
+        elif 'ACCX' or 'GYRX' or 'MAGX' in cols:
+            type_sig="inertial"
+        elif "IBI" in cols:
+            type_sig="IBI"
+        checkbox_in.append((ID, str(ID)+" - "+" "+str(type_sig)))
+
+    form_sel_id = signal_choose(choices=checkbox_in)
+    return form_sel_id
+
 
 def QueryDb(recordingID):   #JUST COPY, PASTE AND CHANGED RECORDS
     table = Preprocessed_Recording.objects.get(id=recordingID)
@@ -47,46 +65,39 @@ def QueryDb(recordingID):   #JUST COPY, PASTE AND CHANGED RECORDS
 def WritePathtoDB(fname, pp_rec_id):
     FeatExtractedData(pp_recording_id=pp_rec_id, path_to_file=fname).save()
 
-def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
+def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
 
     # read parameters from url
     # get data type list
 
     if (request.method == 'POST'):
-        print("I HAVE A POST!!!")
-        a = windowing(request.POST)
-        if a.is_valid():
-            # print a.cleaned_data
-            # time = GET THE COLUMN TIME FROM DB (ASK RICCARDO)
-            # label = GET THE COLUMN OF THE LABEL FROM THE DB (ASK RICCARDO)
-            # those prevoious 2 variabliles were for windowing. as i wrote, ask riccardo for further inforation
-            # after having done the db stuffs, please un-comment the 2 variabiles and feel free to delete this 2 comments
-
+        print request.POST
+        mydict = dict(request.POST.iterlists())
+        print mydict
+        for id_num in mydict['choose_signal']:
             data, cols = QueryDb(id_num)
             print cols
             time = selcol(data, cols, "TIME")
             labs = selcol(data, cols, "LAB")
 
-            a = a.cleaned_data
-            if (a['type'] == 'contigous'):
-                windows, winlab = wd.get_windows_contiguos(time, labs, a['length'], a['step'])
+            if (mydict['type'][0] == 'contigous'):
+                windows, winlab = wd.get_windows_contiguos(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
 
-            if (a['type'] == 'no_mix'):  # for the values, make reference to .forms --> windowing.!!!!
-                windows, winlab = wd.get_windows_no_mix(time, labs, a['length'], a['step'])
+            if (mydict['type'][0] == 'no_mix'):  # for the values, make reference to .forms --> windowing.!!!!
+                windows, winlab = wd.get_windows_no_mix(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
 
-            if (a['type'] == 'full_label'):
-                windows, winlab = wd.get_windows_full_label(time, labs)
-            print windows
-            print time[0], time[-1]
+            if (mydict['type'][0] == 'full_label'):
+                windows, winlab = wd.get_windows_full_label(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
+
             # extract features from result
             # store feats. in the db
             if 'PHA' in cols:   #GSR
                 data_in=selcol(data, cols, "PHA")
                 DELTA=0 #TODO GET FROM DB params!
                 feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
-                data_out, columns_out=dict_to_arrays(feat_dict)
+                data_out, cols_out=dict_to_arrays(feat_dict)
                 data_out=np.column_stack((data_out, winlab))
-                columns_out=np.r_[columns_out, ["LAB"]]
+                columns_out=np.r_[cols_out, ["LAB"]]
 
             elif 'ACCX' in cols or 'GYRX' in cols or 'MAGX' in cols:
                 col_acc=["ACCX", "ACCY", "ACCZ"]
@@ -138,13 +149,12 @@ def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!
             toCsv(data_out, columns_out, fname)
             WritePathtoDB(fname, id_num)
 
-        # after having extracted the fieatures --> save on db
-
     else:
         form = windowing()
+        form_signal = form_select_signal(id_record)
         template = "extfeat/choose_alg.html"
         # print urlTmp['id_num']
-        context = {'form': form, 'id_num': id_num}
+        context = {'form': form,'form_signal':form_signal, 'id_record': id_record}
         return render(request, template, context)
 
 
@@ -164,8 +174,9 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         print mydict
 
         print '-' * 60
-        localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
-        input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
+        #localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
+        #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
+        input_data = pddbload.load_file_pd_db(1)
         num_feat = -1  # set to -1 because of
 
         percentage = mydict['test_percentage'][0]
@@ -325,6 +336,8 @@ def select_experiment(request):
     else:
         return render(request, 'extfeat/experiments.html', context)
 
+def getprocessedrecordid():
+    return FeatExtractedData.objects.values_list('pp_recording', flat=True).distinct()
 
 def getRecordsList(experimentId):
     return Recording.objects.filter(experiment=experimentId).values_list('id', 'device_name', 'description', 'dict_keys', 'ts').order_by('id')
@@ -341,27 +354,6 @@ def select_record(request, id_num):
         return render(request, 'extfeat/records.html', context)
 
 
-def select_signal(request, id_record):
-    #print "I GOT REDIRECTED!!!"
-    #print id_record
-    signal_list = Preprocessed_Recording.objects.filter(recording_id = id_record).values_list('id','dict_keys').order_by('id')
-    #print signal_list
-    checkbox_in=[]
-    for ID, cols in signal_list:
-        if 'PHA' in cols:   #GSR
-            type_sig="GSR"
-        elif 'ACCX' or 'GYRX' or 'MAGX' in cols:
-            type_sig="inertial"
-        elif "IBI" in cols:
-            type_sig="IBI"
-        checkbox_in.append((ID, str(ID)+" - "+" "+str(type_sig)))
-
-    print checkbox_in
-    form_sel_id = signal_choose(choices=checkbox_in)
-    print type(form_sel_id)
-    template ="extfeat/choose_signal.html"
-    context = {'form' : form_sel_id, 'id_record': id_record}
-    return render(request,template, context)
 
 
 def final_ml_page(request, result_dict, conf_mat):

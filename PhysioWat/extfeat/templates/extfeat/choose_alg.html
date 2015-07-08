@@ -8,9 +8,14 @@
 {% block container %}
 <div id="alg_choose_container" style="width:50%; margin:0 auto; position:relative; top:100px; left:100px;">
 
-    <form action="{% url 'alg_choose' id_num %}" method="post" enctype="multipart/form-data" name="selection">
+    <form action="{% url 'alg_choose' id_record %}" method="post" enctype="multipart/form-data" name="selection">
      {% csrf_token %}
+
+        {% bootstrap_form form_signal %}
+
         {% bootstrap_form form %}
+
+
      <button type="submit" id="select_submit" class="btn btn-success" href="ciao.html">Submit</button>
         <button type="reset" class="btn btn-danger">Reset</button>
     </form>
