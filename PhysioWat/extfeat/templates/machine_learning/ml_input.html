@@ -8,9 +8,11 @@
 {% block container %}
 <div id="total_container" style="position:absolute; top:80px; left:20px;">
     <form action="#" method="post" enctype="multipart/form-data" name="selection" id="selection">
-    {% csrf_token %}
-        {{  viewf }}
+        {% csrf_token %}
 
+        {{  viewf }}
+<br><br>
+        {{ formListId }}
      <div id="mlParSet_1" style="display:none;" class="div_choose">
          <br><br>
          <h5> Select whether you want to choose how many features you want to consider, or if you want an automatic

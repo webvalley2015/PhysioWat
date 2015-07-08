@@ -20,6 +20,7 @@
                 padding-left: 10%;
                 padding-right: 10%;
                 font-size: 17px;
+                line-height: 1.5;
             }
 
             .text h2 {
@@ -29,6 +30,25 @@
                 margin-right: auto;
                 font-size: 24px;
             }
+            .button{
+                width:200px;
+                height:50px;
+                position:absolute;
+                right:30px;
+                color: #FFF;
+                margin-top:-30px;
+                background-color: #6699FF;
+                -webkit-border-radius: 10px;
+                -moz-border-radius: 10px;
+                border-radius: 10px;
+                text-align: center;
+                line-height: 50px;
+                vertical-align: middle;
+            }
+            .button:hover{
+                background-color: #476bb2;
+            }
+
         </style>
     {% endblock %}
 
@@ -38,16 +58,18 @@
             <div class="about-top">
                 <br><br>
 
-                <a href="{% uploader/web %}">
+                
+                <!-- <div style="width:200px;height:50px;position: absolute; right: 20px; margin-top: 5px; solid #80CCFF;"><span style="position: absolute; right: 20px; margin-top: 5px;"><a href="{% url 'experiment_creator' %}"><span>Create a New Experiment</span></a></span></div>-->
 
-                <h2>
-                    <div style="font-size: 30px; color: #333;">WELCOME TO <span>PhysioWAT </span></div>
-                    <br/>
-                </h2>
-                <p style="width:80%; margin-left:auto; margin-right:auto; color: #555;">This is a web platform for
+                <h1>
+                    <div style="font-size: 40px; color: #333;">Welcome to <span>PhysioWat </span></div>
+                    <br>
+                </h1>
+                <p style="width:80%; margin-left:auto; margin-right:auto; color: #555; line-height: 1.5;">This is a web platform for
                     sensor data
-                    storage and analysis. It allows you to upload data, process it by extracting features, and visualize
-                    it through suitable graphs. </p>
+                    storage and analysis. It allows you to upload data, process them by extracting features and
+                    visualize
+                    them through suitable graphs. </p>
 
                 <br/>
 
@@ -69,13 +91,13 @@
                                 store them
                                 on a relational database. Users can upload their data and analyze the stored data
                                 online,
-                                visualize data in different graphs, and save them.
+                                visualize data in different graphs and save them.
                             </p>
                         </div>
                         <!-- /.col-lg-4 -->
                         <div class="col-lg-4 text">
                             <div class="images">
-                                <img src="{% static 'image/webvalley_logo.png' %}" class="img-responsive">
+                                <a href="https://webvalley.fbk.eu/"><img src="{% static 'image/webvalley_logo.png' %}" class="img-responsive"></a>
                             </div>
                             <h2>The Team</h2>
 
@@ -88,7 +110,7 @@
                                 school for dissemination of interdisciplinary research. The starting point is the
                                 philosophy
                                 of
-                                combining open source tools, FBK research products, and the creativity of
+                                combining open source tools, FBK research products and the creativity of
                                 participants in
                                 order
                                 to solve a real problem using new technologies.
@@ -102,15 +124,16 @@
                             <h2>The case studies</h2>
 
                             <p>
-                                The project focuses on the classification of stereotypical patterns in ASD children
+                                The project focuses on the quantification of stereotypical patterns in ASD children
                                 and on
                                 the
                                 synchronization of physiological responses in different relationships. The project
                                 was
-                                commissioned and supported by the ABP-lab (UniTN & NTY). Other than the raw data we
+                                commissioned and supported by the <a href="http://abp.dipsco.unitn.it/">ABP-lab</a>, UniTN, NTY and ODFLab. Other than the raw
+                                data we
                                 were
                                 given,
-                                we also collected "synthetical data" with wearable sensors.
+                                we also collected "synthetic data" with wearable sensors.
                             </p>
                         </div>
                         <!-- /.col-lg-4 -->

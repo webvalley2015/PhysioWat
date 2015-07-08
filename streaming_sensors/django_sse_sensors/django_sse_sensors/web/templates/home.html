@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Django Server Sent Events - Test</title>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script src="//code.highcharts.com/highcharts.js"></script>
+	<script src="//code.highcharts.com/modules/exporting.js"></script>
+	<script type="text/javascript">
+
+		$(document).ready(function() {
+			var source = new EventSource('/events1/');
+			var events_dom = $("#events");
+
+			source.addEventListener("date", function(e) {
+				events_dom.html("<div>" + e.data + "</div>");
+			});
+		});
+	</script>
+</head>
+<body>
+<h2>Events emited by server</h2>
+<div id="events">
+</div>
+
+
+<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<script>
+	$(function () {
+		$(document).ready(function () {
+			Highcharts.setOptions({
+				global: {
+					useUTC: false
+				}
+			});
+
+			$('#container').highcharts({
+				chart: {
+					type: 'line',
+					animation: Highcharts.svg, // don't animate in old IE
+					marginRight: 10,
+					events: {
+
+						load: function () {
+
+							// set up the updating of the chart each second
+							var series = this.series[0];
+							var source = new EventSource('/events1/');
+							var maxSamples = 20,
+                            count = 0;
+							setInterval(function () {
+								source.addEventListener("message", function(e) {
+									var x = (new Date()).getTime();
+									var y = Math.random();
+									var xy = JSON.parse(e.data);
+									console.log(xy['timestamp']);
+									console.log(xy['values'][0]);
+									console.log("---");
+									series.addPoint([x, xy['values'][0]], true, (++count >= maxSamples));
+								});
+							}, 1000);
+						}
+
+					}
+				},
+				title: {
+					text: 'Live random data'
+				},
+				xAxis: {
+					type: 'datetime',
+					tickPixelInterval: 150
+				},
+				yAxis: {
+					title: {
+						text: 'Value'
+					},
+					plotLines: [{
+						value: 0,
+						width: 1,
+						color: '#808080'
+					}]
+				},
+				tooltip: {
+					formatter: function () {
+						return '<b>' + this.series.name + '</b><br/>' +
+								Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+								Highcharts.numberFormat(this.y, 2);
+					}
+				},
+				legend: {
+					enabled: false
+				},
+				exporting: {
+					enabled: false
+				},
+				series: [{
+					name: 'Random data',
+					data: []
+				}]
+			});
+		});
+	});
+
+
+
+
+</script>
+</body>
+</html>

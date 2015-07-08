@@ -25,7 +25,6 @@ proguard/
 *.ipr
 *.iws
 .idea/
-=======
 .idea
 *.pyc
 *~
@@ -37,4 +36,3 @@ PhysioWat/User Interface/images/default.gif
 local_settings.py
 dev.db
 
->>>>>>> bb62b2f1c1d967fae3f475f18cb07db1209e7852

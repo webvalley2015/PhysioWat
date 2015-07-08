@@ -7,6 +7,7 @@ class windowing(forms.Form):
     length = forms.FloatField(min_value=0.00001, initial=1)
     step = forms.FloatField(min_value=0.000001, initial=1)
 
+
 class viewFeatures(forms.Form):
     my_choices = [('norm','normalize features'), ('sel','select features. if not ticked, immediatly following selector will not be taken in consider') ]
     viewf = forms.ChoiceField(choices=my_choices,widget=forms.CheckboxSelectMultiple())
@@ -63,3 +64,22 @@ class autoFitParam(forms.Form):
                  ('REM','Recall Score Macro'),('REm','Recall Score Micro'),('REW','Recall Score Weighted')
                  ]
     maximize = forms.ChoiceField(choices=my_choices,widget=forms.RadioSelect(), initial='ACC')
+
+#--------------------------------------------
+# todo FORMS FOR FEAT EXTS
+#------------------------------------------------
+
+class signal_choose(forms.Form):
+    choose_signal = forms.ChoiceField(choices=[], widget=forms.CheckboxSelectMultiple())
+
+    def __init__(self, choices, *args, **kwargs):
+        super(signal_choose,self).__init__(*args, **kwargs)
+        self.fields['choose_signal'].choices = choices
+
+
+class id_choose(forms.Form):
+    choose_id = forms.ChoiceField(choices=[], widget=forms.SelectMultiple())
+
+    def __init__(self, choices, *args, **kwargs):
+        super(id_choose,self).__init__(*args, **kwargs)
+        self.fields['choose_id'].choices = choices

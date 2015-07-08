@@ -1,0 +1,74 @@
+def feat_boxplot(x, nam):
+    return data
+    
+def get_box_vals(serie):
+    return [minimum, quartile1, median, quartile3, maximum]
+
+def quick_crossvalidate(data, alg):
+    return clf.fit(data, lab), mean_local, err_local
+
+def get_selected_clf(X, Y, alg):
+    return  clf
+
+def my_predict(clf, testX, testY):
+    return labels_predict
+
+def get_report(y_true, y_pred):
+    return report, conf_mat
+
+def bestAlg(fe_data, metric):
+    return the_clf, the_mat
+
+def bestfit(fe_data, alg, metric, fromalg=False):
+        return cccc
+        return clf.fit(in_data, in_tar), loc_metric, loc_error, loc_mat
+        
+def bestfit_KNN(fe_data, alg, metric):
+    return clf, my_met[:,1].max(), my_met[:,2].max(), my_met
+
+def bestfit_SVM(fe_data, alg, metric):
+    return clf, my_met[:,1].max(), my_met[:,2].max(), my_met
+    
+def bestfit_DCT(fe_data, alg, metric):
+    return clf, my_met[:,1].max(), my_met[:,2].max(), my_met
+    
+def bestfit_QDA(fe_data, alg, metric):  #ok
+    return clf, my_met[1], my_met[2], my_met
+    
+def bestfit_LDA(fe_data, alg, metric):
+    return clf, my_met[:,1].max(), my_met[:,2].max(), my_met
+
+def bestfit_ADA(fe_data, alg, metric):
+    return clf, my_met[bestn_est, bestl_rate], err_met[bestn_est, bestl_rate], my_met, err_met
+    
+def bestfit_RFC(fe_data, alg, metric):
+    return clf, my_met[bestn_est, bestl_rate], err_met[bestn_est, bestl_rate], my_met, err_met
+    
+def iterate_crossvalidation(clf, fe_data, metric):
+    return mean_local, err_local
+
+def quick_fat(in_data, te_data, alg): # stand for quick Fit And Test
+    return te_tar.values , y_pred
+
+def normalize(df):
+    return df_norm
+
+def split(df):
+    return train, test
+
+def cut_feature(df, k):
+    return np.append(pippo.get_support(), True)
+
+def getfeatnumber(df_in, df_te, k):
+    return train_data, test_data, list(train_data.columns)
+
+def bestfeatn(input_data, intest_data):
+    return  train_data, test_data, my_met, listoflists
+
+def pers_crossvalidation1(data, alg, par):
+    return clf.fit(data, lab), mean_local, err_local
+
+def pers_crossvalidation2(data, alg, par1, par2):
+    return clf.fit(data, lab), mean_local, err_local  
+
+

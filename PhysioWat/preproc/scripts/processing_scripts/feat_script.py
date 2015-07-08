@@ -81,128 +81,75 @@ def feat_boxplot(x, nam):
         this function will be modified to return a matrix 
         ready to be plotted with js libraries
     
-    '''
-    #    plt.style.use('ggplot')
-    #    step = 20
-    #    ttest = np.array(x.shape[1])
-    #    for k in range(0, x.shape[1], step): #for each feature in your dataframe X
-    #        for i in range(k, (k+step)):   
-    #            data0 = x.query('LAB == '+str(0)).iloc[:,i]   #calc the boxplot for this class
-    #            data1 = x.query('LAB == '+str(1)).iloc[:,i]   # and for this one
-    #            #data2 = x.query('LAB == '+str(2)).iloc[:,i]   # ...
-    #            #data3 = x.query('LAB == '+str(3)).iloc[:,i]
-    #            #ttest[i] = stats.ttest_ind(data0,data1, equal_var = False)
-    #            data = [data0, data1]#, data2, data3]
-    #            plt.subplot(4, 5, (i%20)+1)                          #it will be deleted
-    #            plt.boxplot(data)
-    #            plt.title(x.columns[i], fontsize=7)
-    #        #plt.savefig(pp, format='pdf')
-    #        plt.savefig('fig'+str(k)+'.png')
-            
-    plt.style.use('ggplot')
-    step = 30
+    '''        
+#    plt.style.use('ggplot')
+#    step = 30
+#    end =  x.shape[1]
+#    data = pd.DataFrame()
+#    #ttest = np.zeros(end)
+#    for k in range(0, end, step):
+#        for i in range(k, k+step):   #for each feature in your dataframe X
+#            if i >= end :
+#                break
+#            data0 = x.query('LAB == '+str(0)).iloc[:,i]   #calc the boxplot for 
+#                                                            #this class
+#            data1 = x.query('LAB == '+str(1)).iloc[:,i] 
+#            data = [data0, data1]
+#            #ttest[i] = stats.ttest_ind(data0,data1)
+#            plt.subplot(5,6, (i%step)+1)                          #it will be deleted
+#            plt.boxplot(data)
+#            plt.axis('off')
+#            plt.title(x.columns[i], fontsize=5)
+#        plt.savefig('./figs/fig'+str(nam)+'XXX'+str(k)+'.png')
+    
     end =  x.shape[1]
-    data = pd.DataFrame()
+    datas = []
+    labels = np.unique(x['LAB'])
     #ttest = np.zeros(end)
-    for k in range(0, end, step):
-        for i in range(k, k+step):   #for each feature in your dataframe X
-            if i >= end :
-                break
-            data0 = x.query('LAB == '+str(0)).iloc[:,i]   #calc the boxplot for 
-                                                            #this class
-            data1 = x.query('LAB == '+str(1)).iloc[:,i] 
-            data = [data0, data1]
-            #ttest[i] = stats.ttest_ind(data0,data1)
-            plt.subplot(5,6, (i%step)+1)                          #it will be deleted
-            plt.boxplot(data)
-            plt.axis('off')
-            plt.title(x.columns[i], fontsize=5)
-        plt.savefig('./figs/fig'+str(nam)+'XXX'+str(k)+'.png')
+    for i in range(0, end):
+        data = []
+        for lab in labels:
+            temp_serie = x.query('LAB == '+str(lab)).iloc[:,i]
+            data.append(get_box_vals(temp_serie))
+        datas.append(data)
     
-    #plt.show()
-    # return as you want      #not done yet
+#    plt.subplot(23, 12)                          #it will be deleted
+#    plt.boxplot(datas)
+#    plt.axis('off')
+#    plt.title(x.columns[i], fontsize=5)
+#    plt.savefig('./figs/fig'+str(nam)+'XXX'+str(k)+'.png')    
+    return data
+
+def get_box_vals(serie):
+    '''
+    This function calculates the five values for a box-plot of a pandas Series
     
+    Params:
+        serie (pandas.Series)
+            Series of all the values of a feature of one label
+        
+    Return:
+        boxvals (python list)
+            array containing the five values for box-plot: min, 1° quartile, median, 3° quartile, max
+    '''
+    median = np.median(serie)
+    minimum = np.min(serie)
+    maximum = np.max(serie)
+    quartile1 = np.percentile(serie, 25)
+    quartile3 = np.percentile(serie, 75)
+    return [minimum, quartile1, median, quartile3, maximum]
+
+  
 def quick_crossvalidate(data, alg):
-    '''
-    This function use a k-fold crossvalidation to predict labels on the
-    input database
-      
-    Params:
-        data (pandas.DataFrame)        
-            dataset of extracted features (with labels as last column)
-        alg (string)
-            string of three upcase characters to identify the algorithm.
-            To have the list see the classifiers dictionary
-        k (int)
-            the k parameters for the k-fold cross validation.
-            Usually 5 or 10 in most analisys
-            
-    Return:
-        sol (np.array)
-            array of the true labels (that is y_true)
-        predicted_labels (np.array)
-            array of the predicted labels (that is y_pred)
-        (on the screen) the accuracy mean for each k-fold, because of the
-            predict function
-        
-    FIXME:
-        the kf command doesn't seem valid but it seems all to work fine
+  
+    clf = classifiersDefaultParameters[alg]
+    mean_local, err_local = iterate_crossvalidation(clf, data, 'ACC')
     
-    '''
-    sol = data.LAB  #standard way to divide the feature DF from the target
-    sol = np.array(sol)    
-    data = data[data.columns[:-1]].as_matrix()
+    lab = data.LAB
+    data = data[data.columns[:-1]]
     
-    #test_sol = test_data.LAB
-    #test_in_data = test_data[test_data.columns[:-1]]
 
-    #perform K-FOLD validation
-    #set the K parameters, usually 5 or 10
-    acc = np.zeros([k,1])
-    kf = cross_validation.KFold(data.shape[0],k)# right here
-
-    for train_index, test_index in kf:
-        X_train, X_test = data[train_index], data[test_index]
-        y_train, y_test = sol[train_index], sol[test_index]      
-        predicted_labels = predict(get_selected_clf(X_train, y_train, alg), X_test, y_test )
-        
-    return sol, predicted_labels
-   
-def quick_fat(in_data, te_data, alg): # stand for quick Fit And Test
-    '''
-    This function fit on a dataset and test
-    on one another. Just a quick prediction
-      
-    Params:
-        in_data (pandas.DataFrame)        
-            dataset of extracted features (with labels as last column).
-            Used to fit the model
-        te_data (pandas.DataFrame)        
-            dataset of extracted features (with labels as last column).
-            Used to test the model
-        alg (string)
-            string of three upcase characters to identify the algorithm.
-            To have the list see the classifiers dictionary
-            
-    Return:
-        te_tar.values (np.array)
-            array of the true labels (that is y_true)
-        y_pred (np.array)
-            array of the predicted labels
-        (on the screen) the accuracy mean for each k-fold, because of the
-            predict function
-        
-    Notes: it does not perform cross-validation
-    
-    '''
-    te_tar = te_data.LAB #standard way to divide the feat_DF from the target
-    in_tar = in_data.LAB
-    te_data = te_data[te_data.columns[:-1]]
-    in_data = in_data[in_data.columns[:-1]]
-
-    y_pred = predict(get_selected_clf(in_data, in_tar, alg), te_data, te_tar )
-    return te_tar.values , y_pred
-    
+    return clf.fit(data, lab), mean_local, err_local
     
 def get_selected_clf(X, Y, alg):
     '''
@@ -229,7 +176,7 @@ def get_selected_clf(X, Y, alg):
     clf=clf.fit(X, Y)
     return  clf
 
-def predict(clf, testX, testY):
+def my_predict(clf, testX, testY):
     '''
     This function predicts the labels of a given dataframe and test
     it to obtain a quick accuracy print
@@ -255,7 +202,7 @@ def predict(clf, testX, testY):
     '''
     labels_predict = clf.predict(testX)
     score = clf.score(testX, testY)
-    print "Accuracy %.5f" % (score)
+    #print "Accuracy %.5f" % (score)
     return labels_predict
 
 
@@ -372,15 +319,16 @@ def bestAlg(fe_data, metric):
     '''
     print 'Starting... bestAlg()'
     the_metric = 0
-    metric = 0 #just for debugging
-    for a in classifiers.keys():
-        print a
-        loc_clf, loc_metric = bestfit(fe_data, a, metric)
+    the_mat = np.zeros((len(classifiers), 3))
+    for i, a in enumerate(classifiers.keys()):
+        print i, a
+        loc_clf, loc_metric, loc_error = bestfit(fe_data, a, metric, fromalg=True)
+        the_mat[i, :] = np.array([i, loc_metric, loc_error])
         if loc_metric > the_metric:
             the_metric = loc_metric
             the_clf = loc_clf
-        print loc_metric
-        print loc_clf
+            the_error = loc_error
+        print loc_metric, loc_clf
  
     #    in_tar = fe_data.LAB
     #    in_data = fe_data[fe_data.columns[:-1]]
@@ -396,9 +344,9 @@ def bestAlg(fe_data, metric):
     #        mean_sum += scores.mean()
     #        std_sum  += scores.std()
     #    quick_res = np.array([(mean_sum/big_iterations), (std_sum/big_iterations)])
-    return the_clf #, quick_res  #,metric
+    return the_clf, the_mat
     
-def bestfit(fe_data, alg, metric):
+def bestfit(fe_data, alg, metric, fromalg=False):
     '''
     If you have some parameters to fit this is the right function.
     Given the dataframe of the extracted features, the algs and the metric to
@@ -427,19 +375,22 @@ def bestfit(fe_data, alg, metric):
     '''
        
     print 'Starting... best_fit on ', alg   
-    if   alg == 'KNN': clf, loc_metric = bestfit_KNN(fe_data, alg, metric)
-    elif alg == 'SVM': clf, loc_metric = bestfit_SVM(fe_data, alg, metric)
-    elif alg == 'DCT': clf, loc_metric = bestfit_DCT(fe_data, alg, metric)
-    elif alg == 'RFC': clf, loc_metric = bestfit_RFC(fe_data, alg, metric)
-    elif alg == 'ADA': clf, loc_metric = bestfit_ADA(fe_data, alg, metric)
-    elif alg == 'LDA': clf, loc_metric = bestfit_LDA(fe_data, alg, metric)
-    elif alg == 'QDA': clf, loc_metric = bestfit_QDA(fe_data, alg, metric)
+    if   alg == 'KNN': clf, loc_metric, loc_error, loc_mat = bestfit_KNN(fe_data, alg, metric)
+    elif alg == 'SVM': clf, loc_metric, loc_error, loc_mat = bestfit_SVM(fe_data, alg, metric)
+    elif alg == 'DCT': clf, loc_metric, loc_error, loc_mat = bestfit_DCT(fe_data, alg, metric)
+    elif alg == 'RFC': clf, loc_metric, loc_error, loc_mat = bestfit_RFC(fe_data, alg, metric)
+    elif alg == 'ADA': clf, loc_metric, loc_error, loc_mat = bestfit_ADA(fe_data, alg, metric)
+    elif alg == 'LDA': clf, loc_metric, loc_error, loc_mat = bestfit_LDA(fe_data, alg, metric)
+    elif alg == 'QDA': clf, loc_metric, loc_error, loc_mat = bestfit_QDA(fe_data, alg, metric)
         
         
     in_tar = fe_data.LAB
     in_data = fe_data[fe_data.columns[:-1]]
     
-    return clf.fit(in_data, in_tar), loc_metric
+    if fromalg == True:
+        return clf.fit(in_data, in_tar), loc_metric, loc_error
+    else:
+        return clf.fit(in_data, in_tar), loc_metric, loc_error, loc_mat
 
 
 
@@ -489,7 +440,8 @@ def bestfit_KNN(fe_data, alg, metric):  # ok
 
     bestnn = NNlist[my_met[:,1].argmax()]
     clf = classifiers[alg](bestnn)
-    return clf, my_met[:,1].max()
+    
+    return clf, my_met[:,1].max(), my_met[:,2].max(), my_met
     
     
 def bestfit_SVM(fe_data, alg, metric):
@@ -515,7 +467,7 @@ def bestfit_SVM(fe_data, alg, metric):
         
     my_met = my_met[1:, :]
     clf = classifiers[alg](bestkernel, bestC)
-    return clf, my_met[:,1].max()
+    return clf, my_met[:,1].max(), my_met[:,2].max(), my_met
     
 
 def bestfit_DCT(fe_data, alg, metric):
@@ -534,7 +486,7 @@ def bestfit_DCT(fe_data, alg, metric):
 
     bestmax_f = MFlist[my_met[:,1].argmax()]
     clf = classifiers[alg](bestmax_f)
-    return clf, my_met[:,1].max()
+    return clf, my_met[:,1].max(), my_met[:,2].max(), my_met
     
 def bestfit_QDA(fe_data, alg, metric):  #ok
     my_met = np.matrix([[0,0,0]])
@@ -549,7 +501,7 @@ def bestfit_QDA(fe_data, alg, metric):  #ok
     #plt.xscale('log') #just if a parameter is exponentially growing
     #plt.draw()  
     #print  my_met[:,1].max()
-    return clf, my_met[1]
+    return clf, my_met[1], my_met[2], my_met
     
     
 def bestfit_LDA(fe_data, alg, metric):
@@ -575,7 +527,7 @@ def bestfit_LDA(fe_data, alg, metric):
     bestsolver = SRlist[my_met[:,1].argmax()]
     clf = classifiers[alg](bestsolver)
     
-    return clf, my_met[:,1].max()
+    return clf, my_met[:,1].max(), my_met[:,2].max(), my_met
     
 #watch out... this is a particular matrix... 65s for 75cvs
 def bestfit_ADA(fe_data, alg, metric):
@@ -600,7 +552,7 @@ def bestfit_ADA(fe_data, alg, metric):
     #print NElist[bestl_rate]
     #print LRlist[bestn_est]
     clf = classifiers[alg](NElist[bestn_est], LRlist[bestl_rate])
-    return clf, my_met.max()
+    return clf, my_met[bestn_est, bestl_rate], err_met[bestn_est, bestl_rate], my_met#, err_met
     
 #watch out... this is a particular matrix    6m for 300cvs
 def bestfit_RFC(fe_data, alg, metric):
@@ -621,18 +573,23 @@ def bestfit_RFC(fe_data, alg, metric):
     
     bestn_est, bestmax_f = np.unravel_index(my_met.argmax(), (len(NElist), len(MFlist)))
     clf = classifiers[alg](NElist[bestn_est], MFlist[bestmax_f])
-    return clf, my_met.max()
+    return clf, my_met[bestn_est, bestmax_f], err_met[bestn_est, bestmax_f], my_met#, err_met
     
-def normalize(df):
-    lab = df.LAB
-    df = df[df.columns[:-1]]
-    #df = df[df.columns[:3]]
-    df_norm = (df - df.mean(axis=0)) / df.std(axis=0)
-    df_norm = pd.concat((df, lab), axis=1)
-    df_norm = df_norm.dropna(how='any')
-    return df_norm
- 
+
 def iterate_crossvalidation(clf, fe_data, metric):
+    metric_list = {
+        'ACC': 'accuracy',
+        'F1M': 'f1_macro',
+        'F1m': 'f1_micro',
+        'F1W': 'f1_weighted',
+        #'WHM': known bug not implemented
+        'PRM': 'precision_macro',
+        'PRm': 'precision_micro',
+        'PRW': 'precision_weighted',
+        'REM': 'recall_macro',
+        'REm': 'recall_micro',
+        'REW': 'recall_weighted'
+    }
     mean_sum = 0.
     std_sum = 0.
     for i in range(iterations):
@@ -641,13 +598,58 @@ def iterate_crossvalidation(clf, fe_data, metric):
         in_tar = fe_data.LAB
         in_data = fe_data[fe_data.columns[:-1]]
 
-        scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=cv_val)
+        scores = cross_validation.cross_val_score(clf, in_data, in_tar, cv=cv_val, scoring=metric_list[metric])
         mean_sum += scores.mean()
         std_sum  += scores.std()
     mean_local = mean_sum/iterations
     err_local  = std_sum/iterations
     return mean_local, err_local
 
+def quick_fat(in_data, te_data, alg): # stand for quick Fit And Test
+    '''
+    This function fit on a dataset and test
+    on one another. Just a quick prediction
+      
+    Params:
+        in_data (pandas.DataFrame)        
+            dataset of extracted features (with labels as last column).
+            Used to fit the model
+        te_data (pandas.DataFrame)        
+            dataset of extracted features (with labels as last column).
+            Used to test the model
+        alg (string)
+            string of three upcase characters to identify the algorithm.
+            To have the list see the classifiers dictionary
+            
+    Return:
+        te_tar.values (np.array)
+            array of the true labels (that is y_true)
+        y_pred (np.array)
+            array of the predicted labels
+        (on the screen) the accuracy mean for each k-fold, because of the
+            predict function
+        
+    Notes: it does perform cross-validation
+    
+    '''
+    te_tar = te_data.LAB #standard way to divide the feat_DF from the target
+    in_tar = in_data.LAB
+    te_data = te_data[te_data.columns[:-1]]
+    in_data = in_data[in_data.columns[:-1]]
+
+    y_pred = my_predict(get_selected_clf(in_data, in_tar, alg), te_data, te_tar )
+    return te_tar.values , y_pred
+    
+
+
+def normalize(df):
+    lab = df.LAB
+    df = df[df.columns[:-1]]
+    #df = df[df.columns[:3]]
+    df_norm = (df - df.mean(axis=0)) / df.std(axis=0)
+    df_norm = pd.concat((df, lab), axis=1)
+    df_norm = df_norm.dropna(how='any')
+    return df_norm
 
 def split(df):
     colnames = df.columns
@@ -675,41 +677,66 @@ def cut_feature(df, k):
     return np.append(pippo.get_support(), True)
    
 
+def getfeatnumber(df_in, df_te, k):
+    #return the dfin e dfte of len "best k feat"
+    sel_cut = cut_feature(df_in, k)
+    train_data = df_in.ix[:,sel_cut]
+    test_data = df_te.ix[:,sel_cut]
+    return train_data, test_data, list(train_data.columns)
+
 def bestfeatn(input_data, intest_data):
     #space = np.linspace(0, input_data.shape[1], num=deepk).astype(np.int64)
-    space = [1,2,3,4,5,10,15,20,25,50,100,200,1000,2000,5000,10000]
+    space = [1,2,3,4,5,10,15,20,25,50,75,100,150,200,500,1000,2000,5000,10000]
     my_met = np.zeros((len(space),2))
-    end = input_data.shape[1]    
+    best_feat_num = [0,0]
+    end = input_data.shape[1]   
+    listoflists=[]
     for k, i in enumerate(space):
         if i >= end :
             break
-        print i,
+        print 'Begin extraction of ', i , ' best features'
         sel_cut = cut_feature(input_data, i)
         train_data = input_data.ix[:,sel_cut]
         test_data = intest_data.ix[:,sel_cut]
+        listoflists.append((list(train_data.columns)))
+        
         #feat_boxplot(train_data, str(i))
         y_true, y_pred = quick_fat(train_data, test_data, 'RFC')
         #clf = bestfit(train_data, 'RFC', 1)
         #y_true = test_data.LAB
-        #y_pred = predict(clf, test_data, y_true )
+        #y_pred = my_predict(clf, test_data, y_true )        
         dic_metric, conf_mat = get_report(y_true, y_pred)
-        my_met[k,:] = (i, dic_metric['ACC'])
-    return  my_met
-    #it should return as getfeatnumber and a plottable obj
+        my_met[k,:] = (i, dic_metric['ACC']) #to improve here better
+        if dic_metric['ACC'] > best_feat_num[1]:
+            best_feat_num[1] = dic_metric['ACC']
+            best_feat_num[0] = i
+            
+    best_feat_num = best_feat_num[0]
+    sel_cut = cut_feature(input_data, best_feat_num)
+    train_data = input_data.ix[:,sel_cut]
+    test_data = intest_data.ix[:,sel_cut]
+
+    return  train_data, test_data, my_met, listoflists
         
         
 
 def pers_crossvalidation1(data, alg, par):
-    clf = classifiersDefaultParameters[0]
-    return clf
+    clf = classifiers[alg](par1)
+    mean_local, err_local = iterate_crossvalidation(clf, data, 'ACC')
     
-def pers_crossvalidation1(data, alg, par1, par2):
-    clf = classifiersDefaultParameters[0]
-    return clf  
+    lab = data.LAB
+    data = data[data.columns[:-1]]
+    return clf.fit(data, lab), mean_local, err_local
 
-def getfeatnumber(df_in, df_te, k):
-    #return the dfin e dfte of len "best k feat"
-    return df_in, df_te, res_met
+    
+def pers_crossvalidation2(data, alg, par1, par2):
+    clf = classifiers[alg](par1, par2)
+    mean_local, err_local = iterate_crossvalidation(clf, data, 'ACC')
+    
+    lab = data.LAB
+    data = data[data.columns[:-1]]
+    return clf.fit(data, lab), mean_local, err_local  
+
 
 def import_bojan():
     localdir = '/home/andrea/Work/data/BojanAnalisys/'
@@ -730,7 +757,7 @@ def import_bojan():
 if __name__ == '__main__':
     print 'Starting main...'  
     #to import the dataset (extracted feature)
-    localdir = '/home/andrea/Work/data/Physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
+    localdir = '/home/andrea/Work/data/Physio/physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
     input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv', index_col=None, sep=',')
     
     #to normalize the data (optional)
@@ -738,13 +765,15 @@ if __name__ == '__main__':
             
     #feature selection
     train_data, test_data = split(norm_data)
-    res_mat = bestfeatn(train, test)
+    train_data, test_data, my_met, listoflistsofbest = bestfeatn(train_data, test_data)
+    #train_data, test_data, listofbest = getfeatnumber( train_data, test_data, 10)
+    
     #plot of feature selection
-    plt.figure()
-    plt.plot(range(len(res_mat)),res_mat[:,1])
+    #plt.figure()
+    #plt.plot(range(len(res_mat)),res_mat[:,1])
     
     #search the best alg with the best classifier
-    clf, metric = bestAlg(train_data, 1)
+    clf, metric = bestAlg(train_data, 'ACC')
     
     #search the best parameter for the following alg
         #    clf, metric = bestfit(train_data, 'DCT',1)
@@ -755,26 +784,26 @@ if __name__ == '__main__':
         #    clf, metric = bestfit(train_data, 'KNN',1)    
         #    clf, metric = bestfit(train_data, 'ADA',1)
 
-    #fit the model with the chosen alg
-    #just call the alg
-def machineLearningPrediction(clf, test_data):
+    #fit the model with the chosen alg  
+    #just call the alg  
+
     y_true = test_data.LAB
     te_data = test_data[test_data.columns[:-1]]
-    y_pred = predict(clf, te_data, y_true )
+    y_pred = my_predict(clf, te_data, y_true )
     dic_metric, conf_mat = get_report(y_true, y_pred)
-    return dic_metric, conf_mat
+    
     
     print dic_metric
     print conf_mat
     
     #not up to date#
     #uncomment the following line if you want to try also with random labels
-    train_data.LAB = np.random.permutation(train_data.LAB)
+    #train_data.LAB = np.random.permutation(train_data.LAB)
 #    clf, metric = bestAlg(data1, 1)
 #    #clf, metric = bestfit(data1, 'LDA',1)
 #    y_true = data3.LAB
 #    te_data = data3[data3.columns[:-1]]
-#    y_pred = predict(clf, te_data, y_true )
+#    y_pred = my_predict(clf, te_data, y_true )
 #    dic_metric, conf_mat = get_report(y_true, y_pred)
 #    print dic_metric
 #    print conf_mat
