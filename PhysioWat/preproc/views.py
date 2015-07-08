@@ -227,15 +227,13 @@ def show_chart(request, id_num, alg_type=""):
 
             if data_type == "1" or data_type == "2":
                 t=selcol(data, cols, "TIME")
-                print data.shape
-                SAMP_F = int(round(1 / (t[1] - t[0])))
                 delta = float(request.POST['{}-delta'.format(mytype[count])])
                 data_labelled=np.column_stack((data, lab))
                 cols_labelled=cols+["LAB"]
-                peaks = IBI.getPeaksIBI(data_labelled, SAMP_F, delta)
+                peaks, cols_temp = IBI.getPeaksIBI(data_labelled, cols_labelled, delta, mytype[count])
                 minFr = float(request.POST['{}-minFr'.format(mytype[count])])
                 maxFr = float(request.POST['{}-maxFr'.format(mytype[count])])
-                pre_data, columns_out = IBI.max2interval(peaks, minFr, maxFr)
+                pre_data, columns_out = IBI.max2interval(peaks, cols_temp, minFr, maxFr)
                 funcs_par.update({"IBI.getPeaksIBI":{"delta":str(delta)}})
                 funcs_par.update({"IBI.max2intervals":{"minFr":str(minFr), "maxFr":str(maxFr)}})
 
