@@ -43,7 +43,13 @@ def getExperiments():
 @csrf_exempt
 def get_data_from_mobile(request):
     if request.method == 'POST':
-        data = request.POST
+        data = request.POST['fileupload']
     else:
         data = []
     return HttpResponse(data)
+
+
+def list_experiment_id(request):
+    myexp = Experiment.objects.all()
+    myret = [[f.id, f.name] for f in myexp]
+    return HttpResponse(myret)
