@@ -47,13 +47,26 @@ public class ConnectServer extends AsyncTask<Void, String, Void> {
         StrictMode.setThreadPolicy(policy);
         
         String url = "192.168.210.183:5432";
-        //File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/CUPID_data/"+rightNow.get(Calendar.DAY_OF_MONTH)+"_"+ (rightNow.get(Calendar.MONTH) + 1) +"_"+ rightNow.get(Calendar.YEAR) +"/",
-        //MainActivity.file_name_log);
+       
         
         String ret = "";
+        
+        InputStream inputStream;
+        
+        
 
         try {
-            InputStream inputStream = new FileInputStream(FileChooser.newFileChoosed);
+        	
+        	if (MainActivity.isTheFileNew) {
+        		File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/CUPID_data/"+rightNow.get(Calendar.DAY_OF_MONTH)+"_"+ (rightNow.get(Calendar.MONTH) + 1) +"_"+ rightNow.get(Calendar.YEAR) +"/",
+        		        MainActivity.file_name_log);
+        	
+            	inputStream = new FileInputStream(file);
+        	}
+            	
+            else
+            	inputStream = new FileInputStream(FileChooser.newFileChoosed);
+           
 
             if ( inputStream != null ) {
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
@@ -140,4 +153,6 @@ public class ConnectServer extends AsyncTask<Void, String, Void> {
     protected void onProgressUpdate(String... values) {
     	writeLogMessage.writeLogMessage(values[0], true);
     }
+    
+    
 }

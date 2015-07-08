@@ -45,7 +45,7 @@ def downsampling(d):                   #downsampling of the data
     return gsr 
 
 def dtw(x,y):
-    x=np.genfromtxt(x, delimiter=',')                             #FTW correlate between two signals to calculate the distance
+    x=np.genfromtxt(x, delimiter=',')                             #DTW correlate between two signals to calculate the distance
     y=np.genfromtxt(y, delimiter=',')
     x = downsampling(x)
     y = downsampling(y)

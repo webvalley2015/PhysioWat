@@ -5,7 +5,7 @@ from PhysioWat.models import Experiment
 # FileUpload form class.
 class experiments(ModelForm):
     name = forms.CharField(widget=forms.TextInput(), max_length=50)
-    description = forms.CharField(widget=forms.Textarea(), max_length=500)
+    description = forms.CharField(widget=forms.TextInput(), max_length=500)
     token = forms.CharField(widget=forms.PasswordInput(), max_length=50)
     repeat_token = forms.CharField(widget=forms.PasswordInput(), max_length=50)
     class Meta:
