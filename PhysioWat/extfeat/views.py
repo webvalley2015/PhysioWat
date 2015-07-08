@@ -355,7 +355,7 @@ def select_signal(request, id_record):
     form_sel_id = signal_choose(choices=checkbox_in)
     print type(form_sel_id)
     template ="extfeat/choose_signal.html"
-    context = {'form' : form_sel_id}
+    context = {'form' : form_sel_id, 'id_record': id_record}
     return render(request,template, context)
 
 
