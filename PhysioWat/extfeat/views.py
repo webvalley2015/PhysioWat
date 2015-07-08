@@ -244,9 +244,12 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         if 'auto' in mydict['parameter_choiche']:
             metrics = mydict['maximize'][0]
             #print  metrics
-            clf, score, error, resul_mat = ft.bestfit(train_data, algorithm, metrics)[0]
+            clf, result_mat = ft.bestAlg(train_data, algorithm, metrics)[0]
 
-        dic_metric, conf_mat = ft.machineLearningPrediction(clf,test_data)
+        y_true = test_data.LAB
+        te_data = test_data[test_data.columns[:-1]]
+        y_pred = my_predict(clf, te_data, y_true )
+        dic_metric, conf_mat = get_report(y_true, y_pred)
 
         #CALL OTHER FUNCTIONS / GET OTHER DATAS/
         #final_ml_page(request, result_dict=dic_metric, conf_mat=conf_mat)
