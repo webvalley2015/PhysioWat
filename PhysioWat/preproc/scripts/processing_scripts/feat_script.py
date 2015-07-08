@@ -14,7 +14,7 @@ Created on Wed Jul  1 17:10:50 2015
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import cross_validation
 from sklearn.cross_validation import train_test_split
@@ -28,7 +28,7 @@ from scipy import stats
 import time
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
-from matplotlib.backends.backend_pdf import PdfPages
+#from matplotlib.backends.backend_pdf import PdfPages
 
 
 # names is the list containig the names of the possible 
