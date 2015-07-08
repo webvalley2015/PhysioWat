@@ -46,7 +46,7 @@ classifiers = {
         'ADA': lambda n_est, l_rate: AdaBoostClassifier(n_estimators = n_est, 
                                                         learning_rate=l_rate),
         'LDA': lambda solver: LDA(solver),
-        'QDA': lambda : QDA()
+        #'QDA': lambda : QDA()
         }
         
 
@@ -57,7 +57,7 @@ classifiersDefaultParameters = {
         'RFC': RandomForestClassifier(),
         'ADA': AdaBoostClassifier(),
         'LDA': LDA(),
-        'QDA': QDA()
+        #'QDA': QDA()
         }
     
 iterations = 2 #20 TRY
@@ -707,7 +707,7 @@ def bestfeatn(input_data, intest_data):
         #y_true = test_data.LAB
         #y_pred = my_predict(clf, test_data, y_true )        
         dic_metric, conf_mat = get_report(y_true, y_pred)
-        print conf_mat
+        #print conf_mat
         my_met[k,:] = (i, dic_metric['ACC']) #to improve here better
         if dic_metric['ACC'] > best_feat_num[1]:
             best_feat_num[1] = dic_metric['ACC']
@@ -764,24 +764,29 @@ if __name__ == '__main__':
     print 'Starting main...'  
     #to import the dataset (extracted feature)
     localdir = '/home/andrea/Work/data/Physio/physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
-    input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv', index_col=None, sep=',')
+    #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv', index_col=None, sep=',')
+    input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_9labels.csv', index_col=None, sep=',')
     
     #to normalize the data (optional)
     norm_data = normalize(input_data)
             
     #feature selection
-    train_data, test_data = split(norm_data, 0.5)
+    train_data, test_data = split(norm_data, 0.25)
+    
+    clf, metric = bestAlg(train_data, 'ACC')
+    dic_metric, conf_mat = test_learning(clf, test_data)
+    
     train_data, test_data, my_met, listoflistsofbest = bestfeatn(train_data, test_data)
     #train_data, test_data, listofbest = getfeatnumber( train_data, test_data, 10)
+    clf, metric = bestAlg(train_data, 'ACC')
+    dic_metric, conf_mat = test_learning(clf, test_data)
     
     #plot of feature selection
     #plt.figure()
     #plt.plot(range(len(res_mat)),res_mat[:,1])
     
     #search the best alg with the best classifier
-    clf, metric = bestAlg(train_data, 'ACC')
-    
-    dic_metric, conf_mat = test_learning(clf, test_data)
+
     
     print dic_metric
     print conf_mat
