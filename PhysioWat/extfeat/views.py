@@ -31,18 +31,23 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
 from PhysioWat.models import Experiment, Preprocessed_Recording, Preprocessed_Data, FeatExtractedData
 
+def get_signal_type(cols):
+    if 'PHA' in cols:   #GSR
+        type_sig="GSR"
+    elif 'ACCX' in cols or 'GYRX' in cols or 'MAGX' in cols:
+        type_sig="inertial"
+    elif "IBI" in cols:
+        type_sig="IBI"
+    return type_sig
 
 def form_select_signal(id_record):
     signal_list = Preprocessed_Recording.objects.filter(recording_id = id_record).values_list('id','dict_keys').order_by('id')
     checkbox_in=[]
     for ID, cols in signal_list:
-        if 'PHA' in cols:   #GSR
-            type_sig="GSR"
-        elif 'ACCX' or 'GYRX' or 'MAGX' in cols:
-            type_sig="inertial"
-        elif "IBI" in cols:
-            type_sig="IBI"
-        checkbox_in.append((ID, str(ID)+" - "+" "+str(type_sig)))
+        count=Preprocessed_Data.objects.filter(pp_recording_id=ID).count()
+        if (count>0):
+            type_sig=get_signal_type(cols)
+            checkbox_in.append((ID, str(ID)+" - "+" "+str(type_sig)))
     print checkbox_in
     form_sel_id = signal_choose(choices=checkbox_in)
     return form_sel_id
@@ -71,14 +76,14 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
     # get data type list
 
     if (request.method == 'POST'):
-        print request.POST
         mydict = dict(request.POST.iterlists())
-        print mydict
         for id_num in mydict['choose_signal']:
+            print "RUNNING FOR ", id_num
             data, cols = QueryDb(id_num)
-            print cols
             time = selcol(data, cols, "TIME")
             labs = selcol(data, cols, "LAB")
+
+            params=dict()
 
             if (mydict['type'][0] == 'contigous'):
                 windows, winlab = wd.get_windows_contiguos(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
@@ -88,18 +93,21 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
 
             if (mydict['type'][0] == 'full_label'):
                 windows, winlab = wd.get_windows_full_label(time, labs)
-
+            params.update({"windowing":{"type":mydict["type"][0], "length":mydict["length"][0], "step":mydict["step"][0]}})
             # extract features from result
             # store feats. in the db
-            if 'PHA' in cols:   #GSR
+            type_sig=get_signal_type(cols)
+            params.update({"signal_type":type_sig})
+            if type_sig=="GSR":   #GSR
                 data_in=selcol(data, cols, "PHA")
-                DELTA=0 #TODO GET FROM DB params!
+                funcs, pars=list(Preprocessed_Recording.objects.filter(pk = id_num).values_list('applied_preproc_funcs_names', 'preproc_funcs_parameters'))[0]
+                DELTA=float(pars[funcs.index(u"GSR.preproc")][u"DELTA_PEAK"])
                 feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
                 data_out, cols_out=dict_to_arrays(feat_dict)
                 data_out=np.column_stack((data_out, winlab))
                 columns_out=np.r_[cols_out, ["LAB"]]
 
-            elif 'ACCX' in cols or 'GYRX' in cols or 'MAGX' in cols:
+            elif type_sig=="inertial":
                 col_acc=["ACCX", "ACCY", "ACCZ"]
                 col_gyr=["GYRX", "GYRY", "GYRZ"]
                 col_mag=["MAGX", "MAGY", "MAGZ"]
@@ -136,11 +144,12 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
                     data_out=np.column_stack([feats_mag, data_out])
                     columns_out=np.r_[fcol_mag, columns_out]
 
-            elif 'IBI' in cols:
-                data_in=selcol(data, cols, "IBI")
+            elif type_sig=="IBI":
+                data_in=selcol(data, cols, ["TIME","IBI"])
                 cols_in=["TIME", "IBI"]
-                data_out, winlab = extfeat_IBI(np.column_stack((time, data_in)), cols_in, windows, winlab)
+                data_out, winlab = extfeat_IBI(data_in, cols_in, windows, winlab)
                 columns_out=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
+                print data_out.shape, winlab.shape
                 data_out=np.column_stack((data_out, winlab))
                 columns_out=np.r_[columns_out, ["LAB"]]
 
@@ -149,7 +158,7 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
             toCsv(data_out, columns_out, fname)
             WritePathtoDB(fname, id_num)
 
-            return HttpResponseRedirect(reverse('index'))
+        return HttpResponseRedirect(reverse('index'))
 
     else:
         form = windowing()
@@ -201,7 +210,7 @@ def ml_input(request):  # obviously, it has to be added id record and everything
                     num_feat = mydict['feat_num']
                     if (num_feat <= 0):
                         return render(request, "machine_learning/form_error.html")
-                     train_data, test_data, list_of_feat = ft.getfeatnumber(train_data, test_data, k) #RETURNS 2 SUBSET DF GIVEN IN INPUT THE TRAIN DATA, THE TEST DATA, AND THE NUMBER OF FEATS
+                    train_data, test_data, list_of_feat = ft.getfeatnumber(train_data, test_data, k) #RETURNS 2 SUBSET DF GIVEN IN INPUT THE TRAIN DATA, THE TEST DATA, AND THE NUMBER OF FEATS
 
                 if ('k_auto' in mydict['FeatChoose']):
                     train_data, test_data, best_feat_n_mat, list_of_feat = ft.bestfeatn(train_data, test_data)
@@ -210,7 +219,7 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         print "dopo il case del viewf"
 
         if (algorithm == 'ALL') and ('auto' not in mydict['parameter_choiche']):
-              return render(request, "machine_learning/form_error.html")
+            return render(request, "machine_learning/form_error.html")
 
         if 'def' in mydict['parameter_choiche']:
             clf, score, error = ft.quick_crossvalidate(train_data, alg=algorithm)
@@ -221,11 +230,11 @@ def ml_input(request):  # obviously, it has to be added id record and everything
             if (algorithm == 'KNN'):
                 k_neighbour = mydict['k_neighbour'][0]
                 print(k_neighbour)
-               clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, k_neighbour)
+                clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, k_neighbour)
             if (algorithm == 'DCT'):
                 max_features = mydict['max_features'][0]
                 #print(type(max_features)) #IT'S A STRING!!!!
-               clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, max_features)
+                clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, max_features)
             if (algorithm == 'SVM'):
                 kernel = mydict['kernel']
                 C = mydict['C']
@@ -353,8 +362,6 @@ def select_record(request, id_num):
         name_list = getRecordsList(id_num)
         context = {'name_list': name_list}
         return render(request, 'extfeat/records.html', context)
-
-
 
 
 def final_ml_page(request, result_dict, conf_mat):
