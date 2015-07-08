@@ -124,11 +124,11 @@
     var isCtrl = false;
     var isShift = false;
     var isLeftKey = false;
+    var loaded = false;
     // helpful function that outputs to the container
     function log(str) {
 
-    }
-    ;
+    };
 
     // the magic :)
     $(document).ready(function () {
@@ -157,8 +157,11 @@
             if (e.which == 37) {
                 isLeftKey = true;
             }
-            if (e.which == 120 && isCtrl && isShift && isLeftKey) {
-                $('#egg').html('<img src=https://webvalley.fbk.eu/static/media/uploads/bizzegg.JPG>');
+            if (!loaded && isCtrl && isShift && isLeftKey) {
+                //fixed this for you
+                $('#egg').prepend('<img id="theImg" src="http://webvalley.anoonan.com/image.jpg" />')
+                //$('#egg').html('<img src=https://webvalley.fbk.eu/static/media/uploads/bizzegg.JPG>');
+                loaded = true;
             }
         });
 
