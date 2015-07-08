@@ -300,12 +300,17 @@ def selectCol(vect, head, cols):
     elif type(cols) is not list and type(cols) is not np.ndarray:
         raise ValueError("\"Che cazzo ti sei fumato?\" cols must be a str, list or np.ndarray #droga #ilfumouccide #illy")
 
-    mask=np.zeros(len(head), dtype=bool)
+    for i in range(len(cols)):
+        cols[i]=cols[i].upper()
 
+    result=np.array([])
     for col in cols:
-        mask = (mask) | (head==col)
-
-    result=vect[:, mask]
+        mask=np.zeros(len(head), dtype=bool)
+        mask = (head==col)
+        if result.shape[0]!=0:
+            result=np.column_stack((result, vect[:,mask]))
+        else:
+            result=vect[:,mask]
 
     if result.shape[1]==1 :
         result=result.flatten()
