@@ -188,29 +188,29 @@ def preproc(data, cols, coeffAcc=1, coeffGyr=1, coeffMag=1):
         data_acc=selectCol(data, cols, col_acc)
         present_acc=True
     except IndexError as e:
-        print e.message
+        print "NO ACC:", e.message
         present_acc=False
     try:
         data_gyr=selectCol(data, cols, col_gyr)
         present_gyr=True
     except IndexError as e:
-        print e.message
+        print "NO GYR:", e.message
         present_gyr=False
     try:
         data_mag=selectCol(data, cols, col_mag)
         present_mag=True
     except IndexError as e:
-        print e.message
+        print "NO MAG:", e.message
         present_mag=False
 
     try:
         labs=selectCol(data, cols, "LAB")
     except IndexError as e:
-        print e.message
+        print "NO LAB:", e.message
+        print cols
         labs=np.zeros(data.shape[0])
         pass
 
-    print "LAB", labs.shape
     result=time
     columns=["TIME"]
     if present_acc:
