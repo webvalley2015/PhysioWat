@@ -6,15 +6,15 @@ Notes from 7/7 field trial
 Sensors: 128 → Tommaso, 126 → Pietro, 175 → girl(?), 184 → Nicola
 16:25
 16:26 start Tommaso (128) and Pietro (126)
-P: playing guitar
-T: hitting sticks
+	P: playing guitar
+	T: hitting sticks
 16:29 interruption in signal, pressed start
 16:31 hit stop
 16:34 hit start
 16:35 interruption in signal
 16:36 connected 175 to girl
-    P: drums
-T: sticks
+	P: drums
+	T: sticks
 16:39 Claire rehits start, Claire is connected to 175 and 128, woman attempting to put sensor on Nicola
 16:40 bracelet is connected, music is starting, noticing extreme oscillations in acceleration data, unknown new subject using sticks, moving right hand to hit left
 16:43 Claire’s phone screen locks, possible signal loss
