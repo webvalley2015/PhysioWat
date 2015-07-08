@@ -83,6 +83,7 @@ def max2interval(peaks, cols,  minrate=40, maxrate=200):
     ##inizializzazioni
     timed_lbls = selcol(peaks, cols, ["TIME", "LAB"])
     peaks_time = selcol(peaks, cols, "TIME")
+    # print "TIME %d, LAB %d" % (len(timed_lbls[:,0]), len(timed_lbls[:,1]))
     
     tprev=peaks_time[0]
     tfalse=tprev
