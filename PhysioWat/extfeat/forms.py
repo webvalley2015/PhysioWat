@@ -23,13 +23,13 @@ class TestParam(forms.Form):
 class AlgChoose(forms.Form):
     my_choices = [('KNN','k nearest'),('SVM', 'support vector machine'),('DCT','decison tree'),
                   ('RFC','random forest'),('ADA','adaboost'),('LDA','latent direct assocation'),
-                  ('QDA','quadratic discriminant analisys')]
+                  ('QDA','quadratic discriminant analisys'),('ALL','Try every algorightm. Implies autofit')]
     alg_choice= forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect(), initial='KNN')
 
 
 class AlgParam (forms.Form):
-    my_choices = [('def','default parameters'),('auto','auto'),('pers','define parameters')]
-    parameter_choiche = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect(),initial='def')
+    my_choices = [('def','default parameters'),('auto','authomatcally find the best fit (might take a long time)'),('pers','define parameters')]
+    parameter_choiche = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect(),initial='auto')
 
 class SvmParam(forms.Form):
     my_choices=[('linear','linear'),('rbf','rbf'),('sigmoid','sigmoid')]
@@ -62,4 +62,4 @@ class autoFitParam(forms.Form):
                  ('PRm','Precision Score Micro'), ('PRW','Precision Score Weighted'),
                  ('REM','Recall Score Macro'),('REm','Recall Score Micro'),('REW','Recall Score Weighted')
                  ]
-    maxmimize = forms.ChoiceField(choices=my_choices,widget=forms.RadioSelect())
+    maximize = forms.ChoiceField(choices=my_choices,widget=forms.RadioSelect())

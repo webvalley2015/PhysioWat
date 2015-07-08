@@ -691,7 +691,7 @@ def bestfeatn(input_data, intest_data):
         y_true, y_pred = quick_fat(train_data, test_data, 'RFC')
         #clf = bestfit(train_data, 'RFC', 1)
         #y_true = test_data.LAB
-        #y_pred = predict(clf, test_data, y_true )        
+        #y_pred = predict(clf, test_data, y_true )
         dic_metric, conf_mat = get_report(y_true, y_pred)
         my_met[k,:] = (i, dic_metric['ACC'])
     return  my_met
@@ -755,14 +755,14 @@ if __name__ == '__main__':
         #    clf, metric = bestfit(train_data, 'KNN',1)    
         #    clf, metric = bestfit(train_data, 'ADA',1)
 
-    #fit the model with the chosen alg  
-    #just call the alg  
-
+    #fit the model with the chosen alg
+    #just call the alg
+def machineLearningPrediction(clf, test_data):
     y_true = test_data.LAB
     te_data = test_data[test_data.columns[:-1]]
     y_pred = predict(clf, te_data, y_true )
     dic_metric, conf_mat = get_report(y_true, y_pred)
-    
+    return dic_metric, conf_mat
     
     print dic_metric
     print conf_mat
