@@ -35,7 +35,7 @@ def QueryDb(recordingID):
         #     ll.append(record.store[key])
         # retarray=np.vstack((retarray,ll))
     # datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
-
+    retarray.astype(float)
     return retarray, mykeys
 
 
