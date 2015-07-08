@@ -552,7 +552,7 @@ def bestfit_ADA(fe_data, alg, metric):
     #print NElist[bestl_rate]
     #print LRlist[bestn_est]
     clf = classifiers[alg](NElist[bestn_est], LRlist[bestl_rate])
-    return clf, my_met[bestn_est, bestl_rate], err_met[bestn_est, bestl_rate], my_met, err_met
+    return clf, my_met[bestn_est, bestl_rate], err_met[bestn_est, bestl_rate], my_met#, err_met
     
 #watch out... this is a particular matrix    6m for 300cvs
 def bestfit_RFC(fe_data, alg, metric):
@@ -573,7 +573,7 @@ def bestfit_RFC(fe_data, alg, metric):
     
     bestn_est, bestmax_f = np.unravel_index(my_met.argmax(), (len(NElist), len(MFlist)))
     clf = classifiers[alg](NElist[bestn_est], MFlist[bestmax_f])
-    return clf, my_met[bestn_est, bestmax_f], err_met[bestn_est, bestmax_f], my_met, err_met
+    return clf, my_met[bestn_est, bestmax_f], err_met[bestn_est, bestmax_f], my_met#, err_met
     
 
 def iterate_crossvalidation(clf, fe_data, metric):
@@ -798,7 +798,7 @@ if __name__ == '__main__':
     
     #not up to date#
     #uncomment the following line if you want to try also with random labels
-    train_data.LAB = np.random.permutation(train_data.LAB)
+    #train_data.LAB = np.random.permutation(train_data.LAB)
 #    clf, metric = bestAlg(data1, 1)
 #    #clf, metric = bestfit(data1, 'LDA',1)
 #    y_true = data3.LAB
