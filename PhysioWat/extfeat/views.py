@@ -8,11 +8,14 @@ from preproc.scripts.processing_scripts.GSR import extract_features as extfeat_G
 from preproc.scripts.processing_scripts.IBI import extract_IBI_features as extfeat_IBI
 from preproc.scripts.processing_scripts.inertial import extract_features_acc as extfeat_ACC, \
     extract_features_mag as extfeat_MAG, extract_features_gyr as extfeat_GYR
-from preproc.scripts.processing_scripts.tools import selectCol as selcol, dict_to_arrays
+from preproc.scripts.processing_scripts.tools import selectCol as selcol, dict_to_arrays,array_labels_to_csv as toCsv
 from django.contrib import messages
 from PhysioWat.models import Experiment, Recording, Preprocessed_Recording, Preprocessed_Data
 import pandas as pd
 import numpy as np
+from PhysioWat.settings import MEDIA_ROOT
+from time import time as get_timestamp
+import datetime
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import cross_validation
 from sklearn.cross_validation import train_test_split
@@ -72,17 +75,18 @@ def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!
                 windows, winlab = wd.get_windows_no_mix(time, labs, a['length'], a['step'])
 
             if (a['type'] == 'full_label'):
-                windows, winlab = wd.get_windows_full_label(time, labs, a['length'], a['step'])
-
+                windows, winlab = wd.get_windows_full_label(time, labs)
+        print windows
+        print time[0], time[-1]
         # extract features from result
         # store feats. in the db
         if 'PHA' in cols:   #GSR
             data_in=selcol(data, cols, "PHA")
             DELTA=0 #TODO GET FROM DB params!
             feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
-            feats, cols_out=dict_to_arrays(feat_dict)
-            feats=np.column_stack((feats, winlab))
-            feat_col=np.r_[cols_out, "LAB"]
+            data_out, columns_out=dict_to_arrays(feat_dict)
+            data_out=np.column_stack((data_out, winlab))
+            columns_out=np.r_[columns_out, ["LAB"]]
 
         elif 'ACCX' in cols or 'GYRX' in cols or 'MAGX' in cols:
             col_acc=["ACCX", "ACCY", "ACCZ"]
@@ -106,38 +110,39 @@ def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!
             except IndexError as e:
                 print e
                 thereIsMag=False
-            feat_col=np.array(["LAB"])
-            feats=winlab[:]
+            columns_out=np.array(["LAB"])
+            data_out=winlab[:]
             if thereIsAcc:
                 feats_acc, fcol_acc= extfeat_ACC(acc, time, col_acc, windows)
-                feats=np.column_stack([feats_acc, feats])
-                feat_col=np.r_[fcol_acc, feat_col]
+                data_out=np.column_stack([feats_acc, data_out])
+                columns_out=np.r_[fcol_acc, columns_out]
             if thereIsGyr:
                 feats_gyr, fcol_gyr= extfeat_GYR(gyr, time, col_gyr, windows)
-                feats=np.column_stack([feats_gyr, feats])
-                feat_col=np.r_[fcol_gyr, feat_col]
+                data_out=np.column_stack([feats_gyr, data_out])
+                columns_out=np.r_[fcol_gyr, columns_out]
             if thereIsMag:
                 feats_mag, fcol_mag= extfeat_MAG(mag, time, col_mag, windows)
-                feats=np.column_stack([feats_mag, feats])
-                feat_col=np.r_[fcol_mag, feat_col]
+                data_out=np.column_stack([feats_mag, data_out])
+                columns_out=np.r_[fcol_mag, columns_out]
 
         elif 'IBI' in cols:
             data_in=selcol(data, cols, "IBI")
             cols_in=["TIME", "IBI"]
-            feats, winlab = extfeat_IBI(np.column_stack((time, data_in)), cols_in, windows, winlab)
-            feat_col=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
+            data_out, winlab = extfeat_IBI(np.column_stack((time, data_in)), cols_in, windows, winlab)
+            columns_out=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
+            data_out=np.column_stack((data_out, winlab))
+            columns_out=np.r_[columns_out, ["LAB"]]
 
-        data_out=np.concatenate((feats, winlab))
-        columns_out=np.r_[feat_col, ["LAB"]]
-        print data_out.shape
-        print columns_out
+        st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y-%m-%d_%H:%M:%S')
+        fname=MEDIA_ROOT+id_num+"_"+st+".csv"
+        toCsv(data_out, columns_out, fname)
+        WritePathtoDB(fname, id_num)
 
         # after having extracted the fieatures --> save on db
 
     else:
         form = windowing()
         template = "extfeat/choose_alg.html"
-        print "ciaoooo"
         # print urlTmp['id_num']
         context = {'form': form, 'id_num': id_num}
         return render(request, template, context)
