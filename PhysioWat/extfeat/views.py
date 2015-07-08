@@ -15,6 +15,7 @@ import pandas as pd
 import numpy as np
 from PhysioWat.settings import MEDIA_ROOT
 from time import time as get_timestamp
+from preproc.scripts.processing_scripts import pddbload
 import datetime
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import cross_validation
@@ -164,8 +165,9 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         print mydict
 
         print '-' * 60
-        localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
-        input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
+        #localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
+        #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
+        input_data = pddbload.load_file_pd_db(1)
         num_feat = -1  # set to -1 because of
 
         percentage = mydict['test_percentage'][0]
@@ -325,6 +327,8 @@ def select_experiment(request):
     else:
         return render(request, 'extfeat/experiments.html', context)
 
+def getprocessedrecordid():
+    return FeatExtractedData.objects.values_list('pp_recording', flat=True).distinct()
 
 def getRecordsList(experimentId):
     return Recording.objects.filter(experiment=experimentId).values_list('id', 'device_name', 'description', 'dict_keys', 'ts').order_by('id')
