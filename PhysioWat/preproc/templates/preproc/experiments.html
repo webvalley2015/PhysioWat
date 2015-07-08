@@ -46,9 +46,12 @@
         </div>
 
     </form>
-
+<br>
     {% if messages %}
-        <ul class="messages">
+        <ul class="messages" style="margin: auto;
+    width: 60%;
+    border:3px solid #d20800;
+    padding: 10px;">
             {% for message in messages %}
                 <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
             {% endfor %}
