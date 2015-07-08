@@ -76,67 +76,67 @@ def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!
 
             if (a['type'] == 'full_label'):
                 windows, winlab = wd.get_windows_full_label(time, labs)
-        print windows
-        print time[0], time[-1]
-        # extract features from result
-        # store feats. in the db
-        if 'PHA' in cols:   #GSR
-            data_in=selcol(data, cols, "PHA")
-            DELTA=0 #TODO GET FROM DB params!
-            feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
-            data_out, columns_out=dict_to_arrays(feat_dict)
-            data_out=np.column_stack((data_out, winlab))
-            columns_out=np.r_[columns_out, ["LAB"]]
+            print windows
+            print time[0], time[-1]
+            # extract features from result
+            # store feats. in the db
+            if 'PHA' in cols:   #GSR
+                data_in=selcol(data, cols, "PHA")
+                DELTA=0 #TODO GET FROM DB params!
+                feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
+                data_out, columns_out=dict_to_arrays(feat_dict)
+                data_out=np.column_stack((data_out, winlab))
+                columns_out=np.r_[columns_out, ["LAB"]]
 
-        elif 'ACCX' in cols or 'GYRX' in cols or 'MAGX' in cols:
-            col_acc=["ACCX", "ACCY", "ACCZ"]
-            col_gyr=["GYRX", "GYRY", "GYRZ"]
-            col_mag=["MAGX", "MAGY", "MAGZ"]
-            try:
-                acc=selcol(data, cols, col_acc)
-                thereIsAcc=True
-            except IndexError as e:
-                print e
-                thereIsAcc=False
-            try:
-                gyr=selcol(data, cols, col_gyr)
-                thereIsGyr=True
-            except IndexError as e:
-                print e
-                thereIsGyr=False
-            try:
-                mag=selcol(data, cols, col_mag)
-                thereIsMag=True
-            except IndexError as e:
-                print e
-                thereIsMag=False
-            columns_out=np.array(["LAB"])
-            data_out=winlab[:]
-            if thereIsAcc:
-                feats_acc, fcol_acc= extfeat_ACC(acc, time, col_acc, windows)
-                data_out=np.column_stack([feats_acc, data_out])
-                columns_out=np.r_[fcol_acc, columns_out]
-            if thereIsGyr:
-                feats_gyr, fcol_gyr= extfeat_GYR(gyr, time, col_gyr, windows)
-                data_out=np.column_stack([feats_gyr, data_out])
-                columns_out=np.r_[fcol_gyr, columns_out]
-            if thereIsMag:
-                feats_mag, fcol_mag= extfeat_MAG(mag, time, col_mag, windows)
-                data_out=np.column_stack([feats_mag, data_out])
-                columns_out=np.r_[fcol_mag, columns_out]
+            elif 'ACCX' in cols or 'GYRX' in cols or 'MAGX' in cols:
+                col_acc=["ACCX", "ACCY", "ACCZ"]
+                col_gyr=["GYRX", "GYRY", "GYRZ"]
+                col_mag=["MAGX", "MAGY", "MAGZ"]
+                try:
+                    acc=selcol(data, cols, col_acc)
+                    thereIsAcc=True
+                except IndexError as e:
+                    print e
+                    thereIsAcc=False
+                try:
+                    gyr=selcol(data, cols, col_gyr)
+                    thereIsGyr=True
+                except IndexError as e:
+                    print e
+                    thereIsGyr=False
+                try:
+                    mag=selcol(data, cols, col_mag)
+                    thereIsMag=True
+                except IndexError as e:
+                    print e
+                    thereIsMag=False
+                columns_out=np.array(["LAB"])
+                data_out=winlab[:]
+                if thereIsAcc:
+                    feats_acc, fcol_acc= extfeat_ACC(acc, time, col_acc, windows)
+                    data_out=np.column_stack([feats_acc, data_out])
+                    columns_out=np.r_[fcol_acc, columns_out]
+                if thereIsGyr:
+                    feats_gyr, fcol_gyr= extfeat_GYR(gyr, time, col_gyr, windows)
+                    data_out=np.column_stack([feats_gyr, data_out])
+                    columns_out=np.r_[fcol_gyr, columns_out]
+                if thereIsMag:
+                    feats_mag, fcol_mag= extfeat_MAG(mag, time, col_mag, windows)
+                    data_out=np.column_stack([feats_mag, data_out])
+                    columns_out=np.r_[fcol_mag, columns_out]
 
-        elif 'IBI' in cols:
-            data_in=selcol(data, cols, "IBI")
-            cols_in=["TIME", "IBI"]
-            data_out, winlab = extfeat_IBI(np.column_stack((time, data_in)), cols_in, windows, winlab)
-            columns_out=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
-            data_out=np.column_stack((data_out, winlab))
-            columns_out=np.r_[columns_out, ["LAB"]]
+            elif 'IBI' in cols:
+                data_in=selcol(data, cols, "IBI")
+                cols_in=["TIME", "IBI"]
+                data_out, winlab = extfeat_IBI(np.column_stack((time, data_in)), cols_in, windows, winlab)
+                columns_out=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
+                data_out=np.column_stack((data_out, winlab))
+                columns_out=np.r_[columns_out, ["LAB"]]
 
-        st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y-%m-%d_%H:%M:%S')
-        fname=MEDIA_ROOT+id_num+"_"+st+".csv"
-        toCsv(data_out, columns_out, fname)
-        WritePathtoDB(fname, id_num)
+            st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y-%m-%d_%H:%M:%S')
+            fname=MEDIA_ROOT+id_num+"_"+st+".csv"
+            toCsv(data_out, columns_out, fname)
+            WritePathtoDB(fname, id_num)
 
         # after having extracted the fieatures --> save on db
 
