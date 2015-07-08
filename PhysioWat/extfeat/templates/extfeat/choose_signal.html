@@ -8,7 +8,7 @@
 {% block container %}
 <div id="alg_choose_container" style="width:50%; margin:0 auto; position:relative; top:100px; left:100px;">
 
-    <form action="{⅜ url 'signal_selector' id_record ⅜}" method="post" enctype="multipart/form-data" name="selection">
+    <form action="{% url 'alg_choose' id_record %}" method="post" enctype="multipart/form-data" name="selection"> {# {⅜ url 'signal_selector' id_record ⅜} #}
      {% csrf_token %}
         {{ form }}
      <button type="submit" id="select_submit" class="btn btn-success">Submit</button>

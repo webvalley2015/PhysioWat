@@ -269,7 +269,7 @@ def show_chart(request, id_num, alg_type=""):
                     initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType': 'cheby2',
                              'apply_filter': True}, prefix=mytype[count])
                 formSpec = BVP_Form(initial={'delta': 1, 'minFr': 40, 'maxFr': 200}, prefix=mytype[count])
-                bvp_tmp = {'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt, 'formSpec': formSpec}
+                bvp_tmp = {'Downsampling': formDown, 'Gaussian': formGau, 'Filter': formFilt, 'Specfic': formSpec}
             if "2" in alg_type:
                 count = 1
                 formDown = downsampling(initial={'apply_downsampling': False}, prefix=mytype[count])
@@ -277,7 +277,7 @@ def show_chart(request, id_num, alg_type=""):
                 formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False},
                                      prefix=mytype[count])
                 formSpec = EKG_Form(initial={'delta': 0.2, 'minFr': 40, 'maxFr': 200}, prefix=mytype[count])
-                ekg_tmp = {'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt, 'formSpec': formSpec}
+                ekg_tmp = {'Downsampling': formDown, 'Gaussian': formGau, 'Filter': formFilt, 'Specific': formSpec}
             if "3" in alg_type:
                 count = 2
                 formDown = downsampling(initial={'apply_downsampling': False}, prefix=mytype[count])
@@ -285,7 +285,7 @@ def show_chart(request, id_num, alg_type=""):
                 formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False},
                                      prefix=mytype[count])
                 formSpec = Inertial_Form(initial={'coeffAcc': 1, 'coeffGyr': 1, 'coeffMag':1}, prefix=mytype[count])##
-                inertial_tmp = {'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt, 'formSpec': formSpec}
+                inertial_tmp = {'Downsampling': formDown, 'Gaussian': formGau, 'Filter': formFilt, 'Specific': formSpec}
             if "4" in alg_type:
                 count = 3
                 formPick = remove_spike(initial={'apply_spike': False}, prefix=mytype[count])
@@ -296,13 +296,13 @@ def show_chart(request, id_num, alg_type=""):
                 formSpec = GSR_Form(
                     initial={'T1': 0.75, 'T2': 2, 'MX': 1, 'DELTA_PEAK': 0.02, 'k_near': 5, 'grid_size': 5, 's': 0.2},
                     prefix=mytype[count])
-                gsr_tmp = {'formPick': formPick, 'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt,
-                           'formSpec': formSpec}
+                gsr_tmp = {'Pick': formPick, 'Downsampling': formDown, 'Gaussian': formGau, 'Filter': formFilt,
+                           'Specific': formSpec}
 
         opt_temp = getavaliabledatavals(id_num)
         opt_list = opt_temp[1:]
 
-        context = {'forms': {'bvp_tmp': bvp_tmp, 'ekg_tmp': ekg_tmp, 'inertial_tmp': inertial_tmp, 'gsr_tmp': gsr_tmp},
+        context = {'forms': {'BVP': bvp_tmp, 'EKG': ekg_tmp, 'Inertial': inertial_tmp, 'GSR': gsr_tmp},
                    'opt_list': opt_list, 'id_num': id_num, 'elab': 'raw'}
         return render(request, template, context)
 
