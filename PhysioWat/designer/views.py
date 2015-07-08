@@ -19,7 +19,7 @@ def create_experiement(request):
                     form.save()
                     return HttpResponseRedirect('/uploader/web')
                 else:
-                    messages.error(request, 'Tokens dont match')
+                    messages.error(request, 'Tokens don\'t match')
             else:
                 messages.error(request, 'Experiment already exists')
         else:

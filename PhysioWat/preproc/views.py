@@ -369,35 +369,3 @@ def select_record(request, id_num):
         name_list = getRecordsList(id_num)
         context = {'name_list': name_list}
         return render(request, 'preproc/records.html', context)
-
-
-def test(request):
-    ID = 1
-    funcs_par=dict()
-    sensAccCoeff=8*9.81/32768
-    sensGyrCoeff=2000/32768
-    sensMagCoeff=0.007629
-
-    data, columns_in = tools.load_raw_db(ID)
-
-    # t=tools.selectCol(data, columns_in, "TIME")
-    #
-    # try:
-    #     lab=tools.selectCol(data, columns_in, "LAB")
-    # except IndexError as e:
-    #     print e.message
-    #     lab=np.zeros(t.shape[0])
-    #     pass
-
-    data_out, columns_out=inertial_preproc(data, columns_in, sensAccCoeff, sensGyrCoeff, sensMagCoeff)
-    funcs_par.update({"inertial.preproc": {"coeffAcc":str(sensAccCoeff), "coeffGyr":str(sensGyrCoeff), "coeffMag":str(sensMagCoeff)}})
-
-    tools.putPreprocArrayintodb(ID, data_out, np.array(columns_out), funcs_par.keys(), funcs_par.values() )
-
-    return render(request, 'preproc/experiments.html', {'name_list': ["exp1"]})
-
-def test2(request):
-    ID = 1
-    preproc_data=tools.load_preproc_db(ID)
-
-    return render(request, 'preproc/experiments.html', {'name_list': ["exp1"]})

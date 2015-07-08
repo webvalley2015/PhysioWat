@@ -731,7 +731,7 @@ if __name__ == '__main__':
     print 'Starting main...'  
     #to import the dataset (extracted feature)
     localdir = '/home/andrea/Work/data/Physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
-    input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')#, index_col=None, sep=',')
+    input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv', index_col=None, sep=',')
     
     #to normalize the data (optional)
     norm_data = normalize(input_data)
