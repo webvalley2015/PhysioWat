@@ -44,6 +44,6 @@ def convert_PandaDataFrame_to_ListOfLists_2D(data):
 def convert_PandaDataFrame_to_ListOfLists_3D(data):
     return data.values.tolist()
 
-def MltoDB(list, feid):
+def MltoDB(list, feid=18):
     jsonML = json.dumps(list)
     MLData(fe_id=feid, binary_result=jsonML)
