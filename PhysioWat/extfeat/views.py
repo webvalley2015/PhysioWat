@@ -10,6 +10,8 @@ from preproc.scripts.processing_scripts.IBI import extract_IBI_features as extfe
 from preproc.scripts.processing_scripts.inertial import extract_features_acc as extfeat_ACC, \
     extract_features_mag as extfeat_MAG, extract_features_gyr as extfeat_GYR
 from preproc.scripts.processing_scripts.tools import selectCol as selcol, dict_to_arrays
+from django.contrib import messages
+from PhysioWat.models import Experiment, Recording, Preprocessed_Recording, Preprocessed_Data
 import pandas as pd
 import numpy as np
 from sklearn.tree import DecisionTreeClassifier
@@ -278,3 +280,45 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         print context['forms']
         print '-' * 60
         return render(request, template, context)
+
+
+
+def getExperimentsNames():
+    return Experiment.objects.values_list('name', flat=True).distinct()
+
+
+def getExperimentsList():
+    return Experiment.objects.values_list('id', 'name', 'token').distinct()
+
+
+def select_experiment(request):
+    name_list = getExperimentsNames()
+    context = {'name_list': name_list}
+    if request.method == 'POST':
+        exp_name = request.POST.get('exp_name')
+        password = request.POST.get('token')
+        err_log = False
+        for i in getExperimentsList():
+            if exp_name == i[1] and password == i[2]:
+                err_log = True
+                num_exp = i[0]
+        if err_log:
+            return HttpResponseRedirect(reverse('record_selector', kwargs={'id_num': num_exp}))
+        else:
+            messages.add_message(request, messages.ERROR, 'Error wrong password')
+            return render(request, 'extfeat/experiments.html', context)
+    else:
+        return render(request, 'extfeat/experiments.html', context)
+
+
+def getRecordsList(experimentId):
+    return Recording.objects.filter(experiment=experimentId).values_list('id', 'device_name', 'description', 'dict_keys', 'ts').order_by('id')
+
+def select_record(request, id_num):
+    if request.method == 'POST':
+        record_id = request.POST.get('rec_name')
+        return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': record_id, 'alg_type': ""}))
+    else:
+        name_list = getRecordsList(id_num)
+        context = {'name_list': name_list}
+        return render(request, 'extfeat/records.html', context)
