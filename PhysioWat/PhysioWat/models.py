@@ -29,7 +29,6 @@ class SensorRawData(models.Model):
 
 class Preprocessed_Recording(models.Model):
     recording = models.ForeignKey(Recording, on_delete=models.CASCADE)
-    description = models.CharField(max_length=10)
     applied_preproc_funcs_names = ArrayField(
         models.CharField(max_length=50)
     )
