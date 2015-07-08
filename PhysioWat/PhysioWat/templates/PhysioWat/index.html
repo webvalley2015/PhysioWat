@@ -20,6 +20,7 @@
                 padding-left: 10%;
                 padding-right: 10%;
                 font-size: 17px;
+                line-height: 1.5;
             }
 
             .text h2 {
@@ -29,6 +30,25 @@
                 margin-right: auto;
                 font-size: 24px;
             }
+            .button{
+                width:200px;
+                height:50px;
+                position:absolute;
+                right:30px;
+                color: #FFF;
+                margin-top:-30px;
+                background-color: #6699FF;
+                -webkit-border-radius: 10px;
+                -moz-border-radius: 10px;
+                border-radius: 10px;
+                text-align: center;
+                line-height: 50px;
+                vertical-align: middle;
+            }
+            .button:hover{
+                background-color: #476bb2;
+            }
+
         </style>
     {% endblock %}
 
@@ -38,27 +58,18 @@
             <div class="about-top">
                 <br><br>
 
-<<<<<<< HEAD
                 
                 <!-- <div style="width:200px;height:50px;position: absolute; right: 20px; margin-top: 5px; solid #80CCFF;"><span style="position: absolute; right: 20px; margin-top: 5px;"><a href="{% url 'experiment_creator' %}"><span>Create a New Experiment</span></a></span></div>-->
-=======
-
-                <div style="width:200px; height:50px; position:absolute; right:20px; margin-top:5px; background-color: #4B697C;"><a href="{% url 'experiment_creator' %}"><span>Create a New Experiment</span></a></div>
->>>>>>> 8190549e31e1c8e5053a83c802d0d34ca308d908
 
                 <h1>
                     <div style="font-size: 40px; color: #333;">Welcome to <span>PhysioWat </span></div>
                     <br>
                 </h1>
-                <p style="width:80%; margin-left:auto; margin-right:auto; color: #555;">This is a web platform for
+                <p style="width:80%; margin-left:auto; margin-right:auto; color: #555; line-height: 1.5;">This is a web platform for
                     sensor data
-<<<<<<< HEAD
-                    storage and analysis. It allows you to upload data, process it by extracting features, and visualize
-                    it through suitable graphs. </p><br>
-=======
-                    storage and analysis. It allows you to upload data, process them by extracting features and visualize
+                    storage and analysis. It allows you to upload data, process them by extracting features and
+                    visualize
                     them through suitable graphs. </p>
->>>>>>> 8190549e31e1c8e5053a83c802d0d34ca308d908
 
                 <br/>
 
@@ -86,7 +97,7 @@
                         <!-- /.col-lg-4 -->
                         <div class="col-lg-4 text">
                             <div class="images">
-                                <img src="{% static 'image/webvalley_logo.png' %}" class="img-responsive">
+                                <a href="https://webvalley.fbk.eu/"><img src="{% static 'image/webvalley_logo.png' %}" class="img-responsive"></a>
                             </div>
                             <h2>The Team</h2>
 
@@ -118,7 +129,8 @@
                                 the
                                 synchronization of physiological responses in different relationships. The project
                                 was
-                                commissioned and supported by the ABP-lab, UniTN, NTY and ODFLab. Other than the raw data we
+                                commissioned and supported by the <a href="http://abp.dipsco.unitn.it/">ABP-lab</a>, UniTN, NTY and ODFLab. Other than the raw
+                                data we
                                 were
                                 given,
                                 we also collected "synthetic data" with wearable sensors.
@@ -129,13 +141,6 @@
                     <!-- /.row -->
                 </div>
             </div>
-        </div>
-
-        <div class="container" align="center">
-                <br><br>
-                <h1>Ready to get started? Use the button below to create a new experiment and analyze the data you have collected.</h1>
-                <br>
-                <a href="{% url 'experiment_creator' %}"><button class="btn btn-success btn-lg">Create a New Experiment</button></a>
         </div>
 
 
