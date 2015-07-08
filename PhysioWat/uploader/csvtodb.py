@@ -6,9 +6,9 @@ import csv
 from PhysioWat.models import Recording, SensorRawData, Experiment
 # from django.db import connection
 
-def putintodbflex(fname, dvname, desc, exp_id):
-    if hasattr(fname, '__iter__'):
-        for filename in fname:
+def putintodbflex(fnames, dvname, desc, exp_id):
+    if hasattr(fnames, '__iter__'):
+        for filename in fnames:
             csvreader = csv.reader(filename, delimiter=',')
             dictky = csvreader.next()
             for index in range(len(dictky)):
@@ -16,8 +16,11 @@ def putintodbflex(fname, dvname, desc, exp_id):
 
             r = Recording(experiment_id=exp_id, device_name=dvname, dict_keys=dictky, description=desc)
             r.save()
+            ll=[]
             for row in csvreader:
-                SensorRawData(recording_id=r.id, store=dict(zip(dictky, row))).save()
+                ll.append(SensorRawData(recording_id=r.id, store=dict(zip(dictky, row))))
+
+            SensorRawData.objects.bulk_create(ll, batch_size=1000)
     return 0
 
 '''

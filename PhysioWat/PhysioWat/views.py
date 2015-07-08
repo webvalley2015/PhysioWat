@@ -1,6 +1,7 @@
 __author__ = 'federico'
 from django.shortcuts import render
 from .models import Sensor, Recording
+from PhysioWat.settings import MEDIA_ROOT
 
 
 def index(request):

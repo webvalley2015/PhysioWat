@@ -50,15 +50,17 @@
                 <span class="icon-bar"></span>
             </button>
             <a class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'image/logolightbluephysiowat.png' %}"
-                                                                  style="width: auto; height: 35px; margin-top: -7px; margin-left: -7px;"></a>
+                                                                  style="width: auto; height: 38px; margin-top: -7px; margin-left: -7px;"></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="{% url 'index' %}">Home</a></li>
+                <li><a href="{% url 'experiment_creator' %}">New Experiment</a></li>
                 <li><a href="{% url 'user_upload' %}">Upload</a></li>
                 <!-- <li><a href="{% url 'login' %}">Login</a></li> -->
-                <li><a href="{% url 'experiment_creator' %}">New Experiment</a></li>
-                <li><a href="{% url 'experiment_selector' %}">View Data</a></li>
+                <li><a href="{% url 'experiment_selector' %}">Select Experiments</a></li>
+                <li><a href="{% url 'extf_experiment_selector' %}">Feature Extraction</a></li>
+                <li><a href="{% url 'ml_param_setting' %}">Machine Learning</a></li>
                 <li><a href="{% url 'contact' %}">Contact</a></li>
             </ul>
             <!-- <form class="navbar-form navbar-right">
