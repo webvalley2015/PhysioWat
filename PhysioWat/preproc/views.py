@@ -18,29 +18,20 @@ import csv
 def QueryDb(recordingID):
     table = Recording.objects.get(id=recordingID)
     data = SensorRawData.objects.filter(recording_id=recordingID).order_by('id')
-    # alldata = (','.join(table.dict_keys) + '\n').replace(' ', '')
-
-    # ll = []
-    # for key in table.dict_keys:
-    #     ll.append(data[0].store[key])
 
     retarray = np.zeros((len(data), len(table.dict_keys)))
-    # retarray = np.append(retarray,ll)
     mykeys = data[0].store.keys()
     # [j for i in bb for j,z in enumerate(cc) if z == i]
-    for i, record in enumerate(data):
-        retarray[i] = [float(j) for j in record.store.values()]
-        # ll = []
-        # for key in table.dict_keys:
-        #     ll.append(record.store[key])
-        # retarray=np.vstack((retarray,ll))
-    # datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
+
+    for i in xrange(len(data)):
+        retarray[i] = [float(j) for j in data[i].store.values()]
+    retarray.astype(float)
 
     return retarray, mykeys
 
 
 def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_funcs_names, preproc_funcs_parameters):
-    # Andrew's crazy method to convert array to CSV-ish string??? IDK what it means, but IT WORKS!!!
+    # Andrew's method to convert array to CSV string???
     csvasstring = ",".join(preProcLabel) + '\n'
     for dataarr in preProcArray:
         for dataval in dataarr:
