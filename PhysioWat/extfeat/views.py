@@ -27,6 +27,23 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
 from PhysioWat.models import Experiment, Preprocessed_Recording, Preprocessed_Data, FeatExtractedData
 
+
+def form_select_signal(id_record):
+    signal_list = Preprocessed_Recording.objects.filter(recording_id = id_record).values_list('id','dict_keys').order_by('id')
+    checkbox_in=[]
+    for ID, cols in signal_list:
+        if 'PHA' in cols:   #GSR
+            type_sig="GSR"
+        elif 'ACCX' or 'GYRX' or 'MAGX' in cols:
+            type_sig="inertial"
+        elif "IBI" in cols:
+            type_sig="IBI"
+        checkbox_in.append((ID, str(ID)+" - "+" "+str(type_sig)))
+
+    form_sel_id = signal_choose(choices=checkbox_in)
+    return form_sel_id
+
+
 def QueryDb(recordingID):   #JUST COPY, PASTE AND CHANGED RECORDS
     table = Preprocessed_Recording.objects.get(id=recordingID)
     data = Preprocessed_Data.objects.filter(pp_recording_id=recordingID).order_by('id')
@@ -44,102 +61,97 @@ def QueryDb(recordingID):   #JUST COPY, PASTE AND CHANGED RECORDS
 def WritePathtoDB(fname, pp_rec_id):
     FeatExtractedData(pp_recording_id=pp_rec_id, path_to_file=fname).save()
 
-def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
+def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
 
     # read parameters from url
     # get data type list
 
     if (request.method == 'POST'):
-        print("I HAVE A POST!!!")
-        a = windowing(request.POST)
-        if a.is_valid():
-            # print a.cleaned_data
-            # time = GET THE COLUMN TIME FROM DB (ASK RICCARDO)
-            # label = GET THE COLUMN OF THE LABEL FROM THE DB (ASK RICCARDO)
-            # those prevoious 2 variabliles were for windowing. as i wrote, ask riccardo for further inforation
-            # after having done the db stuffs, please un-comment the 2 variabiles and feel free to delete this 2 comments
-
+        print request.POST
+        mydict = dict(request.POST.iterlists())
+        print mydict
+        for id_num in mydict['choose_signal']:
             data, cols = QueryDb(id_num)
             print cols
             time = selcol(data, cols, "TIME")
             labs = selcol(data, cols, "LAB")
 
-            a = a.cleaned_data
-            if (a['type'] == 'contigous'):
-                windows, winlab = wd.get_windows_contiguos(time, labs, a['length'], a['step'])
+            if (mydict['type'][0] == 'contigous'):
+                windows, winlab = wd.get_windows_contiguos(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
 
-            if (a['type'] == 'no_mix'):  # for the values, make reference to .forms --> windowing.!!!!
-                windows, winlab = wd.get_windows_no_mix(time, labs, a['length'], a['step'])
+            if (mydict['type'][0] == 'no_mix'):  # for the values, make reference to .forms --> windowing.!!!!
+                windows, winlab = wd.get_windows_no_mix(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
 
-            if (a['type'] == 'full_label'):
-                windows, winlab = wd.get_windows_full_label(time, labs, a['length'], a['step'])
+            if (mydict['type'][0] == 'full_label'):
+                windows, winlab = wd.get_windows_full_label(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
 
-        # extract features from result
-        # store feats. in the db
-        if 'PHA' in cols:   #GSR
-            data_in=selcol(data, cols, "PHA")
-            DELTA=0 #TODO GET FROM DB params!
-            feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
-            feats, cols_out=dict_to_arrays(feat_dict)
-            feats=np.column_stack((feats, winlab))
-            feat_col=np.r_[cols_out, "LAB"]
+            # extract features from result
+            # store feats. in the db
+            if 'PHA' in cols:   #GSR
+                data_in=selcol(data, cols, "PHA")
+                DELTA=0 #TODO GET FROM DB params!
+                feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
+                data_out, cols_out=dict_to_arrays(feat_dict)
+                data_out=np.column_stack((data_out, winlab))
+                columns_out=np.r_[cols_out, ["LAB"]]
 
-        elif 'ACCX' in cols or 'GYRX' in cols or 'MAGX' in cols:
-            col_acc=["ACCX", "ACCY", "ACCZ"]
-            col_gyr=["GYRX", "GYRY", "GYRZ"]
-            col_mag=["MAGX", "MAGY", "MAGZ"]
-            try:
-                acc=selcol(data, cols, col_acc)
-                thereIsAcc=True
-            except IndexError as e:
-                print e
-                thereIsAcc=False
-            try:
-                gyr=selcol(data, cols, col_gyr)
-                thereIsGyr=True
-            except IndexError as e:
-                print e
-                thereIsGyr=False
-            try:
-                mag=selcol(data, cols, col_mag)
-                thereIsMag=True
-            except IndexError as e:
-                print e
-                thereIsMag=False
-            feat_col=np.array(["LAB"])
-            feats=winlab[:]
-            if thereIsAcc:
-                feats_acc, fcol_acc= extfeat_ACC(acc, time, col_acc, windows)
-                feats=np.column_stack([feats_acc, feats])
-                feat_col=np.r_[fcol_acc, feat_col]
-            if thereIsGyr:
-                feats_gyr, fcol_gyr= extfeat_GYR(gyr, time, col_gyr, windows)
-                feats=np.column_stack([feats_gyr, feats])
-                feat_col=np.r_[fcol_gyr, feat_col]
-            if thereIsMag:
-                feats_mag, fcol_mag= extfeat_MAG(mag, time, col_mag, windows)
-                feats=np.column_stack([feats_mag, feats])
-                feat_col=np.r_[fcol_mag, feat_col]
+            elif 'ACCX' in cols or 'GYRX' in cols or 'MAGX' in cols:
+                col_acc=["ACCX", "ACCY", "ACCZ"]
+                col_gyr=["GYRX", "GYRY", "GYRZ"]
+                col_mag=["MAGX", "MAGY", "MAGZ"]
+                try:
+                    acc=selcol(data, cols, col_acc)
+                    thereIsAcc=True
+                except IndexError as e:
+                    print e
+                    thereIsAcc=False
+                try:
+                    gyr=selcol(data, cols, col_gyr)
+                    thereIsGyr=True
+                except IndexError as e:
+                    print e
+                    thereIsGyr=False
+                try:
+                    mag=selcol(data, cols, col_mag)
+                    thereIsMag=True
+                except IndexError as e:
+                    print e
+                    thereIsMag=False
+                columns_out=np.array(["LAB"])
+                data_out=winlab[:]
+                if thereIsAcc:
+                    feats_acc, fcol_acc= extfeat_ACC(acc, time, col_acc, windows)
+                    data_out=np.column_stack([feats_acc, data_out])
+                    columns_out=np.r_[fcol_acc, columns_out]
+                if thereIsGyr:
+                    feats_gyr, fcol_gyr= extfeat_GYR(gyr, time, col_gyr, windows)
+                    data_out=np.column_stack([feats_gyr, data_out])
+                    columns_out=np.r_[fcol_gyr, columns_out]
+                if thereIsMag:
+                    feats_mag, fcol_mag= extfeat_MAG(mag, time, col_mag, windows)
+                    data_out=np.column_stack([feats_mag, data_out])
+                    columns_out=np.r_[fcol_mag, columns_out]
 
-        elif 'IBI' in cols:
-            data_in=selcol(data, cols, "IBI")
-            cols_in=["TIME", "IBI"]
-            feats, winlab = extfeat_IBI(np.column_stack((time, data_in)), cols_in, windows, winlab)
-            feat_col=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
+            elif 'IBI' in cols:
+                data_in=selcol(data, cols, "IBI")
+                cols_in=["TIME", "IBI"]
+                data_out, winlab = extfeat_IBI(np.column_stack((time, data_in)), cols_in, windows, winlab)
+                columns_out=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
+                data_out=np.column_stack((data_out, winlab))
+                columns_out=np.r_[columns_out, ["LAB"]]
 
-        data_out=np.concatenate((feats, winlab))
-        columns_out=np.r_[feat_col, ["LAB"]]
-        print data_out.shape
-        print columns_out
+            print data_out.shape
+            print columns_out
 
-        # after having extracted the fieatures --> save on db
+            # after having extracted the fieatures --> save on db
 
     else:
         form = windowing()
+        form_signal = form_select_signal(id_record)
         template = "extfeat/choose_alg.html"
         print "ciaoooo"
         # print urlTmp['id_num']
-        context = {'form': form, 'id_num': id_num}
+        context = {'form': form,'form_signal':form_signal, 'id_record': id_record}
         return render(request, template, context)
 
 
@@ -336,27 +348,6 @@ def select_record(request, id_num):
         return render(request, 'extfeat/records.html', context)
 
 
-def select_signal(request, id_record):
-    #print "I GOT REDIRECTED!!!"
-    #print id_record
-    signal_list = Preprocessed_Recording.objects.filter(recording_id = id_record).values_list('id','dict_keys').order_by('id')
-    #print signal_list
-    checkbox_in=[]
-    for ID, cols in signal_list:
-        if 'PHA' in cols:   #GSR
-            type_sig="GSR"
-        elif 'ACCX' or 'GYRX' or 'MAGX' in cols:
-            type_sig="inertial"
-        elif "IBI" in cols:
-            type_sig="IBI"
-        checkbox_in.append((ID, str(ID)+" - "+" "+str(type_sig)))
-
-    print checkbox_in
-    form_sel_id = signal_choose(choices=checkbox_in)
-    print type(form_sel_id)
-    template ="extfeat/choose_signal.html"
-    context = {'form' : form_sel_id, 'id_record': id_record}
-    return render(request,template, context)
 
 
 def final_ml_page(request, result_dict, conf_mat):
