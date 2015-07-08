@@ -76,9 +76,9 @@ class signal_choose(forms.Form):
         super(signal_choose,self).__init__(*args, **kwargs)
         self.fields['choose_signal'].choices = choices
 
-
+#TODO fix item type
 class id_choose(forms.Form):
-    choose_id = forms.ChoiceField(choices=[], widget=forms.SelectMultiple())
+    choose_id = forms.ChoiceField(choices=[], widget=forms.Select())
 
     def __init__(self, choices, *args, **kwargs):
         super(id_choose,self).__init__(*args, **kwargs)
