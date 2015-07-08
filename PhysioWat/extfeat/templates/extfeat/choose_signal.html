@@ -1,0 +1,19 @@
+{% extends "PhysioWat/base.html" %}
+{% load static %}
+{% load highcharts_tags %}
+{% block app_specific_css %}
+{% load bootstrap3 %}
+{% endblock %}
+
+{% block container %}
+<div id="alg_choose_container" style="width:50%; margin:0 auto; position:relative; top:100px; left:100px;">
+
+    <form action="{⅜ url 'signal_selector' id_record ⅜}" method="post" enctype="multipart/form-data" name="selection">
+     {% csrf_token %}
+        {{ form }}
+     <button type="submit" id="select_submit" class="btn btn-success">Submit</button>
+        <button type="reset" class="btn btn-danger">Reset</button>
+    </form>
+</div>
+
+{% endblock %}

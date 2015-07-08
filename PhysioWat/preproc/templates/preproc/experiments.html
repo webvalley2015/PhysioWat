@@ -32,22 +32,26 @@
     <br><br>
   
     <br><br>
-        <select name="exp_name">
+        <select name="exp_name" class="form-control">
             {% for c in name_list %}
                 <option value="{{ c }}">{{ c }}</option>
             {% endfor %}
         </select>
 
-        <br><br>
-        <div class="btn-fix">
-            <input type="password" name="token" required="true">
+        <br>
+        <div>
+            <input placeholder="Passcode" type="password" name="token" required="true" class="form-control">
+            <br>
             <input type="submit" value="Select">
         </div>
 
     </form>
-
+<br>
     {% if messages %}
-        <ul class="messages">
+        <ul class="messages" style="margin: auto;
+    width: 60%;
+    border:3px solid #d20800;
+    padding: 10px;">
             {% for message in messages %}
                 <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
             {% endfor %}

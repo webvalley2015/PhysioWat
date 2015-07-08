@@ -35,17 +35,17 @@
         </div>
         <br><br>
 
-        <div id="mlParSet_4" class="div_choose" style="display:none;">
+        <div id="mlParSet_4" class="div_choose" style="display:none;">        <!-- div with autofit, default or personalized -->
              <h5>Choose whether you have to set the parameters or not</h5>
             {{ AlgParamChoose }}
         </div>
         <br><br>
 
-           <div id="mlParSet_5">
+           <div id="mlPersPar">   <!-- div with the personalized options for every algorithm -->
 
         </div>
         <br><br>
-        <div id="autoFitParamChoose" style="display:none;">
+        <div id="autoFitParamChoose" style="display:none;">       <!-- div with the metrics -->
             {{ autoParam }}
         </div>
        <button type="submit" class="btn btn-success" id="button_submit" style="display:none">Submit</button>
@@ -69,11 +69,13 @@
                 "use strict";
         var cont = 1;
         var formlist = [];
+        var choosen_alg;
+        var choosen_opt;
 
 
-               {% for k,v in forms.items %}
+        {% for k,v in forms.items %}
                 formlist.push("{{ k }}");
-         {% endfor %}
+        {% endfor %}
 
         $(document).ready(function () {
         //do nothing for now;
@@ -103,6 +105,11 @@
                 { $('#mlParSet_1').show(); }
             }); //THIS BLOCK IS NEEDED BECAUSE OF THE FACT THAT (ONLY the first paraghraph coul be not displaysable)
 
+            //ADDING THE FUNCTIONALITY THAT, if choosen every algorithm, does not display the form algparamchoose
+
+             $('#mlParSet_3 :input:checked').each(function (i, elem) {  choosen_alg = elem.value});
+             if(choosen_alg == 'ALL'){  cont = 5   }
+
             if(cont >=5)
             {
             $target=$('#proceed')
@@ -116,41 +123,48 @@
          }); //end of proceed --> click
 
 
-     var choosen_alg;
-     var choosen_opt
+
 
     function show_alg_param(){
         $('#mlParSet_3 :input:checked').each(function (i, elem) {  choosen_alg = elem.value});
-        //console.log (choosen_alg);
+        //console.log ("choosen algorithm : " + choosen_alg);
         $('#mlParSet_4 :input:checked').each(function (i, elem) {  choosen_opt= elem.value});
         //console.log(choosen_opt);
+
+        if(choosen_alg =="ALL"){
+                alert("you have choosen to try every classifier. It might take some time");
+                $('#mlParSet_4').hide();
+         }
+         else{
+             $('#mlParSet_4').show();
+              $('#mlPersPar').show();
+        }
 
         if(choosen_opt == "pers"){        // IF YOU WANT THE PERSONALIZED PARAMETERS, SHOW THEM (DIFFERENT FOR EACH ALG)
             if(choosen_alg == "QDA"){
                 alert("the quadratic discriminant analisys has no personalized options. Please switch to default or autofit ");
                 $('#autoFitParamChoose').hide();
-                $('#mlParSet_5').hide();
+                $('#mlPersPar').hide();
             }
             choosen_alg = "form_" + choosen_alg
-            console.log (choosen_alg);
+            //console.log (choosen_alg);
             var temp;
               {% for k,v in forms.items %}
                     temp ="{{ k }}";
 
                      if (temp == choosen_alg){
                     {% spaceless %}
-                     document.getElementById('mlParSet_5').innerHTML = ' {{ v }}';
+                     document.getElementById('mlPersPar').innerHTML = ' {{ v }}';
                      {% endspaceless %}
                      }
 
              {% endfor %}
         }
         if(choosen_opt == "auto"){  // IF YOU WANT THE AUTOTRAIN, then show the choices
-            console.log("ciaociaociaociaociaoilli");
+            //console.log("choosen the autofit!");
             $('#autoFitParamChoose').show();
-            $('#mlParSet_5').hide();
-            //if(typeof $ == 'undefined')
-                 //console.log("pirla");
+            $('#mlPersPar').hide();
+
         }
         else{        //IF YOU WANT THE DEFAULT PARAMETERS,
            $('#autoFitParamChoose').hide();
@@ -159,11 +173,8 @@
         if(choosen_opt == "def")
         {
         $('#autoFitParamChoose').hide();
-            $('#mlParSet_5').hide();
+            $('#mlPersPar').hide();
         }
-
-
-
     }
 
 /*
@@ -171,7 +182,7 @@
  .each(function (i, elem) {
                 allVals.push(elem.value);
             });
-  $('{{ v }}').appendTo('#mlParSet_5');
+  $('{{ v }}').appendTo('#mlPersPar');
         */
 
     </script>

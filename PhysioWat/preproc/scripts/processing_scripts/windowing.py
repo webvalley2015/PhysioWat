@@ -56,7 +56,7 @@ def get_windows_full_label(time, labels):
     rl= [labels[0]]
     for i in range(1, len(labels)):
         if labels[i] != labels[i-1]:
-    	    wl[-1][1]= i
+    	    wl[-1][1]= time[i]
             wl.append([time[i],0])
             rl.append(labels[i])
     wl[-1][1]= time[-1]
