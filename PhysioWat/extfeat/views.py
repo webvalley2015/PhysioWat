@@ -1,8 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from .forms import windowing, viewFeatures, FeatPar, TestParam, AlgChoose, AlgParam, SvmParam, KNearParam, DecTreeParam, \
-    RndForParam, AdaBoostParam, LatDirAssParam, autoFitParam
+from .forms import windowing, viewFeatures, FeatPar, TestParam, AlgChoose, AlgParam, SvmParam, KNearParam, DecTreeParam, signal_choose, RndForParam, AdaBoostParam, LatDirAssParam, autoFitParam
 from preproc import jsongen
 from preproc.scripts.processing_scripts import windowing as wd, feat_script as ft
 from preproc.scripts.processing_scripts.GSR import extract_features as extfeat_GSR
@@ -249,13 +248,13 @@ def ml_input(request):  # obviously, it has to be added id record and everything
 
         #CALL OTHER FUNCTIONS / GET OTHER DATAS/
         #final_ml_page(request, result_dict=dic_metric, conf_mat=conf_mat)
-#---------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # TODO HERE STARTS THE FINAL PART OF THE MACHINE LEARNING, WHICH IS NO MORE PROCESSING BUT JUST RENDERING THE FORM (and getting the json)
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
         template = "machine_learning/results.html"
-        context = {'results': dic_metric,'conf_mat':conf_mat}
-        return render(request,template,context)
+        # context = {'results': dic_metric,'conf_mat':conf_mat}
+        return render(request, template)
 
     else:
         template = "machine_learning/ml_input.html"
@@ -333,11 +332,36 @@ def getRecordsList(experimentId):
 def select_record(request, id_num):
     if request.method == 'POST':
         record_id = request.POST.get('rec_name')
-        return HttpResponseRedirect(reverse('chart_show', kwargs={'id_num': record_id, 'alg_type': ""}))
+        print "HEY, I GOT A POST"
+        print record_id
+        return HttpResponseRedirect(reverse('signal_selector', args=(record_id,)) ) #, kwargs={'id_num': record_id}), 'alg_type': 1234
     else:
         name_list = getRecordsList(id_num)
         context = {'name_list': name_list}
         return render(request, 'extfeat/records.html', context)
+
+
+def select_signal(request, id_record):
+    #print "I GOT REDIRECTED!!!"
+    #print id_record
+    signal_list = Preprocessed_Recording.objects.filter(recording_id = id_record).values_list('id','dict_keys').order_by('id')
+    #print signal_list
+    checkbox_in=[]
+    for ID, cols in signal_list:
+        if 'PHA' in cols:   #GSR
+            type_sig="GSR"
+        elif 'ACCX' or 'GYRX' or 'MAGX' in cols:
+            type_sig="inertial"
+        elif "IBI" in cols:
+            type_sig="IBI"
+        checkbox_in.append((ID, str(ID)+" - "+" "+str(type_sig)))
+
+    print checkbox_in
+    form_sel_id = signal_choose(choices=checkbox_in)
+    print type(form_sel_id)
+    template ="extfeat/choose_signal.html"
+    context = {'form' : form_sel_id, 'id_record': id_record}
+    return render(request,template, context)
 
 
 def final_ml_page(request, result_dict, conf_mat):

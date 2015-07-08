@@ -63,3 +63,14 @@ class autoFitParam(forms.Form):
                  ('REM','Recall Score Macro'),('REm','Recall Score Micro'),('REW','Recall Score Weighted')
                  ]
     maximize = forms.ChoiceField(choices=my_choices,widget=forms.RadioSelect(), initial='ACC')
+
+#--------------------------------------------
+# todo FORMS FOR FEAT EXTS
+#------------------------------------------------
+
+class signal_choose(forms.Form):
+    choose_signal = forms.ChoiceField(choices=[], widget=forms.CheckboxSelectMultiple())
+
+    def __init__(self, choices, *args, **kwargs):
+        super(signal_choose,self).__init__(*args, **kwargs)
+        self.fields['choose_signal'].choices = choices
