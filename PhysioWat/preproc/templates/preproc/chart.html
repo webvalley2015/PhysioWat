@@ -81,18 +81,6 @@
                         <li role="presentation" class="active">
                             <a href="#" onClick="manageScreen('{{ k }}')">{{ k }}</a>
                 	    <!-- moved the for-->
-<<<<<<< HEAD
-                            {% for kv,vv in v.items %}
-                                <div id="div_id_{{ k }}" class="tabcontents" style="display:none">
-                                    <br>
-                                    {% bootstrap_form vv %}
-                                    <br>
-                                    <br>
-                                </div>
-                            {% endfor %}
-			            </li>
-
-=======
                             <div id="man-{{ k }}" class="mac" style="display:none">
                             <ul class="nav nav-tabs" id="setting_nav">
                                 {% for kv,vv in v.items %}
@@ -108,7 +96,6 @@
                             </ul>
                             </div>
 			            </li>
->>>>>>> 8190549e31e1c8e5053a83c802d0d34ca308d908
                     {% endif %}
                 {% endfor %}
 	    </ul>
