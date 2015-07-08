@@ -165,8 +165,8 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
 def ml_input(request):  # obviously, it has to be added id record and everything concerning db
     if (request.method == 'POST'):
 
-        print "culoculoculoculo"  # GET THE POST, ELABORATE AND GO TO THE DB OR THE PLOT
-        print request.POST
+        #print "culoculoculoculo"  # GET THE POST, ELABORATE AND GO TO THE DB OR THE PLOT
+        #print request.POST
         mydict = dict(request.POST.iterlists())
         # for key in request.POST.iterkeys():  # "for key in request.GET" works too.
         #     # Add filtering logic here.
@@ -183,10 +183,8 @@ def ml_input(request):  # obviously, it has to be added id record and everything
 
         percentage = mydict['test_percentage'][0]
         percentage = float(percentage) / 100.0
-
+        list_of_feat = list(input_data.colums)
         num_iteration = mydict['number_of_iterations']
-
-        #train_data, test_data = ft.split(input_data)
 
         algorithm = mydict['alg_choice'][0]
         print algorithm
@@ -195,7 +193,7 @@ def ml_input(request):  # obviously, it has to be added id record and everything
             if 'norm' in mydict['viewf']:
                 input_data = ft.normalize(input_data)
                 #print input_data
-            train_data, test_data = ft.split(input_data)
+            train_data, test_data = ft.split(input_data, percentage)
             flag = False
             if 'sel' in mydict['viewf']:
                 # print "i have selected the first stuff!"
@@ -203,22 +201,19 @@ def ml_input(request):  # obviously, it has to be added id record and everything
                     num_feat = mydict['feat_num']
                     if (num_feat <= 0):
                         return render(request, "machine_learning/form_error.html")
-                    # todo train_data, test_data = ft.getfeat(train_data, test_data, k) #RETURNS 2 SUBSET DF GIVEN IN INPUT THE TRAIN DATA, THE TEST DATA, AND THE NUMBER OF FEATS
-                    print "getfeat non defined"
+                     train_data, test_data, list_of_feat = ft.getfeatnumber(train_data, test_data, k) #RETURNS 2 SUBSET DF GIVEN IN INPUT THE TRAIN DATA, THE TEST DATA, AND THE NUMBER OF FEATS
 
                 if ('k_auto' in mydict['FeatChoose']):
-                    train_data, test_data, feat_acc_plot = ft.bestfeatn(train_data, test_data) # TODO TOO MANY VALUES TO UNPACK!
-                    # TODO modify the fucntion
-                    pass
+                    train_data, test_data, best_feat_n_mat, list_of_feat = ft.bestfeatn(train_data, test_data)
         if(flag == True):
-            train_data, test_data = ft.split(input_data)
+            train_data, test_data = ft.split(input_data, percentage)
         print "dopo il case del viewf"
 
-        if algorithm == 'ALL' and 'auto' not in mydict['parameter_choiche']:
+        if (algorithm == 'ALL') and ('auto' not in mydict['parameter_choiche']):
               return render(request, "machine_learning/form_error.html")
 
         if 'def' in mydict['parameter_choiche']:
-            clf = ft.quick_crossvalidate(train_data, alg=algorithm)
+            clf, score, error = ft.quick_crossvalidate(train_data, alg=algorithm)
 
 
 
@@ -226,36 +221,30 @@ def ml_input(request):  # obviously, it has to be added id record and everything
             if (algorithm == 'KNN'):
                 k_neighbour = mydict['k_neighbour'][0]
                 print(k_neighbour)
-                # todo clf = ft.pers_crossvalidation1(train_data, algorithm, k_neighbour)
-                pass
+               clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, k_neighbour)
             if (algorithm == 'DCT'):
                 max_features = mydict['max_features'][0]
                 #print(type(max_features)) #IT'S A STRING!!!!
-                # todo clf = ft.pers_crossvalidation1(train_data, algorithm, max_features)
-                pass
+               clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, max_features)
             if (algorithm == 'SVM'):
                 kernel = mydict['kernel']
                 C = mydict['C']
-                # todo clf = ft.pers_crossvalidation2(train_data, algorithm, kernel, C)
-                pass
+                clf, score, error = ft.pers_crossvalidation2(train_data, algorithm, kernel, C)
             if (algorithm == 'RFC'):
                 max_features = mydict['max_features']
                 number_estimators = mydict['number_estimators']
-                # TODO clf = ft.pers_crossvalidation2(train_data, algorithm, max_features, number_estimators)
-                pass
+                clf, score, error = ft.pers_crossvalidation2(train_data, algorithm, max_features, number_estimators)
             if (algorithm == 'ADA'):
                 number_estimators = mydict['number_estimators']
                 learning_rate = mydict['learning_rate']
-                # todo clf = ft.pers_crossvalidation2(train_data, algorithm, number_estimators, learning_rate)
-                pass
+                clf, score, error = ft.pers_crossvalidation2(train_data, algorithm, number_estimators, learning_rate)
             if (algorithm == 'LDA'):
                 solver = mydict['solver']
-                # todo clf = ft.pers_crossvalidation1(train_data, algorithm, solver)
+                clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, solver)
         if 'auto' in mydict['parameter_choiche']:
             metrics = mydict['maximize'][0]
-            print " hai scelto   ->"
-            print  metrics
-            clf = ft.bestfit(train_data, algorithm, metrics)[0]
+            #print  metrics
+            clf, score, error, resul_mat = ft.bestfit(train_data, algorithm, metrics)[0]
 
         dic_metric, conf_mat = ft.machineLearningPrediction(clf,test_data)
 
