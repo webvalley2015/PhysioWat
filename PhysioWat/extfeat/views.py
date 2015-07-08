@@ -201,7 +201,7 @@ def ml_input(request):  # obviously, it has to be added id record and everything
                     num_feat = mydict['feat_num']
                     if (num_feat <= 0):
                         return render(request, "machine_learning/form_error.html")
-                     train_data, test_data, list_of_feat = ft.getfeatnumber(train_data, test_data, k) #RETURNS 2 SUBSET DF GIVEN IN INPUT THE TRAIN DATA, THE TEST DATA, AND THE NUMBER OF FEATS
+                    train_data, test_data, list_of_feat = ft.getfeatnumber(train_data, test_data, k) #RETURNS 2 SUBSET DF GIVEN IN INPUT THE TRAIN DATA, THE TEST DATA, AND THE NUMBER OF FEATS
 
                 if ('k_auto' in mydict['FeatChoose']):
                     train_data, test_data, best_feat_n_mat, list_of_feat = ft.bestfeatn(train_data, test_data)
@@ -221,11 +221,11 @@ def ml_input(request):  # obviously, it has to be added id record and everything
             if (algorithm == 'KNN'):
                 k_neighbour = mydict['k_neighbour'][0]
                 print(k_neighbour)
-               clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, k_neighbour)
+                clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, k_neighbour)
             if (algorithm == 'DCT'):
                 max_features = mydict['max_features'][0]
                 #print(type(max_features)) #IT'S A STRING!!!!
-               clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, max_features)
+                clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, max_features)
             if (algorithm == 'SVM'):
                 kernel = mydict['kernel']
                 C = mydict['C']
