@@ -1,0 +1,178 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>@title</title>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+      <script src='{% static 'd3.min.js' %}' type="text/javascript"></script>
+	<style>
+
+body {
+    font-family: sans-serif;
+    font-size: 9pt;
+    line-height: 12pt;
+    background: #ffffff;
+    color: #555555;
+  }
+
+  .line1{
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1px;
+  }
+
+  .line2 {
+    fill: none;
+    stroke: green;
+    stroke-width: 1px;
+  }
+
+  .line3 {
+    fill: none;
+    stroke: orange;
+    stroke-width: 1px;
+  }
+
+  .axis path, .axis line {
+    fill: none;
+    stroke: #555555;
+    shape-rendering: crispEdges;
+  }
+</style>
+
+</head>
+<body>
+    <h1>Sensor flow</h1>
+        <h3 id="status"></h3>
+
+        <button id="stop-stream"  onclick="stopEv();">Stop streaming</button>
+    <ol id="container"></ol>
+
+
+  <script type="text/javascript">
+
+      var t=-1;
+      var n=40;
+      var duration=0;
+      var data1 = new Array(n);
+      var data2 = new Array(n);
+      var data3 = new Array(n);
+      for (var i = 0; i < n; i++){
+        data1[i] = 0;
+        data2[i] = 0;
+        data3[i] = 0;
+      } 
+
+      var margin = {top: 20, right: 20, bottom: 20, left: 40},
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+      var x = d3.scale.linear()
+          .domain([0, n - 1])
+          .range([0, width]);
+       
+      var y = d3.scale.linear()
+		  .domain([-20, 20])
+          .range([height, 0]);
+       
+      var line = d3.svg.line()
+            .interpolate("basis")
+          .x(function(d, i) { return x(i); })
+          .y(function(d, i) { return y(d); });
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom);
+
+    var g = svg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+  // extra svg to clip the graph and x axis as they transition in and out
+    var graph = g.append("svg")
+        .attr("width", width)
+        .attr("height", height + margin.top + margin.bottom); 
+  
+    var xAxis = d3.svg.axis().scale(x).orient("bottom");
+    var axis = graph.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(x.axis=xAxis);
+   
+    g.append("g")
+        .attr("class", "y axis")
+        .call(d3.svg.axis().scale(y).orient("left"));
+
+  var path1 = graph.append("g")
+    .append("path")
+    .data([data1])
+    .attr("class", "line1");
+    
+  var path2 = graph.append("g")
+    .append("path")
+    .data([data2])
+    .attr("class", "line2");
+
+  var path3 = graph.append("g")
+    .append("path")
+    .data([data3])
+    .attr("class", "line3");
+
+      var eventsLength = 0;
+
+    if (!!window.EventSource) {
+        var feed = new EventSource('/events1');
+        // connection was opened
+//        feed.addEventListener('open', function (e) {
+//            statusElem.innerHTML = "Connection open";
+//        }, false);
+
+        // receive message
+        feed.addEventListener('message', function(e) {
+
+            var data = JSON.parse(e.data);
+//            var date = new Date(0);
+//            date.setUTCSeconds(parseInt(data.timestamp));
+            eventsLength += 1;
+            data1.push(data['values'][0]);
+            data2.push(data['values'][1]);
+            data3.push(data['values'][2]);
+
+        graph.select(".line1").attr("d", line).attr("transform", null);
+    graph.select(".line2").attr("d", line).attr("transform", null);
+    graph.select(".line3").attr("d", line).attr("transform", null);
+
+    path1
+      .transition()
+      .duration(duration)
+            .ease("linear")
+      .attr("transform", "translate("+x(-1)+",0)");
+
+    path2
+      .transition()
+      .duration(duration)
+        .ease("linear")
+      .attr("transform", "translate("+x(-1)+",0)");
+
+    path3
+      .transition()
+      .duration(duration)
+        .ease("linear")
+      .attr("transform", "translate("+x(-1)+",0)");
+
+              data1.shift();
+    data2.shift();
+    data3.shift();
+
+        }, false); 
+      };
+
+      function stopEv() {
+//                e.preventDefault();
+                feed.close();
+//                statusElem.innerHTML = "Streaming stopped";
+            };
+
+
+</script>
+</body>
+</html>
