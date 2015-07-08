@@ -17,10 +17,6 @@ def scatter_error_bar_creator_2(accuracy, error):
     mat_modified = np.hstack((mat_modified, (accuracy + error).flatten().reshape((-1,1)))) #y+error
     return mat_modified
 
-def mean_std(array):
-    """ Unuseful function """
-    return np.mean(array), np.std(array)
-
 def statistic_values(list): # argument: list of lists
 
     """ computes statistical values needed for a box-plot """
