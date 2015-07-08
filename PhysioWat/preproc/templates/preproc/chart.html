@@ -58,7 +58,6 @@
 		<div id="options" style="margin-left:2px">
 		    <form onsubmit="show_graph()" id="options_form">
 		        <fieldset>
-		            
 		                {% for i in opt_list %}
 		                    <input type="checkbox" name="{{ i }}" value="{{ i }}" id="{{ i }}"/> {{ i }}          
 		                {% endfor %}
@@ -69,18 +68,26 @@
 		        </fieldset>
 		    </form>
 	         </div>{% endcomment %}
-
-            </div>
+             </div>
 
 
             <div class="col-md-5" style="margin-top: 40px; padding-left:20px">
 	<form action="#" name="preproc" method="post" enctype="multipart/form-data">
-	    <ul class="nav nav-tabs" id="setting_nav">
+	    <ul class="nav nav-tabs btn btn-md" id="setting_nav">
                 {% for k,v in forms.items %}
                     {% if v %}
                         <li role="presentation" class="active">
                             <a href="#" onClick="manageScreen('{{ k }}')">{{ k }}</a>
                 	    <!-- moved the for-->
+                            <!--{% for kv,vv in v.items %}
+                                <div id="div_id_{{ k }}" class="tabcontents" style="display:block">
+                                    <br>
+                                    {% bootstrap_form vv %}
+                                    <br>
+                                    <br>
+                                </div>
+                            {% endfor %}
+			</li>-->
                             <div id="man-{{ k }}" class="mac" style="display:none">
                             <ul class="nav nav-tabs" id="setting_nav">
                                 {% for kv,vv in v.items %}
@@ -102,16 +109,17 @@
 
 
 
-
           
                     {% csrf_token %}
                    
 
                     <div>
                             {% buttons %}
+                                <br>
                                 <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
                                 <button type="reset" class="btn btn-danger">Reset</button>
                                 <button type="button" class="btn btn-active" onClick="show()">Show All</button>
+                                <button class="btn btn-primary">New Button</button>
                             {% endbuttons %}
 
                     </div>
@@ -157,7 +165,7 @@
 //DEFINE WHAT HAPPENS ON CLICK EVENT
             for (var i = 0; i < formlist.length; i++) {
                 var nav_id = "#nav_id_" + formlist[i];  //THIS IS THE ID OF THE BUTTON OF THE NAV
-                var div_id = "#div_id_" + formlist[i]; //THIS IS THE ID OF THE IDDEN DIV WHERE THE FORM IS RENDERED
+                var div_id = "#div_id_" + formlist[i]; //THIS IS THE ID OF THE HIDDEN DIV WHERE THE FORM IS RENDERED
 
                 var eventData = {'divid': div_id};
 

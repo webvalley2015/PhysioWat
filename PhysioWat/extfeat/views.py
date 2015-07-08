@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from .forms import windowing, viewFeatures, FeatPar, TestParam, AlgChoose, AlgParam, SvmParam, KNearParam, DecTreeParam, signal_choose, RndForParam, AdaBoostParam, LatDirAssParam, autoFitParam
+from .forms import windowing, viewFeatures, FeatPar, TestParam, AlgChoose, AlgParam, SvmParam, KNearParam, DecTreeParam, signal_choose, RndForParam, AdaBoostParam, LatDirAssParam, autoFitParam, id_choose
 from preproc import jsongen
 from preproc.scripts.processing_scripts import windowing as wd, feat_script as ft
 from preproc.scripts.processing_scripts.GSR import extract_features as extfeat_GSR
@@ -31,6 +31,28 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
 from PhysioWat.models import Experiment, Preprocessed_Recording, Preprocessed_Data, FeatExtractedData
 
+def get_signal_type(cols):
+    if 'PHA' in cols:   #GSR
+        type_sig="GSR"
+    elif 'ACCX' in cols or 'GYRX' in cols or 'MAGX' in cols:
+        type_sig="inertial"
+    elif "IBI" in cols:
+        type_sig="IBI"
+    return type_sig
+
+def form_select_signal(id_record):
+    signal_list = Preprocessed_Recording.objects.filter(recording_id = id_record).values_list('id','dict_keys').order_by('id')
+    checkbox_in=[]
+    for ID, cols in signal_list:
+        count=Preprocessed_Data.objects.filter(pp_recording_id=ID).count()
+        if (count>0):
+            type_sig=get_signal_type(cols)
+            checkbox_in.append((ID, str(ID)+" - "+" "+str(type_sig)))
+    print checkbox_in
+    form_sel_id = signal_choose(choices=checkbox_in)
+    return form_sel_id
+
+
 def QueryDb(recordingID):   #JUST COPY, PASTE AND CHANGED RECORDS
     table = Preprocessed_Recording.objects.get(id=recordingID)
     data = Preprocessed_Data.objects.filter(pp_recording_id=recordingID).order_by('id')
@@ -48,104 +70,102 @@ def QueryDb(recordingID):   #JUST COPY, PASTE AND CHANGED RECORDS
 def WritePathtoDB(fname, pp_rec_id):
     FeatExtractedData(pp_recording_id=pp_rec_id, path_to_file=fname).save()
 
-def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
+def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
 
     # read parameters from url
     # get data type list
 
     if (request.method == 'POST'):
-        print("I HAVE A POST!!!")
-        a = windowing(request.POST)
-        if a.is_valid():
-            # print a.cleaned_data
-            # time = GET THE COLUMN TIME FROM DB (ASK RICCARDO)
-            # label = GET THE COLUMN OF THE LABEL FROM THE DB (ASK RICCARDO)
-            # those prevoious 2 variabliles were for windowing. as i wrote, ask riccardo for further inforation
-            # after having done the db stuffs, please un-comment the 2 variabiles and feel free to delete this 2 comments
-
+        mydict = dict(request.POST.iterlists())
+        for id_num in mydict['choose_signal']:
+            print "RUNNING FOR ", id_num
             data, cols = QueryDb(id_num)
-            print cols
             time = selcol(data, cols, "TIME")
             labs = selcol(data, cols, "LAB")
 
-            a = a.cleaned_data
-            if (a['type'] == 'contigous'):
-                windows, winlab = wd.get_windows_contiguos(time, labs, a['length'], a['step'])
+            params=dict()
 
-            if (a['type'] == 'no_mix'):  # for the values, make reference to .forms --> windowing.!!!!
-                windows, winlab = wd.get_windows_no_mix(time, labs, a['length'], a['step'])
+            if (mydict['type'][0] == 'contigous'):
+                windows, winlab = wd.get_windows_contiguos(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
 
-            if (a['type'] == 'full_label'):
+            if (mydict['type'][0] == 'no_mix'):  # for the values, make reference to .forms --> windowing.!!!!
+                windows, winlab = wd.get_windows_no_mix(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
+
+            if (mydict['type'][0] == 'full_label'):
                 windows, winlab = wd.get_windows_full_label(time, labs)
-        print windows
-        print time[0], time[-1]
-        # extract features from result
-        # store feats. in the db
-        if 'PHA' in cols:   #GSR
-            data_in=selcol(data, cols, "PHA")
-            DELTA=0 #TODO GET FROM DB params!
-            feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
-            data_out, columns_out=dict_to_arrays(feat_dict)
-            data_out=np.column_stack((data_out, winlab))
-            columns_out=np.r_[columns_out, ["LAB"]]
+            params.update({"windowing":{"type":mydict["type"][0], "length":mydict["length"][0], "step":mydict["step"][0]}})
+            # extract features from result
+            # store feats. in the db
+            type_sig=get_signal_type(cols)
+            params.update({"signal_type":type_sig})
+            if type_sig=="GSR":   #GSR
+                data_in=selcol(data, cols, "PHA")
+                funcs, pars=list(Preprocessed_Recording.objects.filter(pk = id_num).values_list('applied_preproc_funcs_names', 'preproc_funcs_parameters'))[0]
+                DELTA=float(pars[funcs.index(u"GSR.preproc")][u"DELTA_PEAK"])
+                feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
+                data_out, cols_out=dict_to_arrays(feat_dict)
+                data_out=np.column_stack((data_out, winlab))
+                columns_out=np.r_[cols_out, ["LAB"]]
 
-        elif 'ACCX' in cols or 'GYRX' in cols or 'MAGX' in cols:
-            col_acc=["ACCX", "ACCY", "ACCZ"]
-            col_gyr=["GYRX", "GYRY", "GYRZ"]
-            col_mag=["MAGX", "MAGY", "MAGZ"]
-            try:
-                acc=selcol(data, cols, col_acc)
-                thereIsAcc=True
-            except IndexError as e:
-                print e
-                thereIsAcc=False
-            try:
-                gyr=selcol(data, cols, col_gyr)
-                thereIsGyr=True
-            except IndexError as e:
-                print e
-                thereIsGyr=False
-            try:
-                mag=selcol(data, cols, col_mag)
-                thereIsMag=True
-            except IndexError as e:
-                print e
-                thereIsMag=False
-            columns_out=np.array(["LAB"])
-            data_out=winlab[:]
-            if thereIsAcc:
-                feats_acc, fcol_acc= extfeat_ACC(acc, time, col_acc, windows)
-                data_out=np.column_stack([feats_acc, data_out])
-                columns_out=np.r_[fcol_acc, columns_out]
-            if thereIsGyr:
-                feats_gyr, fcol_gyr= extfeat_GYR(gyr, time, col_gyr, windows)
-                data_out=np.column_stack([feats_gyr, data_out])
-                columns_out=np.r_[fcol_gyr, columns_out]
-            if thereIsMag:
-                feats_mag, fcol_mag= extfeat_MAG(mag, time, col_mag, windows)
-                data_out=np.column_stack([feats_mag, data_out])
-                columns_out=np.r_[fcol_mag, columns_out]
+            elif type_sig=="inertial":
+                col_acc=["ACCX", "ACCY", "ACCZ"]
+                col_gyr=["GYRX", "GYRY", "GYRZ"]
+                col_mag=["MAGX", "MAGY", "MAGZ"]
+                try:
+                    acc=selcol(data, cols, col_acc)
+                    thereIsAcc=True
+                except IndexError as e:
+                    print e
+                    thereIsAcc=False
+                try:
+                    gyr=selcol(data, cols, col_gyr)
+                    thereIsGyr=True
+                except IndexError as e:
+                    print e
+                    thereIsGyr=False
+                try:
+                    mag=selcol(data, cols, col_mag)
+                    thereIsMag=True
+                except IndexError as e:
+                    print e
+                    thereIsMag=False
+                columns_out=np.array(["LAB"])
+                data_out=winlab[:]
+                if thereIsAcc:
+                    feats_acc, fcol_acc= extfeat_ACC(acc, time, col_acc, windows)
+                    data_out=np.column_stack([feats_acc, data_out])
+                    columns_out=np.r_[fcol_acc, columns_out]
+                if thereIsGyr:
+                    feats_gyr, fcol_gyr= extfeat_GYR(gyr, time, col_gyr, windows)
+                    data_out=np.column_stack([feats_gyr, data_out])
+                    columns_out=np.r_[fcol_gyr, columns_out]
+                if thereIsMag:
+                    feats_mag, fcol_mag= extfeat_MAG(mag, time, col_mag, windows)
+                    data_out=np.column_stack([feats_mag, data_out])
+                    columns_out=np.r_[fcol_mag, columns_out]
 
-        elif 'IBI' in cols:
-            data_in=selcol(data, cols, "IBI")
-            cols_in=["TIME", "IBI"]
-            data_out, winlab = extfeat_IBI(np.column_stack((time, data_in)), cols_in, windows, winlab)
-            columns_out=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
-            data_out=np.column_stack((data_out, winlab))
-            columns_out=np.r_[columns_out, ["LAB"]]
+            elif type_sig=="IBI":
+                data_in=selcol(data, cols, ["TIME","IBI"])
+                cols_in=["TIME", "IBI"]
+                data_out, winlab = extfeat_IBI(data_in, cols_in, windows, winlab)
+                columns_out=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
+                print data_out.shape, winlab.shape
+                data_out=np.column_stack((data_out, winlab))
+                columns_out=np.r_[columns_out, ["LAB"]]
 
-        st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y-%m-%d_%H:%M:%S')
-        fname=MEDIA_ROOT+id_num+"_"+st+".csv"
-        toCsv(data_out, columns_out, fname)
-        WritePathtoDB(fname, id_num)
+            st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y-%m-%d_%H:%M:%S')
+            fname=MEDIA_ROOT+id_num+"_"+st+".csv"
+            toCsv(data_out, columns_out, fname)
+            WritePathtoDB(fname, id_num)
 
-        # after having extracted the fieatures --> save on db
+        return HttpResponseRedirect(reverse('index'))
 
     else:
         form = windowing()
+        form_signal = form_select_signal(id_record)
         template = "extfeat/choose_alg.html"
         # print urlTmp['id_num']
-        context = {'form': form, 'id_num': id_num}
+        context = {'form': form,'form_signal':form_signal, 'id_record': id_record}
         return render(request, template, context)
 
 
@@ -154,8 +174,8 @@ def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!
 def ml_input(request):  # obviously, it has to be added id record and everything concerning db
     if (request.method == 'POST'):
 
-        print "culoculoculoculo"  # GET THE POST, ELABORATE AND GO TO THE DB OR THE PLOT
-        print request.POST
+        #print "culoculoculoculo"  # GET THE POST, ELABORATE AND GO TO THE DB OR THE PLOT
+        #print request.POST
         mydict = dict(request.POST.iterlists())
         # for key in request.POST.iterkeys():  # "for key in request.GET" works too.
         #     # Add filtering logic here.
@@ -167,15 +187,14 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         print '-' * 60
         #localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
         #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
-        input_data = pddbload.load_file_pd_db(1)
+        exprecid = mydict['choose_id']
+        input_data = pddbload.load_file_pd_db(exprecid[0])
         num_feat = -1  # set to -1 because of
 
         percentage = mydict['test_percentage'][0]
         percentage = float(percentage) / 100.0
-
+        list_of_feat = list(input_data.colums)
         num_iteration = mydict['number_of_iterations']
-
-        #train_data, test_data = ft.split(input_data)
 
         algorithm = mydict['alg_choice'][0]
         print algorithm
@@ -184,7 +203,7 @@ def ml_input(request):  # obviously, it has to be added id record and everything
             if 'norm' in mydict['viewf']:
                 input_data = ft.normalize(input_data)
                 #print input_data
-            train_data, test_data = ft.split(input_data)
+            train_data, test_data = ft.split(input_data, percentage)
             flag = False
             if 'sel' in mydict['viewf']:
                 # print "i have selected the first stuff!"
@@ -192,22 +211,19 @@ def ml_input(request):  # obviously, it has to be added id record and everything
                     num_feat = mydict['feat_num']
                     if (num_feat <= 0):
                         return render(request, "machine_learning/form_error.html")
-                    # todo train_data, test_data = ft.getfeat(train_data, test_data, k) #RETURNS 2 SUBSET DF GIVEN IN INPUT THE TRAIN DATA, THE TEST DATA, AND THE NUMBER OF FEATS
-                    print "getfeat non defined"
+                    train_data, test_data, list_of_feat = ft.getfeatnumber(train_data, test_data, k) #RETURNS 2 SUBSET DF GIVEN IN INPUT THE TRAIN DATA, THE TEST DATA, AND THE NUMBER OF FEATS
 
                 if ('k_auto' in mydict['FeatChoose']):
-                    train_data, test_data, feat_acc_plot = ft.bestfeatn(train_data, test_data) # TODO TOO MANY VALUES TO UNPACK!
-                    # TODO modify the fucntion
-                    pass
+                    train_data, test_data, best_feat_n_mat, list_of_feat = ft.bestfeatn(train_data, test_data)
         if(flag == True):
-            train_data, test_data = ft.split(input_data)
+            train_data, test_data = ft.split(input_data, percentage)
         print "dopo il case del viewf"
 
-        if algorithm == 'ALL' and 'auto' not in mydict['parameter_choiche']:
-              return render(request, "machine_learning/form_error.html")
+        if (algorithm == 'ALL') and ('auto' not in mydict['parameter_choiche']):
+            return render(request, "machine_learning/form_error.html")
 
         if 'def' in mydict['parameter_choiche']:
-            clf = ft.quick_crossvalidate(train_data, alg=algorithm)
+            clf, score, error = ft.quick_crossvalidate(train_data, alg=algorithm)
 
 
 
@@ -215,38 +231,35 @@ def ml_input(request):  # obviously, it has to be added id record and everything
             if (algorithm == 'KNN'):
                 k_neighbour = mydict['k_neighbour'][0]
                 print(k_neighbour)
-                # todo clf = ft.pers_crossvalidation1(train_data, algorithm, k_neighbour)
-                pass
+                clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, k_neighbour)
             if (algorithm == 'DCT'):
                 max_features = mydict['max_features'][0]
                 #print(type(max_features)) #IT'S A STRING!!!!
-                # todo clf = ft.pers_crossvalidation1(train_data, algorithm, max_features)
-                pass
+                clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, max_features)
             if (algorithm == 'SVM'):
                 kernel = mydict['kernel']
                 C = mydict['C']
-                # todo clf = ft.pers_crossvalidation2(train_data, algorithm, kernel, C)
-                pass
+                clf, score, error = ft.pers_crossvalidation2(train_data, algorithm, kernel, C)
             if (algorithm == 'RFC'):
                 max_features = mydict['max_features']
                 number_estimators = mydict['number_estimators']
-                # TODO clf = ft.pers_crossvalidation2(train_data, algorithm, max_features, number_estimators)
-                pass
+                clf, score, error = ft.pers_crossvalidation2(train_data, algorithm, max_features, number_estimators)
             if (algorithm == 'ADA'):
                 number_estimators = mydict['number_estimators']
                 learning_rate = mydict['learning_rate']
-                # todo clf = ft.pers_crossvalidation2(train_data, algorithm, number_estimators, learning_rate)
-                pass
+                clf, score, error = ft.pers_crossvalidation2(train_data, algorithm, number_estimators, learning_rate)
             if (algorithm == 'LDA'):
                 solver = mydict['solver']
-                # todo clf = ft.pers_crossvalidation1(train_data, algorithm, solver)
+                clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, solver)
         if 'auto' in mydict['parameter_choiche']:
             metrics = mydict['maximize'][0]
-            print " hai scelto   ->"
-            print  metrics
-            clf = ft.bestfit(train_data, algorithm, metrics)[0]
+            #print  metrics
+            clf, result_mat = ft.bestAlg(train_data, algorithm, metrics)[0]
 
-        dic_metric, conf_mat = ft.machineLearningPrediction(clf,test_data)
+        y_true = test_data.LAB
+        te_data = test_data[test_data.columns[:-1]]
+        y_pred = my_predict(clf, te_data, y_true )
+        dic_metric, conf_mat = get_report(y_true, y_pred)
 
         #CALL OTHER FUNCTIONS / GET OTHER DATAS/
         #final_ml_page(request, result_dict=dic_metric, conf_mat=conf_mat)
@@ -276,8 +289,14 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         form_autoParam = autoFitParam()
         form_list = [form_svm, form_knear, form_dectree, form_rndfor, form_adaboost, form_lda]
 
-        print(form_viewf)
-        print form_f_par
+        id_list=getprocessedrecordid()
+        print  id_list
+        id_list=[(i, str(i)) for i in id_list ]
+        print id_list
+        form_list_id = id_choose(choices=id_list)
+        print  form_list_id
+        #print(form_viewf)
+        #print form_f_par
 
         context = {'viewf': form_viewf,
                    'FPar': FeatPar,
@@ -291,11 +310,12 @@ def ml_input(request):  # obviously, it has to be added id record and everything
                              'form_ADA': form_adaboost,
                              'form_LDA': form_lda, },
 
-                   'autoParam': form_autoParam
+                   'autoParam': form_autoParam,
+                   'formListId':form_list_id
                    }
         print '-' * 60
-        print context['forms']
-        print '-' * 60
+        #print context['forms']
+        #print '-' * 60
         return render(request, template, context)
 
 
@@ -320,7 +340,7 @@ def select_experiment(request):
                 err_log = True
                 num_exp = i[0]
         if err_log:
-            return HttpResponseRedirect(reverse('record_selector', kwargs={'id_num': num_exp}))
+            return HttpResponseRedirect(reverse('extf_record_selector', kwargs={'id_num': num_exp}))
         else:
             messages.add_message(request, messages.ERROR, 'Error wrong password')
             return render(request, 'extfeat/experiments.html', context)
@@ -336,36 +356,13 @@ def getRecordsList(experimentId):
 def select_record(request, id_num):
     if request.method == 'POST':
         record_id = request.POST.get('rec_name')
-        print "HEY, I GOT A POST"
+        #print "HEY, I GOT A POST"
         print record_id
-        return HttpResponseRedirect(reverse('signal_selector', args=(record_id,)) ) #, kwargs={'id_num': record_id}), 'alg_type': 1234
+        return HttpResponseRedirect(reverse('alg_choose', args=(record_id,)) ) #, kwargs={'id_num': record_id}), 'alg_type': 1234
     else:
         name_list = getRecordsList(id_num)
         context = {'name_list': name_list}
         return render(request, 'extfeat/records.html', context)
-
-
-def select_signal(request, id_record):
-    #print "I GOT REDIRECTED!!!"
-    #print id_record
-    signal_list = Preprocessed_Recording.objects.filter(recording_id = id_record).values_list('id','dict_keys').order_by('id')
-    #print signal_list
-    checkbox_in=[]
-    for ID, cols in signal_list:
-        if 'PHA' in cols:   #GSR
-            type_sig="GSR"
-        elif 'ACCX' or 'GYRX' or 'MAGX' in cols:
-            type_sig="inertial"
-        elif "IBI" in cols:
-            type_sig="IBI"
-        checkbox_in.append((ID, str(ID)+" - "+" "+str(type_sig)))
-
-    print checkbox_in
-    form_sel_id = signal_choose(choices=checkbox_in)
-    print type(form_sel_id)
-    template ="extfeat/choose_signal.html"
-    context = {'form' : form_sel_id, 'id_record': id_record}
-    return render(request,template, context)
 
 
 def final_ml_page(request, result_dict, conf_mat):
