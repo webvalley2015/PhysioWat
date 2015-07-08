@@ -5,35 +5,57 @@
     {{ a }}
 
     <div class="about" id="about">
-		<div class="container">
-			<div class="about-top">
-				<br><br>
-				<h2><div style="font-size: 30px; color: #000;">WELCOME TO <span>PhysioWAT </span></div> <br /><br /></h2>
-				<p style="width:80%; margin-left:auto; margin-right:auto;">This is a web platform for sensor data storage and analysis. It allows you to upload data, process it by extracting features, and visualize it through suitable graphs. </p>
-				<div class="col-md-4 about-left">
-					<span class="bttl"> </span>
+        <div class="container">
+            <div class="about-top">
+                <br><br>
+
+                <h2>
+                    <div style="font-size: 30px; color: #000;">WELCOME TO <span>PhysioWAT </span></div>
+                    <br/><br/></h2>
+                <p style="width:80%; margin-left:auto; margin-right:auto;">This is a web platform for sensor data
+                    storage and analysis. It allows you to upload data, process it by extracting features, and visualize
+                    it through suitable graphs. </p>
+
+                <div class="col-md-4 about-left">
+                    <span class="bttl"> </span>
                     <img src="{% static 'image/logobluephysiowat.png' %}" style="width: 304px; height: 110px;">
-					<h4>The Project</h4>
-                    <div style="display: inline-block; -webkit-border-radius: 50%; -moz-border-radius: 50%; border-radius: 50%; height:400px; width:400px; background-color: #BAD0F7;">
-						<p>PhysioWAT (Wearable Analytics Tech) consists of developing a novel web platform to support reproducible research based on physiological sensors. This platform also offers a connection to smartphones, on which it is possible to collect data from wearable sensors and store it on a relational database. Users can upload their data and analyze the stored data online, visualize data in different graphs, and save it. </p>
-				    </div>
-					</div>
-				<div class="col-md-4 about-left">
-					<span class="tv"> </span>
-					 <img src="{% static 'image/webvalley_logo.png' %}" style="width: 216px; height: 110px;">
-					<h4>The Team</h4>
-					<p>We are an international group of motivated and passionate students aged 17-18 years old. We were provided with the opportunity of taking part in WebValley 2015. WebValley is the FBK summer school for dissemination of interdisciplinary research. The starting point is the philosophy of combining open source tools, FBK research products, and the creativity of participants in order to solve a real problem using new technologies. </p>
-				</div>
-				<div class="col-md-4 about-left">
-					<span class="cup"> </span>
-					<img src="{% static 'image/column3.JPG' %}" style="width: 171px; height: 110px;">
-					<h4>The case studies</h4>
-					<p>The project focuses on the classification of stereotypical patterns in ASD children and on the synchronization of physiological responses in different relationships. The project was commissioned and supported by the ABP-lab (UniTN & NTY). Other than the raw data we were given, we also collected "synthetical data" with wearable sensors.  </p>
-				</div>
-				<div class="clearfix"></div>
-			</div>
-		</div>
-	</div>
+                    <h4>The Project</h4>
+
+                    <div style="-webkit-border-radius: 50%; -moz-border-radius: 50%; border-radius: 50%;   padding-top:50%; width:100%; background-color: red;">
+                        <div style="word-wrap: break-word; display: inline-block; position: center; line-height:100%; vertical-align: middle;">
+                            PhysioWAT (Wearable Analytics Tech) consists of developing a novel web platform to support
+                            reproducible research based on physiological sensors. This platform also offers a connection
+                            to smartphones, on which it is possible to collect data from wearable sensors and store it
+                            on a relational database. Users can upload their data and analyze the stored data online,
+                            visualize data in different graphs, and save it.
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 about-left">
+                    <span class="tv"> </span>
+                    <img src="{% static 'image/webvalley_logo.png' %}" style="width: 216px; height: 110px;">
+                    <h4>The Team</h4>
+
+                    <p>We are an international group of motivated and passionate students aged 17-18 years old. We were
+                        provided with the opportunity of taking part in WebValley 2015. WebValley is the FBK summer
+                        school for dissemination of interdisciplinary research. The starting point is the philosophy of
+                        combining open source tools, FBK research products, and the creativity of participants in order
+                        to solve a real problem using new technologies. </p>
+                </div>
+                <div class="col-md-4 about-left">
+                    <span class="cup"> </span>
+                    <img src="{% static 'image/column3.JPG' %}" style="width: 171px; height: 110px;">
+                    <h4>The case studies</h4>
+
+                    <p>The project focuses on the classification of stereotypical patterns in ASD children and on the
+                        synchronization of physiological responses in different relationships. The project was
+                        commissioned and supported by the ABP-lab (UniTN & NTY). Other than the raw data we were given,
+                        we also collected "synthetical data" with wearable sensors. </p>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
 
 
 {% endblock %}
