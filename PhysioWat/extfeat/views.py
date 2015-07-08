@@ -178,7 +178,8 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         print '-' * 60
         #localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
         #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
-        input_data = pddbload.load_file_pd_db(1)
+        exprecid = mydict['choose_id']
+        input_data = pddbload.load_file_pd_db(exprecid[0])
         num_feat = -1  # set to -1 because of
 
         percentage = mydict['test_percentage'][0]
