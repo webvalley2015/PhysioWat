@@ -338,7 +338,7 @@ def select_experiment(request):
                 err_log = True
                 num_exp = i[0]
         if err_log:
-            return HttpResponseRedirect(reverse('record_selector', kwargs={'id_num': num_exp}))
+            return HttpResponseRedirect(reverse('extf_record_selector', kwargs={'id_num': num_exp}))
         else:
             messages.add_message(request, messages.ERROR, 'Error wrong password')
             return render(request, 'extfeat/experiments.html', context)
