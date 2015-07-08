@@ -35,17 +35,19 @@ class linegraph2(HighChartsMultiAxesView):
         # vals = getavaliabledatavals(urlTmp['id_num'])
         if urlTmp['elab'] == "raw":
             data = SensorRawData.objects.filter(recording_id=urlTmp['id_num']).order_by('id')
+            self.title = 'Raw Data'
         elif urlTmp['elab'] == "proc":
             data = Preprocessed_Data.objects.filter(recording_id=urlTmp['id_num']).order_by('id')
+            self.title = 'Preprocessed Data'
 
-        self.title = 'hola'
+
         self.yaxis = {'title': {'text': ''}, 'min': 0}
         data_tmp = [i.store for i in data]
         self.series = []
-        tmp = {k: (map(int,map(itemgetter(k), data_tmp))) for k in data_tmp[0]}
+        tmp = {k: (map(float,map(itemgetter(k), data_tmp))) for k in data_tmp[0]}
 
         for k in tmp.keys():
-            tmplist = [[tmp['timeStamp'][i], tmp[k][i]] for i in xrange(len(tmp[k]))]
+            tmplist = [[tmp['TIME'][i], tmp[k][i]] for i in xrange(len(tmp[k]))]
             self.series.append({'data': tmplist, 'name': k})
 
         #vals = vals[1:]
