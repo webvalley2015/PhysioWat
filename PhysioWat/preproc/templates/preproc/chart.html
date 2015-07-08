@@ -75,12 +75,24 @@
 
             <div class="col-md-5" style="margin-top: 40px; padding-left:20px">
 	<form action="#" name="preproc" method="post" enctype="multipart/form-data">
-	    <ul class="nav nav-tabs" id="setting_nav">
+	    <ul class="nav nav-tabs btn btn-md" id="setting_nav">
                 {% for k,v in forms.items %}
                     {% if v %}
                         <li role="presentation" class="active">
                             <a href="#" onClick="manageScreen('{{ k }}')">{{ k }}</a>
                 	    <!-- moved the for-->
+<<<<<<< HEAD
+                            {% for kv,vv in v.items %}
+                                <div id="div_id_{{ k }}" class="tabcontents" style="display:none">
+                                    <br>
+                                    {% bootstrap_form vv %}
+                                    <br>
+                                    <br>
+                                </div>
+                            {% endfor %}
+			            </li>
+
+=======
                             <div id="man-{{ k }}" class="mac" style="display:none">
                             <ul class="nav nav-tabs" id="setting_nav">
                                 {% for kv,vv in v.items %}
@@ -96,6 +108,7 @@
                             </ul>
                             </div>
 			            </li>
+>>>>>>> 8190549e31e1c8e5053a83c802d0d34ca308d908
                     {% endif %}
                 {% endfor %}
 	    </ul>
@@ -109,9 +122,11 @@
 
                     <div>
                             {% buttons %}
+                                <br>
                                 <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
                                 <button type="reset" class="btn btn-danger">Reset</button>
                                 <button type="button" class="btn btn-active" onClick="show()">Show All</button>
+                                <button class="btn btn-primary">New Button</button>
                             {% endbuttons %}
 
                     </div>
