@@ -30,7 +30,7 @@ from PhysioWat.models import Experiment, Preprocessed_Recording, Preprocessed_Da
 
 def QueryDb(recordingID):   #JUST COPY, PASTE AND CHANGED RECORDS
     table = Preprocessed_Recording.objects.get(id=recordingID)
-    data = Preprocessed_Data.objects.filter(recording_id=recordingID).order_by('id')
+    data = Preprocessed_Data.objects.filter(pp_recording_id=recordingID).order_by('id')
 
     retarray = np.zeros((len(data), len(table.dict_keys)))
     mykeys = data[0].store.keys()
@@ -48,7 +48,6 @@ def WritePathtoDB(fname, pp_rec_id):
 def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
 
     # read parameters from url
-    print(id_num)
     # get data type list
 
     if (request.method == 'POST'):
@@ -61,11 +60,10 @@ def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!
             # those prevoious 2 variabliles were for windowing. as i wrote, ask riccardo for further inforation
             # after having done the db stuffs, please un-comment the 2 variabiles and feel free to delete this 2 comments
 
-            ID=25 #TODO test value!, get from user
-            data, cols = QueryDb(ID)
-
+            data, cols = QueryDb(id_num)
+            print cols
             time = selcol(data, cols, "TIME")
-            labs = data["LAB"]  # template
+            labs = selcol(data, cols, "LAB")
 
             a = a.cleaned_data
             if (a['type'] == 'contigous'):
@@ -86,26 +84,27 @@ def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!
             feats, cols_out=dict_to_arrays(feat_dict)
             feats=np.column_stack((feats, winlab))
             feat_col=np.r_[cols_out, "LAB"]
-        elif 'ACCX' or 'GYRX' or 'MAGX' in cols:
+
+        elif 'ACCX' in cols or 'GYRX' in cols or 'MAGX' in cols:
             col_acc=["ACCX", "ACCY", "ACCZ"]
             col_gyr=["GYRX", "GYRY", "GYRZ"]
             col_mag=["MAGX", "MAGY", "MAGZ"]
             try:
                 acc=selcol(data, cols, col_acc)
                 thereIsAcc=True
-            except ValueError as e:
+            except IndexError as e:
                 print e
                 thereIsAcc=False
             try:
                 gyr=selcol(data, cols, col_gyr)
                 thereIsGyr=True
-            except ValueError as e:
+            except IndexError as e:
                 print e
                 thereIsGyr=False
             try:
                 mag=selcol(data, cols, col_mag)
                 thereIsMag=True
-            except ValueError as e:
+            except IndexError as e:
                 print e
                 thereIsMag=False
             feat_col=np.array(["LAB"])
@@ -125,11 +124,15 @@ def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!
 
         elif 'IBI' in cols:
             data_in=selcol(data, cols, "IBI")
-            feats, winlab = extfeat_IBI(np.column_stack((time, data_in)), windows, winlab)
+            cols_in=["TIME", "IBI"]
+            feats, winlab = extfeat_IBI(np.column_stack((time, data_in)), cols_in, windows, winlab)
             feat_col=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
 
         data_out=np.concatenate((feats, winlab))
-        columns_out=np.r_[feat_col, "LAB"]
+        columns_out=np.r_[feat_col, ["LAB"]]
+        print data_out.shape
+        print columns_out
+
         # after having extracted the fieatures --> save on db
 
     else:
