@@ -78,17 +78,24 @@
 	    <ul class="nav nav-tabs" id="setting_nav">
                 {% for k,v in forms.items %}
                     {% if v %}
-                        <li role="presentation" class="active"><a href="#" id="nav_id_{{ k }}">{{ k }}</a>
+                        <li role="presentation" class="active">
+                            <a href="#" onClick="manageScreen('{{ k }}')">{{ k }}</a>
                 	    <!-- moved the for-->
-                            {% for kv,vv in v.items %}
-                                <div id="div_id_{{ k }}" class="tabcontents" style="display:none">
-                                    <br>
-                                    {% bootstrap_form vv %}
-                                    <br>
-                                    <br>
-                                </div>
-                            {% endfor %}
-			</li>
+                            <div id="man-{{ k }}" class="mac" style="display:none">
+                            <ul class="nav nav-tabs" id="setting_nav">
+                                {% for kv,vv in v.items %}
+                                    <li><a href="#" onClick="manageScreenIn('{{ kv }}-{{ k }}')">{{ kv }}</a>
+                                        <div id="man-in-{{ kv }}-{{ k }}" class="mac-in tabcontents" style="display:none">
+                                        <br>
+                                        {% bootstrap_form vv %}
+                                        <br>
+                                        <br>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            </div>
+			            </li>
                     {% endif %}
                 {% endfor %}
 	    </ul>
@@ -115,22 +122,7 @@
 
          
 
-<!--            options list:
-            <div id="options">
-                <form onsubmit="show_graph()" id="options_form">
-                    <fieldset>
-                        <ul>
-                            {% for i in opt_list %}
-                                <li><input type="checkbox" name="{{ i }}" value="{{ i }}" id="{{ i }}"/>{{ i }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% buttons %}
-                            <button type="submit" id="select_submit" class="btn btn-success">Update Graph</button>
-                        {% endbuttons %}
-                    </fieldset>
-                </form>
-            </div>
--->
+
         </div>
     </div>
     </div>
@@ -142,7 +134,18 @@
     {% highcharts_js 1 1 0 0 %}
 
     <script>
-        "use strict";
+
+    function manageScreen(tabName) {
+        $('.mac').not('#' + "man-" + tabName).hide();
+        document.getElementById("man-" + tabName).style.display = "block";
+    }
+
+    function manageScreenIn(tabName) {
+        $('.mac-in').not('#' + "man-in-" + tabName).hide();
+        document.getElementById("man-in-" + tabName).style.display = "block";
+    }
+
+     {% comment %}   "use strict";
         var formlist = [];
 
         $(document).ready(function () {
@@ -184,7 +187,7 @@
             }
         }
 
-        hide();
+        hide();{% endcomment %}
 
         //var global_data = NaN;
 
