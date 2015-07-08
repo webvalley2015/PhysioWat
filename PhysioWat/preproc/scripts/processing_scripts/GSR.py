@@ -10,9 +10,9 @@ from filters import smoothGaussian
 from scipy.interpolate import interp1d
 # import matplotlib.pyplot as plt
 
-def estimate_drivers(t_gsr, gsr, T1=0.75, T2=2, MX=1, DELTA_PEAK=0.02, k_near=5, grid_size=5, s=0.2):
+def estimate_drivers(t_gsr, gsr, labs, T1=0.75, T2=2, MX=1, DELTA_PEAK=0.02, k_near=5, grid_size=5, s=0.2):
     """
-    TIME_DRV, DRV, PH_DRV, TN_DRV = estimate_drivers(TIME_GSR, GSR, T1, T2, MX, DELTA_PEAK):
+    TIME_DRV, DRV, PH_DRV, TN_DRV, LABS = estimate_drivers(TIME_GSR, GSR, LABS, T1, T2, MX, DELTA_PEAK):
 
     Estimates the various driving components of a GSR signal.
     The IRF is a bateman function defined by the gen_bateman function.
@@ -41,6 +41,9 @@ def estimate_drivers(t_gsr, gsr, T1=0.75, T2=2, MX=1, DELTA_PEAK=0.02, k_near=5,
 
     driver = driver[L*2:]
     t_driver = t_driver[L*2:]
+
+    mask=(t_gsr>=t_driver[0])&(t_gsr<=t_driver[-1])
+    labs=labs[mask]
 
     #======================
     # step 2: IDENTIFICATION OF INTER IMPULSE SECTIONS
@@ -117,7 +120,7 @@ def estimate_drivers(t_gsr, gsr, T1=0.75, T2=2, MX=1, DELTA_PEAK=0.02, k_near=5,
 
     phasic_driver = driver - tonic_driver
 
-    return t_driver, driver, phasic_driver, tonic_driver
+    return t_driver, driver, phasic_driver, tonic_driver, labs
 
 def processPSR(pha, t, DELTA):
     """
@@ -296,14 +299,16 @@ def remove_spikes(data, FSAMP, TH=0.005):
 def preproc(data, cols, T1=0.75, T2=2, MX=1, DELTA_PEAK=0.02, k_near=5, grid_size=5, s=0.2):
     gsr=selectCol(data, cols, "GSR")
     t_gsr=selectCol(data, cols, "TIME")
-
+    print "T_GSR", t_gsr.shape
     try:
         labs=selectCol(data, cols, "LAB")
     except IndexError as e:
-        print e.message
+        print "NO LAB:", e.message
         labs=np.zeros(data.shape[0])
 
     output_cols=["TIME", "DRV", "PHA", "TNC", "LAB"]
-    TIME_DRV, DRV, PH_DRV, TN_DRV = estimate_drivers(t_gsr, gsr, T1, T2, MX, DELTA_PEAK, k_near, grid_size, s)
+    TIME_DRV, DRV, PH_DRV, TN_DRV, labs = estimate_drivers(t_gsr, gsr, labs, T1, T2, MX, DELTA_PEAK, k_near, grid_size, s)
+    print "T_DRV", TN_DRV.shape
+    print "LAB", labs.shape
     result=np.column_stack((TIME_DRV, DRV, PH_DRV, TN_DRV, labs))
     return result, output_cols
