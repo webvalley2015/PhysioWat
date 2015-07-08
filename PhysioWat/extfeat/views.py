@@ -87,7 +87,7 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
                 windows, winlab = wd.get_windows_no_mix(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
 
             if (mydict['type'][0] == 'full_label'):
-                windows, winlab = wd.get_windows_full_label(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
+                windows, winlab = wd.get_windows_full_label(time, labs)
 
             # extract features from result
             # store feats. in the db
@@ -148,6 +148,8 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
             fname=MEDIA_ROOT+id_num+"_"+st+".csv"
             toCsv(data_out, columns_out, fname)
             WritePathtoDB(fname, id_num)
+
+            return HttpResponseRedirect(reverse('index'))
 
     else:
         form = windowing()
