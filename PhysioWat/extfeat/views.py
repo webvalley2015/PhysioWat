@@ -9,11 +9,14 @@ from preproc.scripts.processing_scripts.GSR import extract_features as extfeat_G
 from preproc.scripts.processing_scripts.IBI import extract_IBI_features as extfeat_IBI
 from preproc.scripts.processing_scripts.inertial import extract_features_acc as extfeat_ACC, \
     extract_features_mag as extfeat_MAG, extract_features_gyr as extfeat_GYR
-from preproc.scripts.processing_scripts.tools import selectCol as selcol, dict_to_arrays
+from preproc.scripts.processing_scripts.tools import selectCol as selcol, dict_to_arrays,array_labels_to_csv as toCsv
 from django.contrib import messages
 from PhysioWat.models import Experiment, Recording, Preprocessed_Recording, Preprocessed_Data
 import pandas as pd
 import numpy as np
+from PhysioWat.settings import MEDIA_ROOT
+from time import time as get_timestamp
+import datetime
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import cross_validation
 from sklearn.cross_validation import train_test_split
@@ -131,8 +134,10 @@ def getAlgorithm(request, id_num):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!
             data_out=np.column_stack((data_out, winlab))
             columns_out=np.r_[columns_out, ["LAB"]]
 
-        print data_out.shape
-        print columns_out[-5:]
+        st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y-%m-%d_%H:%M:%S')
+        fname=MEDIA_ROOT+id_num+"_"+st+".csv"
+        toCsv(data_out, columns_out, fname)
+        WritePathtoDB(fname, id_num)
 
         # after having extracted the fieatures --> save on db
 
