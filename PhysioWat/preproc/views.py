@@ -19,18 +19,24 @@ def QueryDb(recordingID):
     table = Recording.objects.get(id=recordingID)
     data = SensorRawData.objects.filter(recording_id=recordingID).order_by('id')
     # alldata = (','.join(table.dict_keys) + '\n').replace(' ', '')
-    retarray=np.array([])
-    ll = []
-    for key in table.dict_keys:
-        ll.append(data[0].store[key])
-    retarray=np.append(retarray,ll)
-    for record in data[1:]:
-        ll = []
-        for key in table.dict_keys:
-            ll.append(record.store[key])
-        retarray=np.vstack((retarray,ll))
+
+    # ll = []
+    # for key in table.dict_keys:
+    #     ll.append(data[0].store[key])
+
+    retarray = np.zeros((len(data), len(table.dict_keys)))
+    # retarray = np.append(retarray,ll)
+    mykeys = data[0].store.keys()
+    # [j for i in bb for j,z in enumerate(cc) if z == i]
+    for i, record in enumerate(data):
+        retarray[i] = [float(j) for j in record.store.values()]
+        # ll = []
+        # for key in table.dict_keys:
+        #     ll.append(record.store[key])
+        # retarray=np.vstack((retarray,ll))
     # datacsv = np.genfromtxt(StringIO(alldata), delimiter=',')
-    return retarray, table.dict_keys
+
+    return retarray, mykeys
 
 
 def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_funcs_names, preproc_funcs_parameters):
