@@ -6,7 +6,7 @@ import os
 # FileUpload form class.
 class UploadForm(forms.Form):
     # device = forms.CharField()
-    file = forms.FileField(widget=forms.FileInput(attrs={'multiple': True}))
+    file = forms.FileField(widget=forms.FileInput(attrs={'multiple': True, 'accept': ".csv, .txt"}))
     device = forms.CharField(widget=forms.TextInput(), max_length=50)
     description = forms.CharField(widget=forms.Textarea(), max_length=200)
     password = forms.CharField(widget=forms.PasswordInput(), max_length=50)
