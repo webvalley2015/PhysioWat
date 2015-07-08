@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from .forms import windowing, viewFeatures, FeatPar, TestParam, AlgChoose, AlgParam, SvmParam, KNearParam, DecTreeParam, signal_choose, RndForParam, AdaBoostParam, LatDirAssParam, autoFitParam
+from .forms import windowing, viewFeatures, FeatPar, TestParam, AlgChoose, AlgParam, SvmParam, KNearParam, DecTreeParam, signal_choose, RndForParam, AdaBoostParam, LatDirAssParam, autoFitParam, id_choose
 from preproc import jsongen
 from preproc.scripts.processing_scripts import windowing as wd, feat_script as ft
 from preproc.scripts.processing_scripts.GSR import extract_features as extfeat_GSR
@@ -43,7 +43,7 @@ def form_select_signal(id_record):
         elif "IBI" in cols:
             type_sig="IBI"
         checkbox_in.append((ID, str(ID)+" - "+" "+str(type_sig)))
-
+    print checkbox_in
     form_sel_id = signal_choose(choices=checkbox_in)
     return form_sel_id
 
@@ -285,8 +285,14 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         form_autoParam = autoFitParam()
         form_list = [form_svm, form_knear, form_dectree, form_rndfor, form_adaboost, form_lda]
 
-        print(form_viewf)
-        print form_f_par
+        id_list=getprocessedrecordid()
+        print  id_list
+        id_list=[(i, str(i)) for i in id_list ]
+        print id_list
+        form_list_id = id_choose(choices=id_list)
+        print  form_list_id
+        #print(form_viewf)
+        #print form_f_par
 
         context = {'viewf': form_viewf,
                    'FPar': FeatPar,
@@ -300,11 +306,12 @@ def ml_input(request):  # obviously, it has to be added id record and everything
                              'form_ADA': form_adaboost,
                              'form_LDA': form_lda, },
 
-                   'autoParam': form_autoParam
+                   'autoParam': form_autoParam,
+                   'formListId':form_list_id
                    }
         print '-' * 60
-        print context['forms']
-        print '-' * 60
+        #print context['forms']
+        #print '-' * 60
         return render(request, template, context)
 
 
@@ -345,9 +352,9 @@ def getRecordsList(experimentId):
 def select_record(request, id_num):
     if request.method == 'POST':
         record_id = request.POST.get('rec_name')
-        print "HEY, I GOT A POST"
+        #print "HEY, I GOT A POST"
         print record_id
-        return HttpResponseRedirect(reverse('signal_selector', args=(record_id,)) ) #, kwargs={'id_num': record_id}), 'alg_type': 1234
+        return HttpResponseRedirect(reverse('alg_choose', args=(record_id,)) ) #, kwargs={'id_num': record_id}), 'alg_type': 1234
     else:
         name_list = getRecordsList(id_num)
         context = {'name_list': name_list}
