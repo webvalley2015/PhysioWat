@@ -152,9 +152,9 @@
 
 {% block app_specific_js %}
 
-    {% highcharts_js 1 1 0 0 %}
-
-    <script>
+{% highcharts_js 1 1 0 0 %}
+{# highchart, ?, heatmap, 3d #}
+<script>
 
     function manageScreen(tabName) {
         $('.mac').not('#' + "man-" + tabName).hide();
