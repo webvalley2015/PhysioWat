@@ -109,42 +109,31 @@
 
 
 
-          
-                    {% csrf_token %}
-                   
 
-                    <div>
-                            {% buttons %}
-                                <br>
-                                <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
-                                <button type="reset" class="btn btn-danger">Reset</button>
-                                <button type="button" class="btn btn-active" onClick="show()">Show All</button>
-                                <button class="btn btn-primary">New Button</button>
-                            {% endbuttons %}
+            {% csrf_token %}
 
-                    </div>
+
+            <div>
+                    {% buttons %}
+                        <br>
+                        <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
+                        <button type="reset" class="btn btn-danger">Reset</button>
+                        <button type="button" class="btn btn-active" onClick="show()">Show All</button>
+                        <button class="btn btn-primary">New Button</button>
+                    {% endbuttons %}
 
             </div>
 
-            </form>
+         {% if messages %}
+             {% include "includes/error_messages.html" %}
+         {% endif %}
+        </form>
 
          
 
 
         </div>
     </div>
-
-    {% if messages %}
-        <br>
-        <ul class="messages" style="margin: auto;
-    width: 60%;
-    border:3px solid #d20800;
-    padding: 10px;">
-        {% for message in messages %}
-            <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
 
     </div>
 
