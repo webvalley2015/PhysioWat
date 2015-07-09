@@ -66,7 +66,7 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_fu
     id_gen = xrange(len(preProcArray))
     record_list = [None for i in id_gen]
     for i in id_gen:
-        record_list[i] = Preprocessed_Data(pp_recording_id=pr.id, store=dict(zip(dictky, values[0])))
+        record_list[i] = Preprocessed_Data(pp_recording_id=pr.id, store=dict(zip(dictky, values[i])))
 
     Preprocessed_Data.objects.bulk_create(record_list, batch_size=32768)
     return new_batch_id
@@ -174,7 +174,7 @@ def show_chart(request, id_num, alg_type=""):
             except ValueError as e:
                 print "ERROR DOWNSAMPLING"
                 print e.message
-                messages.error(request, "Downsampling error: " + e.message)
+                messages.error(request, "Downsampling errorret_bid: " + e.message)
             except Exception as e:
                 print "ERROR DOWNSAMPLING"
                 print e.message
@@ -285,7 +285,7 @@ def show_chart(request, id_num, alg_type=""):
                 messages.error(request, 'Cannot process ' + mytype[count] + '! Review your parameters.')
 
             # print "pr_id", pr_id
-            context = {'id_num': id_num, 'elab': 'proc', 'ret_bid': ret_bid}
+            context = {'id_num': id_num, 'elab': 'proc', 'batch_id': ret_bid}
         return render(request, template, context)
 
     else:

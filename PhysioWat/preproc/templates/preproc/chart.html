@@ -137,7 +137,7 @@
 
         {# Get Elaborated data JSON just if request = POST #}
         {% if elab == "proc" %}
-            $.getJSON("{% url 'chart_getdata' pr_id elab %}", function (data) {
+            $.getJSON("{% url 'chart_getdata' batch_id elab %}", function (data) {
                 $('#temporary-processing1').highcharts('StockChart', data);
             });
         {% endif %}
