@@ -16,6 +16,10 @@
                     <!-- THIS IS ANOTHER DIV FOR ANOTHER GRAPH, IT DOES NOT CONTAIN ANITHING NOW -->
  </div>
 
+{% for k,v in dic_result.items %}
+   The {{ k }} is {{ v| }}
+{% endfor %}
+
 <div class="processed-signal row">
   <!--  <div id="graph-featscores" style="display:none;">
         HI, YOU HAVE CHOOSEN THAT YOU MAY HAVE THE AUTO FEAT. NUMBER

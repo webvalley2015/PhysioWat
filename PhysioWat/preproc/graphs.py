@@ -110,7 +110,8 @@ class heatmap(HighChartsHeatMapView):
                 seriesTemp.append([j, len(matrix)-i-1, matrix[i][j]])
 
         #print seriesTemp
-        self.title = "Results "
+        self.title = "Results - confusion matrix"
+        #self.subtitle = ""
         self.xaxis = {'categories':range(n_labels)}
         self.yaxis = {'categories':range(n_labels)}
         seriesTemp = {'name' : 'conf-mat', 'data': seriesTemp,  'dataLabels': {'enabled': True, 'color': '#000000'} }
