@@ -254,11 +254,13 @@ def show_chart(request, id_num, alg_type=""):
                 print "FINISHED SPECIFIC PROCESSING"
                 putPreprocArrayintodb(id_num, pre_data, columns_out, funcs_par.keys(), funcs_par.values())
                 print "FINISHED PUTTING IN DB"
-                context = {'id_num': id_num, 'elab': 'proc'}
+
             except Exception as e:
                 print "CANNOT PREPROCESS!!!", e.message
                 messages.error(request, 'Cannot process '+mytype[count]+'! Review your parameters.')
                 pass
+
+            context = {'id_num': id_num, 'elab': 'proc'}
         return render(request, template, context)
 
     else:
