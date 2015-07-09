@@ -1,3 +1,7 @@
+July 9th, 2015, 10:38
+
+Achieved 80% multi-classifier accuracy with newly collected data from last night.
+
 July 8th, 2015, 11:31
 
 Valerie discussed with Andrea the meaning of the data in this folder. To recap, ASD.txt is data from the PhysioWAT app interface of 30 seconds of Valerie simulating hand-flapping behavior. Claire's txt file is described below. standing.txt is control data from Task 1, just for testing. 

@@ -47,9 +47,9 @@ class Preprocessed_Data(models.Model):
 class FeatExtractedData(models.Model):
     pp_recording = models.ForeignKey(Preprocessed_Recording, on_delete=models.CASCADE)
     parameters = HStoreField(null=True, default=None)
-    path_to_file = models.FileField()  # To become FileField...
+    path_to_file = models.CharField(max_length=50)#FileField()  # To become FileField...
 
 class MLData(models.Model):
     fe = models.ForeignKey(FeatExtractedData, on_delete=models.CASCADE)
     parameters = HStoreField(null=True, default=None)
-    path_to_file = models.FileField()
+    path_to_file = models.CharField(max_length=50)#FileField()
