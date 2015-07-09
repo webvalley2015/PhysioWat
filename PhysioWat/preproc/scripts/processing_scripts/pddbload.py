@@ -6,7 +6,7 @@ from PhysioWat.models import FeatExtractedData
 
 
 def load_file_pd_db(recordingID):
-    fpath = FeatExtractedData.objects.get(pp_recording=recordingID).path_to_file
+    fpath = FeatExtractedData.objects.filter(pp_recording=recordingID).latest('id').path_to_file
     uncleanedfile = open(fpath, 'r')
     if os.path.isfile(fpath + 'p'):
         uncleanedfile.close()

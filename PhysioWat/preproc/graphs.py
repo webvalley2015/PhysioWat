@@ -78,15 +78,15 @@ class linegraph3(HighChartsMultiAxesView):
 
     def get_data(self, data, xcategories=None, title=None):
         data_tmp = []
+        print xcategories
         for i in data:
             data_tmp.append(i[1])
-
-        self.series = [{'name':'Precision', 'data':data_tmp}]
-        self.series.append()
-
+        self.yaxis = {'title': {'text': ''}}
+        self.series = [{'name':'Precision', 'data':data_tmp, 'type':'scatter'}]
+        #self.series.append({})
+        self.categories = xcategories
         # print data
-        self.title={'text':title}
-        self.xaxis = {'categories':xcategories}
+        self.title=title
 
         data = super(linegraph3, self).get_data()
         return data
