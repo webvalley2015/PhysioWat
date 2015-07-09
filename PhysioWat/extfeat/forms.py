@@ -29,7 +29,7 @@ class AlgChoose(forms.Form):
 
 
 class AlgParam (forms.Form):
-    my_choices = [('def','default parameters'),('auto','authomatcally find the best fit (might take a long time)'),('pers','define parameters')]
+    my_choices = [('def','default parameters'),('auto', 'automatically find the best fit (might take a long time)'),('pers','define parameters')]
     parameter_choiche = forms.ChoiceField(choices=my_choices, widget=forms.RadioSelect(),initial='auto')
 
 class SvmParam(forms.Form):
