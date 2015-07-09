@@ -3,6 +3,7 @@ from django.http.response import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from .forms import filterAlg, downsampling, BVP_Form, EKG_Form, GSR_Form, Inertial_Form, remove_spike, smoothGaussian
 from PhysioWat.models import Experiment, Recording, SensorRawData, Preprocessed_Recording, Preprocessed_Data
+from django.db.models import Max
 from django.contrib import messages
 from .jsongen import getavaliabledatavals
 from scripts.processing_scripts import tools, filters, IBI, windowing
@@ -30,7 +31,8 @@ def QueryDb(recordingID):
     return retarray, mykeys
 
 
-def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_funcs_names, preproc_funcs_parameters):
+def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_funcs_names,
+                          preproc_funcs_parameters, signal_type_name, bid=None):
     # Andrew's method to convert array to CSV string???
     csvasstring = ",".join(preProcLabel) + '\n'
     for dataarr in preProcArray:
@@ -43,14 +45,24 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_fu
     csvreader = csv.reader(StringIO(csvasstring), delimiter=',')
     dictky = csvreader.next()
 
+    if not bid:
+        try:
+            new_batch_id = Preprocessed_Recording.objects.all().aggregate(Max('batch_id'))['batch_id__max'] + 1
+        except TypeError:   # None + 1 ?
+            new_batch_id = 0
+    else:
+        new_batch_id = bid
+
     # Submit data to model and thus the database table
-    pr = Preprocessed_Recording(recording_id=rec_id, applied_preproc_funcs_names=applied_preproc_funcs_names, preproc_funcs_parameters=preproc_funcs_parameters,  dict_keys=dictky)
+    pr = Preprocessed_Recording(recording_id=rec_id, applied_preproc_funcs_names=applied_preproc_funcs_names,
+                                preproc_funcs_parameters=preproc_funcs_parameters,
+                                dict_keys=dictky, batch_id=new_batch_id, signal_type_name=signal_type_name)
     pr.save()
 
     for row in csvreader:
         Preprocessed_Data(pp_recording_id=pr.id, store=dict(zip(dictky, row))).save()
 
-    return 0
+    return new_batch_id
 
 
 def show_chart(request, id_num, alg_type=""):
@@ -59,6 +71,7 @@ def show_chart(request, id_num, alg_type=""):
     mytype = ['bvp', 'ekg', 'inertial', 'gsr']
     # load all the algorithms forms
     # TODO discuss a way to obtain all the form dinamically
+    ret_bid = None
     if request.method == "POST":
         print request.POST
         print "GETTING DATA"
@@ -79,23 +92,23 @@ def show_chart(request, id_num, alg_type=""):
             try:
                 lab=selcol(raw_data, cols_in, "LAB")
             except IndexError as e:
-                print e.message.message
+                print e.message
                 lab=np.zeros(raw_data.shape[0])
                 pass
 
-            if data_type=="1":
+            if data_type=="1":  # BVP
                 bvp=selcol(raw_data, cols_in,"BVP")
                 time=selcol(raw_data, cols_in, "TIME")
                 data=np.column_stack((time, bvp))
                 cols=["TIME", "BVP"]
 
-            elif data_type=="2":
+            elif data_type=="2":    # EKG
                 ekg=selcol(raw_data, cols_in,"EKG")
                 time=selcol(raw_data, cols_in, "TIME")
                 data=np.column_stack((time, ekg))
                 cols=["TIME", "EKG"]
 
-            elif data_type=="3":
+            elif data_type=="3":    # Inertial
                 col_acc=["ACCX", "ACCY", "ACCZ"]
                 col_gyr=["GYRX", "GYRY", "GYRZ"]
                 col_mag=["MAGX", "MAGY", "MAGZ"]
@@ -135,7 +148,7 @@ def show_chart(request, id_num, alg_type=""):
 
                 cols=["TIME"]+keep_col
 
-            elif data_type=="4":
+            elif data_type=="4":    # GSR
                 gsr=selcol(raw_data, cols_in, "GSR")
                 time=selcol(raw_data, cols_in, "TIME")
                 data=np.column_stack((time, gsr))
@@ -252,13 +265,16 @@ def show_chart(request, id_num, alg_type=""):
                     funcs_par.update({"inertial.preproc": {"coeffAcc":str(coeffAcc), "coeffGyr":str(coeffGyr), "coeffMag":str(coeffMag)}})
 
                 print "FINISHED SPECIFIC PROCESSING"
-                putPreprocArrayintodb(id_num, pre_data, columns_out, funcs_par.keys(), funcs_par.values())
+                ret_bid = putPreprocArrayintodb(id_num, pre_data, columns_out, funcs_par.keys(), funcs_par.values(),
+                                                mytype[int(data_type)-1], ret_bid)
                 print "FINISHED PUTTING IN DB"
-                context = {'id_num': id_num, 'elab': 'proc'}
+
             except Exception as e:
                 print "CANNOT PREPROCESS!!!", e.message
                 messages.error(request, 'Cannot process '+mytype[count]+'! Review your parameters.')
                 pass
+
+            context = {'id_num': id_num, 'elab': 'proc'}
         return render(request, template, context)
 
     else:
