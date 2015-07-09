@@ -49,6 +49,7 @@
             </div>
 
             {# Display forms #}
+        {% if elab == "raw" %}
             <div class="col-md-5" style="margin-top: 40px; padding-left:20px">
                 <form action="#" name="preproc" method="post" enctype="multipart/form-data">
                     {# Display menu	up #}
@@ -83,16 +84,16 @@
                     {% endfor %}
 
                     {% csrf_token %}
-
-                    <div>
-                        {% buttons %}
-                            <br>
-                            <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
-                            <button type="reset" class="btn btn-danger">Reset</button>
-                        {% endbuttons %}
-                    </div>
+                        <div>
+                            {% buttons %}
+                                <br>
+                                <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
+                                <button type="reset" class="btn btn-danger">Reset</button>
+                            {% endbuttons %}
+                        </div>
                 </form>
             </div>
+        {% endif %}
 
             {# Display next page button just if request is POST	#}
             {% if elab == "proc" %}

@@ -38,8 +38,10 @@ class linegraph2(HighChartsMultiAxesView):
             data = SensorRawData.objects.filter(recording_id=urlTmp['id_num']).order_by('id')
             self.title = 'Raw Data'
         elif urlTmp['elab'] == "proc":
-            print urlTmp['id_num']
-            data = Preprocessed_Data.objects.filter(pp_recording_id=urlTmp['id_num']).order_by('id')
+            preproc_id = Preprocessed_Recording.objects.filter(recording_id=urlTmp['id_num']).values_list('batch_id', flat=True)
+            preproc_id = preproc_id[3]
+            print preproc_id
+            data = Preprocessed_Data.objects.filter(pp_recording_id=preproc_id).order_by('id')
             self.title = 'Preprocessed Data'
 
         print "DEBUG data", data
