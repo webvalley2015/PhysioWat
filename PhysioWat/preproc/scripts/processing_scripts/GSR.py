@@ -98,6 +98,7 @@ def estimate_drivers(t_gsr, gsr, labs, T1=0.75, T2=2, MX=1, DELTA_PEAK=0.02, k_n
     # estimating values on the time-grid
     inter_impulse_10=np.array([driver[0]])
 
+    ind_end=0
     for index in range(1, len(t_inter_impulse_grid)-1):
         ind_start = np.argmin(abs(t_inter_impulse - t_inter_impulse_grid[index-1]))
         ind_end = np.argmin(abs(t_inter_impulse - t_inter_impulse_grid[index+1]))

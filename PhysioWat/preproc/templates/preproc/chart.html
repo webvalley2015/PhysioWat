@@ -133,15 +133,28 @@
 
         </div>
     </div>
+
+    {% if messages %}
+        <br>
+        <ul class="messages" style="margin: auto;
+    width: 60%;
+    border:3px solid #d20800;
+    padding: 10px;">
+        {% for message in messages %}
+            <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
     </div>
 
 {% endblock %}
 
 {% block app_specific_js %}
 
-    {% highcharts_js 1 1 0 0 %}
-
-    <script>
+{% highcharts_js 1 1 0 0 %}
+{# highchart, ?, heatmap, 3d #}
+<script>
 
     function manageScreen(tabName) {
         $('.mac').not('#' + "man-" + tabName).hide();
