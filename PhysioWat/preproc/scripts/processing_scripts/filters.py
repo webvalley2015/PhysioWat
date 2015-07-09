@@ -5,14 +5,16 @@ from scipy.signal import gaussian, convolve, filtfilt, filter_design, freqz
 import numpy as np
 from IBI import getPeaksIBI
 #DEBUG ONLY
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
-def smoothGaussian(X,sigma=5):
+def smoothGaussian(X,sigma=5, switch=True):
     """
     SIGNAL_OUT = smoothGaussian(SIGNAL_IN,SIGMA=5):
 
     Gaussian smooting by convolution with a gaussian window with sigma=SIGMA
     """
+    if not switch:
+        return X
     window = gaussian(sigma * 10+1, sigma)
     smoothed = convolve(X, window, 'same')
 
@@ -37,9 +39,9 @@ def filtfiltFilter (SIGNAL, F_PASS, F_STOP, F_SAMP, LOSS, ATTENUATION, ftype = '
     wp = np.array(F_PASS)/nyq
     ws = np.array(F_STOP)/nyq
     b, a = filter_design.iirdesign(wp, ws, LOSS, ATTENUATION, ftype = ftype)
-    plot = False
-    # if plot:
-    #     mfreqz(b,a, wp, ws)
+    plot = False    
+    if plot:
+        mfreqz(b,a, wp, ws)
     for idx in xrange(SIGNAL.shape[1]):
         filtered_signal = filtfilt(b, a, SIGNAL[:,idx])
     return filtered_signal
@@ -48,7 +50,7 @@ def filtfiltFilter (SIGNAL, F_PASS, F_STOP, F_SAMP, LOSS, ATTENUATION, ftype = '
 def filterSignal (SIGNAL ,smp_fr, passFr, stopFr, LOSS=0.1, ATTENUATION=40, filterType = None):
     '''
     return a filtered signal with the algorithm selected (filterType) and the frequencies passed
-    SIGNAL: the signal you want to filter as np.array (N,m) with first col = timestamp and last col = labels
+    SIGNAL: the signal you want to filter as np.array (N,m) with first col = timestamp
     smp_fr: the sampling frequency of the signal
     passFr: the pass frequency of the filter
     stopFr: the stop frequency of the filter
@@ -57,12 +59,12 @@ def filterSignal (SIGNAL ,smp_fr, passFr, stopFr, LOSS=0.1, ATTENUATION=40, filt
     filterType: (default 'None') type of the filter. None or invalid value implies no filtering
     '''
     filters=["butter", "cheby1", "cheby2", "ellip"]
-    sign_val = SIGNAL[:,1:-1]
+    sign_val = SIGNAL[:,1:]
     if filterType in filters:
         filtered_signal = filtfiltFilter(sign_val, passFr, stopFr, smp_fr, LOSS, ATTENUATION, ftype=filterType)
     else:
-        filtered_signal = SIGNAL[:,1:-1]
-    return np.column_stack((SIGNAL[:,0],filtered_signal,SIGNAL[:,2]))
+        filtered_signal = SIGNAL[:,1:]
+    return np.column_stack((SIGNAL[:,0],filtered_signal))
 
 def matched_filter(signal, SAMP_F, t_start_good_ecg, t_end_good_ecg, peak_bef = 0.35, peak_aft = 1):
     '''
