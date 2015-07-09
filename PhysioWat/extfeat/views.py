@@ -84,86 +84,90 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
     if (request.method == 'POST'):
         mydict = dict(request.POST.iterlists())
         for id_num in mydict['choose_signal']:
-            print "RUNNING FOR ", id_num
-            data, cols = QueryDb(id_num)
-            time = selcol(data, cols, "TIME")
-            labs = selcol(data, cols, "LAB")
+            try:
+                print "RUNNING FOR ", id_num
+                data, cols = QueryDb(id_num)
+                time = selcol(data, cols, "TIME")
+                labs = selcol(data, cols, "LAB")
 
-            params=dict()
+                params=dict()
 
-            if (mydict['type'][0] == 'contigous'):
-                windows, winlab = wd.get_windows_contiguos(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
+                if (mydict['type'][0] == 'contigous'):
+                    windows, winlab = wd.get_windows_contiguos(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
 
-            if (mydict['type'][0] == 'no_mix'):  # for the values, make reference to .forms --> windowing.!!!!
-                windows, winlab = wd.get_windows_no_mix(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
+                if (mydict['type'][0] == 'no_mix'):  # for the values, make reference to .forms --> windowing.!!!!
+                    windows, winlab = wd.get_windows_no_mix(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
 
-            if (mydict['type'][0] == 'full_label'):
-                windows, winlab = wd.get_windows_full_label(time, labs)
-            params.update({"windowing.type":str(mydict["type"][0]), "windowing.length":str(mydict["length"][0]), "windowing.step":str(mydict["step"][0])})
-            # extract features from result
-            # store feats. in the db
-            type_sig=get_signal_type(cols)
-            params.update({"signal_type":type_sig})
-            if type_sig=="GSR":   #GSR
-                data_in=selcol(data, cols, "PHA")
-                funcs, pars=list(Preprocessed_Recording.objects.filter(pk = id_num).values_list('applied_preproc_funcs_names', 'preproc_funcs_parameters'))[0]
-                DELTA=float(pars[funcs.index(u"GSR.preproc")][u"DELTA_PEAK"])
-                feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
-                data_out, cols_out=dict_to_arrays(feat_dict)
-                data_out=np.column_stack((data_out, winlab))
-                columns_out=np.r_[cols_out, ["LAB"]]
+                if (mydict['type'][0] == 'full_label'):
+                    windows, winlab = wd.get_windows_full_label(time, labs)
+                params.update({"windowing.type":str(mydict["type"][0]), "windowing.length":str(mydict["length"][0]), "windowing.step":str(mydict["step"][0])})
+                # extract features from result
+                # store feats. in the db
+                type_sig=get_signal_type(cols)
+                params.update({"signal_type":type_sig})
+                if type_sig=="GSR":   #GSR
+                    data_in=selcol(data, cols, "PHA")
+                    funcs, pars=list(Preprocessed_Recording.objects.filter(pk = id_num).values_list('applied_preproc_funcs_names', 'preproc_funcs_parameters'))[0]
+                    DELTA=float(pars[funcs.index(u"GSR.preproc")][u"DELTA_PEAK"])
+                    feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
+                    data_out, cols_out=dict_to_arrays(feat_dict)
+                    data_out=np.column_stack((data_out, winlab))
+                    columns_out=np.r_[cols_out, ["LAB"]]
 
-            elif type_sig=="inertial":
-                col_acc=["ACCX", "ACCY", "ACCZ"]
-                col_gyr=["GYRX", "GYRY", "GYRZ"]
-                col_mag=["MAGX", "MAGY", "MAGZ"]
-                try:
-                    acc=selcol(data, cols, col_acc)
-                    thereIsAcc=True
-                except IndexError as e:
-                    print e
-                    thereIsAcc=False
-                try:
-                    gyr=selcol(data, cols, col_gyr)
-                    thereIsGyr=True
-                except IndexError as e:
-                    print e
-                    thereIsGyr=False
-                try:
-                    mag=selcol(data, cols, col_mag)
-                    thereIsMag=True
-                except IndexError as e:
-                    print e
-                    thereIsMag=False
-                columns_out=np.array(["LAB"])
-                data_out=winlab[:]
-                if thereIsAcc:
-                    feats_acc, fcol_acc= extfeat_ACC(acc, time, col_acc, windows)
-                    data_out=np.column_stack([feats_acc, data_out])
-                    columns_out=np.r_[fcol_acc, columns_out]
-                if thereIsGyr:
-                    feats_gyr, fcol_gyr= extfeat_GYR(gyr, time, col_gyr, windows)
-                    data_out=np.column_stack([feats_gyr, data_out])
-                    columns_out=np.r_[fcol_gyr, columns_out]
-                if thereIsMag:
-                    feats_mag, fcol_mag= extfeat_MAG(mag, time, col_mag, windows)
-                    data_out=np.column_stack([feats_mag, data_out])
-                    columns_out=np.r_[fcol_mag, columns_out]
+                elif type_sig=="inertial":
+                    col_acc=["ACCX", "ACCY", "ACCZ"]
+                    col_gyr=["GYRX", "GYRY", "GYRZ"]
+                    col_mag=["MAGX", "MAGY", "MAGZ"]
+                    try:
+                        acc=selcol(data, cols, col_acc)
+                        thereIsAcc=True
+                    except IndexError as e:
+                        print e
+                        thereIsAcc=False
+                    try:
+                        gyr=selcol(data, cols, col_gyr)
+                        thereIsGyr=True
+                    except IndexError as e:
+                        print e
+                        thereIsGyr=False
+                    try:
+                        mag=selcol(data, cols, col_mag)
+                        thereIsMag=True
+                    except IndexError as e:
+                        print e
+                        thereIsMag=False
+                    columns_out=np.array(["LAB"])
+                    data_out=winlab[:]
+                    if thereIsAcc:
+                        feats_acc, fcol_acc= extfeat_ACC(acc, time, col_acc, windows)
+                        data_out=np.column_stack([feats_acc, data_out])
+                        columns_out=np.r_[fcol_acc, columns_out]
+                    if thereIsGyr:
+                        feats_gyr, fcol_gyr= extfeat_GYR(gyr, time, col_gyr, windows)
+                        data_out=np.column_stack([feats_gyr, data_out])
+                        columns_out=np.r_[fcol_gyr, columns_out]
+                    if thereIsMag:
+                        feats_mag, fcol_mag= extfeat_MAG(mag, time, col_mag, windows)
+                        data_out=np.column_stack([feats_mag, data_out])
+                        columns_out=np.r_[fcol_mag, columns_out]
 
-            elif type_sig=="IBI":
-                data_in=selcol(data, cols, ["TIME","IBI"])
-                cols_in=["TIME", "IBI"]
-                data_out, winlab = extfeat_IBI(data_in, cols_in, windows, winlab)
-                columns_out=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
-                print data_out.shape, winlab.shape
-                data_out=np.column_stack((data_out, winlab))
-                columns_out=np.r_[columns_out, ["LAB"]]
+                elif type_sig=="IBI":
+                    data_in=selcol(data, cols, ["TIME","IBI"])
+                    cols_in=["TIME", "IBI"]
+                    data_out, winlab = extfeat_IBI(data_in, cols_in, windows, winlab)
+                    columns_out=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
+                    print data_out.shape, winlab.shape
+                    data_out=np.column_stack((data_out, winlab))
+                    columns_out=np.r_[columns_out, ["LAB"]]
 
-            st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y%m%d_%H%M%S')
-            fname=MEDIA_ROOT+type_sig+"_"+id_num+"_"+st+".csv"
-            toCsv(data_out, columns_out, fname)
-            WritePathtoDB(fname, id_num, params)
-
+                st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y%m%d_%H%M%S')
+                fname=MEDIA_ROOT+type_sig+"_"+id_num+"_"+st+".csv"
+                toCsv(data_out, columns_out, fname)
+                WritePathtoDB(fname, id_num, params)
+            except Exception as e:
+                print "COULD NOT PROCESS "+id_num+": "+e.message
+                messages.error(request, "Error processing "+id_num+" ("+type_sig+"). Review your parameters!")
+                pass
         return HttpResponseRedirect(reverse('index'))
 
     else:
