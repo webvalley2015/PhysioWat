@@ -1,10 +1,12 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from .forms import UploadForm
 import csvtodb
 from PhysioWat.models import Experiment
 from django.contrib import messages
+from django.views.decorators.csrf import requires_csrf_token, csrf_exempt
+
 
 #View to Upload a CSV File
 def upload(request):
@@ -37,3 +39,11 @@ def upload(request):
 #Gets a list of all available experiments
 def getExperiments():
         return Experiment.objects.values_list('id', 'name')
+
+@csrf_exempt
+def get_data_from_mobile(request):
+    if request.method == 'POST':
+        data = request.POST
+    else:
+        data = []
+    return HttpResponse(data)

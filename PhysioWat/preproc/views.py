@@ -153,6 +153,11 @@ def show_chart(request, id_num, alg_type=""):
                     lab=selcol(data_labelled, cols_labelled, "LAB")
                     data=selcol(data_labelled, cols_labelled, cols)
                     funcs_par.update({"tools.downsampling":{"FS_NEW":str(FS_NEW)}})
+            except ValueError as e:
+                print "ERROR DOWNSAMPLING"
+                print e.message
+                messages.error(request, "Downsampling error: "+e.message)
+                pass
             except Exception as e:
                 print "ERROR DOWNSAMPLING"
                 print e.message
@@ -210,46 +215,50 @@ def show_chart(request, id_num, alg_type=""):
                     print "ERROR SPIKES"
                     print e.message
                     pass
+            try:
+                if data_type == "4":
+                    T1 = float(request.POST['{}-T1'.format(mytype[count])])
+                    T2 = float(request.POST['{}-T2'.format(mytype[count])])
+                    MX = float(request.POST['{}-MX'.format(mytype[count])])
+                    DELTA_PEAK = float(request.POST['{}-DELTA_PEAK'.format(mytype[count])])
+                    k_near = float(request.POST['{}-k_near'.format(mytype[count])])
+                    grid_size = float(request.POST['{}-grid_size'.format(mytype[count])])
+                    s = float(request.POST['{}-s'.format(mytype[count])])
+                    data_labelled=np.column_stack((data, lab))
+                    cols_labelled=cols+["LAB"]
+                    pre_data, columns_out = GSR_preproc(data_labelled, cols_labelled, T1, T2, MX, DELTA_PEAK, k_near, grid_size, s)
+                    funcs_par.update({"GSR.preproc":{"T1":str(T1), "T2":str(T2), "MX":str(MX), "DELTA_PEAK":str(DELTA_PEAK), "k_near":str(k_near), "grid_size":str(grid_size), "s":str(s)}})
 
-            if data_type == "4":
-                T1 = float(request.POST['{}-T1'.format(mytype[count])])
-                T2 = float(request.POST['{}-T2'.format(mytype[count])])
-                MX = float(request.POST['{}-MX'.format(mytype[count])])
-                DELTA_PEAK = float(request.POST['{}-DELTA_PEAK'.format(mytype[count])])
-                k_near = float(request.POST['{}-k_near'.format(mytype[count])])
-                grid_size = float(request.POST['{}-grid_size'.format(mytype[count])])
-                s = float(request.POST['{}-s'.format(mytype[count])])
-                data_labelled=np.column_stack((data, lab))
-                cols_labelled=cols+["LAB"]
-                pre_data, columns_out = GSR_preproc(data_labelled, cols_labelled, T1, T2, MX, DELTA_PEAK, k_near, grid_size, s)
-                funcs_par.update({"GSR.preproc":{"T1":str(T1), "T2":str(T2), "MX":str(MX), "DELTA_PEAK":str(DELTA_PEAK), "k_near":str(k_near), "grid_size":str(grid_size), "s":str(s)}})
 
+                if data_type == "1" or data_type == "2":
+                    t=selcol(data, cols, "TIME")
+                    delta = float(request.POST['{}-delta'.format(mytype[count])])
+                    data_labelled=np.column_stack((data, lab))
+                    cols_labelled=cols+["LAB"]
+                    peaks, cols_temp = IBI.getPeaksIBI(data_labelled, cols_labelled, delta, mytype[count])
+                    minFr = float(request.POST['{}-minFr'.format(mytype[count])])
+                    maxFr = float(request.POST['{}-maxFr'.format(mytype[count])])
+                    pre_data, columns_out = IBI.max2interval(peaks, cols_temp, minFr, maxFr)
+                    funcs_par.update({"IBI.getPeaksIBI":{"delta":str(delta)}})
+                    funcs_par.update({"IBI.max2intervals":{"minFr":str(minFr), "maxFr":str(maxFr)}})
 
-            if data_type == "1" or data_type == "2":
-                t=selcol(data, cols, "TIME")
-                delta = float(request.POST['{}-delta'.format(mytype[count])])
-                data_labelled=np.column_stack((data, lab))
-                cols_labelled=cols+["LAB"]
-                peaks, cols_temp = IBI.getPeaksIBI(data_labelled, cols_labelled, delta, mytype[count])
-                minFr = float(request.POST['{}-minFr'.format(mytype[count])])
-                maxFr = float(request.POST['{}-maxFr'.format(mytype[count])])
-                pre_data, columns_out = IBI.max2interval(peaks, cols_temp, minFr, maxFr)
-                funcs_par.update({"IBI.getPeaksIBI":{"delta":str(delta)}})
-                funcs_par.update({"IBI.max2intervals":{"minFr":str(minFr), "maxFr":str(maxFr)}})
+                if data_type == "3":
+                    coeffAcc = float(request.POST['{}-coeffAcc'.format(mytype[count])])
+                    coeffGyr = float(request.POST['{}-coeffGyr'.format(mytype[count])])
+                    coeffMag = float(request.POST['{}-coeffMag'.format(mytype[count])])
+                    data_labelled=np.column_stack((data, lab))
+                    cols_labelled=cols+["LAB"]
+                    pre_data, columns_out=inertial_preproc(data_labelled, cols_labelled, coeffAcc, coeffGyr, coeffMag)
+                    funcs_par.update({"inertial.preproc": {"coeffAcc":str(coeffAcc), "coeffGyr":str(coeffGyr), "coeffMag":str(coeffMag)}})
 
-            if data_type == "3":
-                coeffAcc = float(request.POST['{}-coeffAcc'.format(mytype[count])])
-                coeffGyr = float(request.POST['{}-coeffGyr'.format(mytype[count])])
-                coeffMag = float(request.POST['{}-coeffMag'.format(mytype[count])])
-                data_labelled=np.column_stack((data, lab))
-                cols_labelled=cols+["LAB"]
-                pre_data, columns_out=inertial_preproc(data_labelled, cols_labelled, coeffAcc, coeffGyr, coeffMag)
-                funcs_par.update({"inertial.preproc": {"coeffAcc":str(coeffAcc), "coeffGyr":str(coeffGyr), "coeffMag":str(coeffMag)}})
-
-            print "FINISHED SPECIFIC PROCESSING"
-            putPreprocArrayintodb(id_num, pre_data, columns_out, funcs_par.keys(), funcs_par.values())
-            print "FINISHED PUTTING IN DB"
-            context = {'id_num': id_num, 'elab': 'proc'}
+                print "FINISHED SPECIFIC PROCESSING"
+                putPreprocArrayintodb(id_num, pre_data, columns_out, funcs_par.keys(), funcs_par.values())
+                print "FINISHED PUTTING IN DB"
+                context = {'id_num': id_num, 'elab': 'proc'}
+            except Exception as e:
+                print "CANNOT PREPROCESS!!!", e.message
+                messages.error(request, 'Cannot process '+mytype[count]+'! Review your parameters.')
+                pass
         return render(request, template, context)
 
     else:
@@ -269,7 +278,7 @@ def show_chart(request, id_num, alg_type=""):
                     initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType': 'cheby2',
                              'apply_filter': True}, prefix=mytype[count])
                 formSpec = BVP_Form(initial={'delta': 1, 'minFr': 40, 'maxFr': 200}, prefix=mytype[count])
-                bvp_tmp = {'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt, 'formSpec': formSpec}
+                bvp_tmp = {'Downsampling': formDown, 'Gaussian': formGau, 'Filter': formFilt, 'Specfic': formSpec}
             if "2" in alg_type:
                 count = 1
                 formDown = downsampling(initial={'apply_downsampling': False}, prefix=mytype[count])
@@ -277,7 +286,7 @@ def show_chart(request, id_num, alg_type=""):
                 formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False},
                                      prefix=mytype[count])
                 formSpec = EKG_Form(initial={'delta': 0.2, 'minFr': 40, 'maxFr': 200}, prefix=mytype[count])
-                ekg_tmp = {'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt, 'formSpec': formSpec}
+                ekg_tmp = {'Downsampling': formDown, 'Gaussian': formGau, 'Filter': formFilt, 'Specific': formSpec}
             if "3" in alg_type:
                 count = 2
                 formDown = downsampling(initial={'apply_downsampling': False}, prefix=mytype[count])
@@ -285,7 +294,7 @@ def show_chart(request, id_num, alg_type=""):
                 formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False},
                                      prefix=mytype[count])
                 formSpec = Inertial_Form(initial={'coeffAcc': 1, 'coeffGyr': 1, 'coeffMag':1}, prefix=mytype[count])##
-                inertial_tmp = {'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt, 'formSpec': formSpec}
+                inertial_tmp = {'Downsampling': formDown, 'Gaussian': formGau, 'Filter': formFilt, 'Specific': formSpec}
             if "4" in alg_type:
                 count = 3
                 formPick = remove_spike(initial={'apply_spike': False}, prefix=mytype[count])
@@ -296,13 +305,13 @@ def show_chart(request, id_num, alg_type=""):
                 formSpec = GSR_Form(
                     initial={'T1': 0.75, 'T2': 2, 'MX': 1, 'DELTA_PEAK': 0.02, 'k_near': 5, 'grid_size': 5, 's': 0.2},
                     prefix=mytype[count])
-                gsr_tmp = {'formPick': formPick, 'formDown': formDown, 'formGau': formGau, 'formFilt': formFilt,
-                           'formSpec': formSpec}
+                gsr_tmp = {'Pick': formPick, 'Downsampling': formDown, 'Gaussian': formGau, 'Filter': formFilt,
+                           'Specific': formSpec}
 
         opt_temp = getavaliabledatavals(id_num)
         opt_list = opt_temp[1:]
 
-        context = {'forms': {'bvp_tmp': bvp_tmp, 'ekg_tmp': ekg_tmp, 'inertial_tmp': inertial_tmp, 'gsr_tmp': gsr_tmp},
+        context = {'forms': {'BVP': bvp_tmp, 'EKG': ekg_tmp, 'Inertial': inertial_tmp, 'GSR': gsr_tmp},
                    'opt_list': opt_list, 'id_num': id_num, 'elab': 'raw'}
         return render(request, template, context)
 

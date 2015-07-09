@@ -1,20 +1,39 @@
 {% extends "PhysioWat/base.html" %}
-{% load static %}
+{# load static gives mistakes : /static/js/jquery.min.map HTTP/1.1" 404 {% load static %} #}
 {% load highcharts_tags %}
 {% block app_specific_css %}
 {% load bootstrap3 %}
 {% endblock %}
 
 {% block container %}
+<br><br><br><br>
+<br><br><br><br>
 
-ciao
+culo riccarso
+<br><br><br><br>
+<br><br><br><br>
 
+ <div class="processed-signal row">
+                    <div id="processed-signal"></div>
+                    <!-- THIS IS ANOTHER DIV FOR ANOTHER GRAPH, IT DOES NOT CONTAIN ANITHING NOW -->
+ </div>
+
+{{ datac }}
 
 {% endblock %}
 
 {% block app_specific_js %}
-    <script>
 
-    </script>
+{% highcharts_js 1 1 1 1 %}
+<script>
+    var data = {{ datac|safe }}
+    $('document').ready(function() {
+    console.log("ciao, sono nel document ready");
+    console.log(data);
+    $('#processed-signal').highcharts(data);
+    console.log("i didnt blocked");
+    });
+</script>
+
 {% endblock app_specific_js %}
 

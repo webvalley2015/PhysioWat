@@ -4,13 +4,30 @@
 {% block app_specific_css %}
 {% load bootstrap3 %}
 {% endblock %}
-
 {% block container %}
-<div id="total_container" style="position:absolute; top:80px; left:20px;">
-    <form action="#" method="post" enctype="multipart/form-data" name="selection" id="selection">
-    {% csrf_token %}
-        {{  viewf }}
 
+
+<div id="container" style="margin-top: 3%;">
+    <form action="#" class="form-cnt" method="post" enctype="multipart/form-data" name="selection" id="selection">
+        <center>
+        <button type="submit" class="btn btn-success" id="button_submit" style="display:none">Submit</button>
+        <input type="button" class="btn btn-primary" id ="button_reset" value="reset"></input>
+        <input type="button" class="btn btn-primary" id="proceed" value="proceed"></input>
+        </center>
+        <br><br>
+        <!-- ul class="pager">
+            <li class="previous">
+                <a href="#">&larr; Previous</a>
+            </li>
+            <li class="next">
+                <a href="#">Next &rarr;</a>
+            </li>
+        </ul -->
+        {% csrf_token %}
+
+        {{  viewf }}
+<br><br>
+        {{ formListId }}
      <div id="mlParSet_1" style="display:none;" class="div_choose">
          <br><br>
          <h5> Select whether you want to choose how many features you want to consider, or if you want an automatic
@@ -22,6 +39,7 @@
 
         <br><br>
       <div id="mlParSet_2" class ="div_choose" style="display:none;">
+          <hr>
          <h5>Select the percentage of the data used as a test and the number of iterations</h5>
 
           {{ TPar }}
@@ -30,27 +48,27 @@
       </div>
         <br><br>
         <div id="mlParSet_3" class="div_choose" style="display:none;">
+            <hr>
             <h5>Choose your algorithm</h5>
             {{ AlgChoose }}
         </div>
         <br><br>
 
         <div id="mlParSet_4" class="div_choose" style="display:none;">        <!-- div with autofit, default or personalized -->
-             <h5>Choose whether you have to set the parameters or not</h5>
+            <hr>
+            <h5>Choose whether you have to set the parameters or not</h5>
             {{ AlgParamChoose }}
         </div>
         <br><br>
 
            <div id="mlPersPar">   <!-- div with the personalized options for every algorithm -->
-
+            <hr>
         </div>
         <br><br>
         <div id="autoFitParamChoose" style="display:none;">       <!-- div with the metrics -->
+            <hr>
             {{ autoParam }}
         </div>
-       <button type="submit" class="btn btn-success" id="button_submit" style="display:none">Submit</button>
-         <input type="button" id ="button_reset" value="reset"></input>
-        <input type="button" id="proceed" value="proceed"></input>
 
 
     </form>

@@ -18,53 +18,49 @@
             <h1>Where Is WebValley?</h1><br><br>
                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2768.229657326764!2d11.122880465606704!3d46.066461724686725!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4782714a693250df%3A0x16faa4cc65ceea27!2sUniversity+of+Trento!5e0!3m2!1sen!2sit!4v1436195475136" frameborder="0" style="padding-bottom: 15px; border:0; width: 100%;" allowfullscreen></iframe>
         </div>
-		<div class="col-md-6 contact-left">
-			<h2>Contact us</h2>
-			<p>The set doesn't moved. Deep don't fruit fowl gathering heaven days moving cre eping under from i air. Set it fifth Meat was darkness. every bring in it.The set doesn't moved. Deep don't fruit fowl gathering heaven days moving creeping under from i air. Set it fifth Meat was darkness. every bring in it.</p>
+		<div class="col-md-12 about-left" style="padding: 20px 5px;">
+			<h2 align="center">Contact us</h2>
+			<p style="padding: -20px; font-size: 1.2em;">Use one of the methods listed below to get in contact with our amazing WebValley team. To see a full list of the students that participated in the making of this web application visit the following <a href="https://webvalley.fbk.eu/partecipants/">link.</a></p>
 			<div class="contact-left-bottom">
 				<div class="address">
 					<div class="cnt-left">
-						<span class="ads"> </span>
+						<span class="ads"></span>
 					</div>
 					<div class="cnt-right">
-						<p>STREET ADDRESS @ Antani LANE - Sarcazzide Town</p>
+						<p><b>Address:</b> University of Trento <br> Via Calepina, 14, 38122 Trento</p>
 					</div>
 					<!--<div class="clearfix"></div>-->
 				</div>
 				<div class="phone">
 					<div class="cnt-left">
-						<span class="ph"> </span>
 					</div>
 					<div class="cnt-right">
-						<p>(+39)1234567890</p>
+						<p><b>Phone:</b> (+39)123-545-9874</p>
 					</div>
 					<!--<div class="clearfix"></div>-->
 				</div>
 				<div class="phone">
-					<div class="cnt-left">
-						<span class="email"> </span>
-					</div>
 					<div class="cnt-right">
-						<p><a href="mailto:bizzego@fbk.eu">bizzego[at]fbk.eu</a></p>
+						<p><b>Email:</b><a href="mailto:bizzego@fbk.eu"> bizzego@fbk.eu</a></p>
 					</div>
 					<!--<div class="clearfix"></div>-->
 				</div>
 			</div>
 		</div>
 		{% block content %}
-			<div class="col-md-6 contact-left">
+			<!-- div class="col-md-6 contact-left">
 				<h3>Send Message</h3>
 				<div class="contact-right-bottom">
-					<form method="post" class="form form-horizontal">{% csrf_token %}
-						<input type="text" class="form-control" value="Your Name" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Your Name';}"/>
-						<input type="text" class="form-control" value="Your Email" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Your Email';}"/>
-						<textarea value="Message" class="form-control" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Message';}">Message</textarea>
+					<form method="post" action="postContact" class="form form-horizontal"> {% csrf_token %}
+						<input type="text" name="userName" class="form-control" value="Your Name" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Your Name';}"/>
+						<input type="text"  name="userEmail" class="form-control" value="Your Email" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Your Email';}"/>
+						<textarea value="Message"  name="userMsg" class="form-control" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Message';}">Message</textarea>
 						<div class="contact-but">
 							<input type="submit" value="Send" />
 						</div>
 					</form>
 				</div>
-			</div>
+			</div -->
 		{% endblock content %}
 		<div class="clearfix"> </div>
 	</div>
