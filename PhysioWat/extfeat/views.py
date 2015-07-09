@@ -392,7 +392,7 @@ def select_record(request, id_num):
     if request.method == 'POST':
         record_id = request.POST.get('rec_name')
         name=Recording.objects.filter(pk=record_id).values_list('device_name')[0][0]
-        if Preprocessed_Data.objects.filter(pp_recording_id=record_id).count()==0:
+        if Preprocessed_Recording.objects.filter(recording_id=record_id).count()==0:
             messages.error(request, "No preprocessed data found for "+name)
             name_list = getRecordsList(id_num)
             context = {'name_list': name_list}

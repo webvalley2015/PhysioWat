@@ -322,7 +322,7 @@ def show_chart(request, id_num, alg_type=""):
                 inertial_tmp = {'Downsampling': formDown, 'Gaussian': formGau, 'Filter': formFilt, 'Specific': formSpec}
             if "4" in alg_type:
                 count = 3
-                formPick = remove_spike(initial={'apply_spike': False}, prefix=mytype[count])
+                formPeak = remove_spike(initial={'apply_spike': False}, prefix=mytype[count])
                 formDown = downsampling(initial={'apply_downsampling': False}, prefix=mytype[count])
                 formGau = smoothGaussian(initial={'sigma': 2, 'apply_smooth': False}, prefix=mytype[count])
                 formFilt = filterAlg(initial={'filterType': 'none', 'apply_filter': False},
@@ -330,7 +330,7 @@ def show_chart(request, id_num, alg_type=""):
                 formSpec = GSR_Form(
                     initial={'T1': 0.75, 'T2': 2, 'MX': 1, 'DELTA_PEAK': 0.02, 'k_near': 5, 'grid_size': 5, 's': 0.2},
                     prefix=mytype[count])
-                gsr_tmp = {'Pick': formPick, 'Downsampling': formDown, 'Gaussian': formGau, 'Filter': formFilt,
+                gsr_tmp = {'Peak': formPeak, 'Downsampling': formDown, 'Gaussian': formGau, 'Filter': formFilt,
                            'Specific': formSpec}
 
         opt_temp = getavaliabledatavals(id_num)
