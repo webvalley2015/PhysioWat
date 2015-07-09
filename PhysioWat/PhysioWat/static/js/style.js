@@ -93,7 +93,7 @@ function show_hide_upload(passage){
 		document.getElementById("button_prev").style.display = 'inline-block';
 		document.getElementById("button_next").style.display = 'inline-block';
 		document.getElementById("id_description").style.display = 'block';
-		document.getElementById("id_device").style.display = 'block';
+		document.getElementById("id_device").style.display = 'inline-block';
 		document.getElementById("div_step_2").setAttribute("style","background-color:#6699FF; color:white; border-right:2px solid #6699FF; height:100%; text-align: center; padding-top:3.8%");
 	} else {
 		document.getElementById("button_prev").style.display = 'inline-block';
@@ -104,7 +104,7 @@ function show_hide_upload(passage){
 	}
 	if (passage==2) {
 
-		document.getElementById("id_password").style.display = 'block';
+		document.getElementById("id_password").style.display = 'inline-block';
 		document.getElementById("BuSu").style.display = 'block';
 		document.getElementById("BuRe").style.display = 'block';
 		document.getElementById("button_next").style.display = 'none';
@@ -164,7 +164,7 @@ function show_hide_upload(passage){
 		document.getElementById("button_prev").style.display = 'inline-block';
 		document.getElementById("button_next").style.display = 'inline-block';
 		document.getElementById("id_description").style.display = 'block';
-		document.getElementById("id_device").style.display = 'block';
+		document.getElementById("id_device").style.display = 'inline-block';
 		document.getElementById("div_step_2").setAttribute("style","background-color:#6699FF; color:white; border-right:2px solid #6699FF; height:100%; text-align: center; padding-top:3.8%");
 	} else {
 		document.getElementById("button_prev").style.display = 'inline-block';
@@ -175,7 +175,7 @@ function show_hide_upload(passage){
 	}
 	if (passage==2) {
 
-		document.getElementById("id_password").style.display = 'block';
+		document.getElementById("id_password").style.display = 'inline-block';
 		document.getElementById("BuSu").style.display = 'inline-block';
 		document.getElementById("BuRe").style.display = 'inline-block';
 		document.getElementById("button_next").style.display = 'none';

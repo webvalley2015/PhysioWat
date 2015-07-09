@@ -2,47 +2,28 @@
 {% load static %}
 {% block container %}
 
+<h1>Upload File</h1>
+<form action="#" method="post" enctype="multipart/form-data" class="">
+    {% include "includes/steps.html" %}
 
-<form action="#" method="post" enctype="multipart/form-data" class="form-cnt">
-    <!--class="form-cnt dropzone" id="my-awesome-dropzone">-->
-    <br>
-
-    <h1>Upload File</h1><br>
-
-
-    <!--Creating the divs to dispay the name of the step-->
-    <div style="border-radius:10px 10px 10px 10px; border: 2px solid #6699FF; padding:0%; height:4em;"
-         class="col-md-12">
-
-        <!--step 1-->
-        <div id="div_step_1" align="left" class="col-md-4">Step 1</div>
-        <!--step 2-->
-        <div id="div_step_2" align="center" class="col-md-4">Step 2</div>
-        <!--step 3-->
-        <div id="div_step_3" align="right" class="col-md-4">Step 3</div>
-    </div>
-    <br><br>
-    <!--end steps-->
-
-
-    {% csrf_token %}
-
-    <div id="Experiment_div" margin-top="15px">
-        <label for="experiment">Experiment </label></div>
-    <select name="experiment" class="form-control" id="sel">
-        {% for c in experiments %}
-        <option value="{{ c.0 }}">{{ c.1 }}</option>
-        {% endfor %}
-    </select><br>
-    <!-- buttons submit and reset -->
-    {% include "includes/bootstrap_fordbgroup.html" %}
-    <div align="center">
-        <button id="button_prev" class="btn btn-succes" onclick="decrease_passage()">Previous Step</button>
-        <button id="button_next" class="btn btn-succes" onclick="increase_passage()">Next Step</button>
+    <div class="form-cnt">
+        {% csrf_token %}
+        <div id="Experiment_div" margin-top="15px">
+            <label for="experiment">Experiment </label></div>
+        <select name="experiment" class="form-control" id="sel">
+            {% for c in experiments %}
+            <option value="{{ c.0 }}">{{ c.1 }}</option>
+            {% endfor %}
+        </select><br>
+        <!-- buttons submit and reset -->
+        {% include "includes/bootstrap_fordbgroup.html" %}
+        <div align="center">
+            <button id="button_prev" class="btn btn-default" onclick="decrease_passage()">Previous Step</button>
+            <button id="button_next" class="btn btn-default" onclick="increase_passage()">Next Step</button>
+        </div>
     </div>
 </form>
 
-</div>
 <!--<button id="button1" class="btn btn-success" onclick="increase_passage()">Next step</button>-->
 
 
