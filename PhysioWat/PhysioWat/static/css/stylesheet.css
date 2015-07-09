@@ -160,7 +160,7 @@ nav a:focus {
 /*--end-banner--*/
 /*--start-about--*/
 .about{
-	padding:6em 0px;
+	padding:6 0px;
 	background:#f6f6f6;
 }
 .about-top{
@@ -1831,7 +1831,7 @@ h3.sngl {
   margin-top: 29%;
 }
 .about {
-  padding: 5em 0px;
+  padding: 0px;
 }
 .move {
   min-height: 390px;
@@ -3683,7 +3683,7 @@ h3.sngl {
 /*--media-quaries-starts-here--*/
 
 .form-cnt {
-	padding-top: 3em;
+	padding-top: 1em;
 	width: 60%;
 	margin: 0 auto;
 }

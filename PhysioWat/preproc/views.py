@@ -34,16 +34,16 @@ def QueryDb(recordingID):
 def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_funcs_names,
                           preproc_funcs_parameters, signal_type_name, bid=None):
     # Andrew's method to convert array to CSV string???
-    csvasstring = ",".join(preProcLabel) + '\n'
-    for dataarr in preProcArray:
-        for dataval in dataarr:
-            csvasstring += str(dataval) + ','
-        csvasstring = csvasstring[:-1]
-        csvasstring += '\n'
-
-    # Initiate the CSV Reader
-    csvreader = csv.reader(StringIO(csvasstring), delimiter=',')
-    dictky = csvreader.next()
+    # csvasstring = ",".join(preProcLabel) + '\n'
+    # for dataarr in preProcArray:
+    #     for dataval in dataarr:
+    #         csvasstring += str(dataval) + ','
+    #     csvasstring = csvasstring[:-1]
+    #     csvasstring += '\n'
+    #
+    # # Initiate the CSV Reader
+    # csvreader = csv.reader(StringIO(csvasstring), delimiter=',')
+    # dictky = csvreader.next()
 
     if not bid:
         try:
@@ -53,20 +53,23 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_fu
     else:
         new_batch_id = bid
 
+    dictky = [str(i) for i in preProcLabel]
     # Submit data to model and thus the database table
     print "creating preprocessed recording", rec_id
     pr = Preprocessed_Recording(recording_id=rec_id, applied_preproc_funcs_names=applied_preproc_funcs_names,
-                                preproc_funcs_parameters=preproc_funcs_parameters,
-                                dict_keys=dictky, batch_id=new_batch_id, signal_type_name=signal_type_name)
+                                preproc_funcs_parameters=preproc_funcs_parameters, dict_keys=dictky,
+                                batch_id=new_batch_id, signal_type_name=signal_type_name)
 
     pr.save()
+    values = preProcArray.astype(str)
+    # print "pr.id", pr.id
+    id_gen = xrange(len(preProcArray))
+    record_list = [None for i in id_gen]
+    for i in id_gen:
+        record_list[i] = Preprocessed_Data(pp_recording_id=pr.id, store=dict(zip(dictky, values[i])))
 
-    print "pr.id", pr.id
-    for row in csvreader:
-        Preprocessed_Data(pp_recording_id=pr.id, store=dict(zip(dictky, row))).save()
-
-    return new_batch_id, pr.id
-
+    Preprocessed_Data.objects.bulk_create(record_list, batch_size=32768)
+    return new_batch_id
 
 def show_chart(request, id_num, alg_type=""):
     template = "preproc/chart.html"
@@ -171,7 +174,7 @@ def show_chart(request, id_num, alg_type=""):
             except ValueError as e:
                 print "ERROR DOWNSAMPLING"
                 print e.message
-                messages.error(request, "Downsampling error: " + e.message)
+                messages.error(request, "Downsampling errorret_bid: " + e.message)
             except Exception as e:
                 print "ERROR DOWNSAMPLING"
                 print e.message
@@ -273,7 +276,7 @@ def show_chart(request, id_num, alg_type=""):
 
                 print "FINISHED SPECIFIC PROCESSING"
                 print "id_num", id_num
-                ret_bid, pr_id = putPreprocArrayintodb(id_num, pre_data, columns_out, funcs_par.keys(), funcs_par.values(),
+                ret_bid = putPreprocArrayintodb(id_num, pre_data, columns_out, funcs_par.keys(), funcs_par.values(),
                                                 mytype[int(data_type) - 1], ret_bid)
                 print "FINISHED PUTTING IN DB"
 
@@ -281,8 +284,8 @@ def show_chart(request, id_num, alg_type=""):
                 print "CANNOT PREPROCESS!!!", e.message
                 messages.error(request, 'Cannot process ' + mytype[count] + '! Review your parameters.')
 
-            print "pr_id", pr_id
-            context = {'id_num': id_num, 'elab': 'proc', 'pr_id': pr_id}
+            # print "pr_id", pr_id
+            context = {'id_num': id_num, 'elab': 'proc', 'batch_id': ret_bid}
         return render(request, template, context)
 
     else:
