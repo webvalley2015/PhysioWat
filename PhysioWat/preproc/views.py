@@ -290,7 +290,7 @@ def show_chart(request, id_num, alg_type=""):
                 formGau = smoothGaussian(initial={'sigma': 2, 'apply_smooth': False}, prefix=mytype[count])
                 formFilt = filterAlg(
                     initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType': 'cheby2',
-                             'apply_filter': True}, prefix=mytype[count])
+                             'apply_alg_filter': True}, prefix=mytype[count])
                 formSpec = BVP_Form(initial={'delta': 1, 'minFr': 40, 'maxFr': 200}, prefix=mytype[count])
                 bvp_tmp = {'Downsampling': formDown, 'Gaussian': formGau, 'Filter': formFilt, 'Specfic': formSpec}
             if "2" in alg_type:
