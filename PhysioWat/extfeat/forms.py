@@ -70,7 +70,7 @@ class autoFitParam(forms.Form):
 #------------------------------------------------
 
 class signal_choose(forms.Form):
-    choose_signal = forms.ChoiceField(choices=[], widget=forms.CheckboxSelectMultiple())
+    choose_signal = forms.MultipleChoiceField(choices=[], widget=forms.CheckboxSelectMultiple(), required=True)
 
     def __init__(self, choices, *args, **kwargs):
         super(signal_choose,self).__init__(*args, **kwargs)
