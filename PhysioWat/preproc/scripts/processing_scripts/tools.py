@@ -185,16 +185,14 @@ def prepare_json_to_plot(series, labels):
 #     # results = cursor.fetchall()
 
 
-def downsampling(data, FS_NEW, switch=True, t_col=0):
+def downsampling(data, FS_NEW, t_col=0):
     '''
     Downsamples the signals (too much data is long to extract!)
     :param data: The data to downsample
     :param FS_NEW: The new frequency
-    :param switch: False = Do not downsample
+    :param t_col: Index of the time column
     :return: The downsampled data
     '''
-    if not switch:
-        return data
 
     FSAMP=int(round(1/(data[1,t_col]-data[0,t_col])))
     if FSAMP <= FS_NEW or FSAMP % FS_NEW != 0:

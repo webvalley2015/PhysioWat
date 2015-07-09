@@ -73,78 +73,62 @@
 
             <div class="col-md-5" style="margin-top: 40px; padding-left:20px">
 	<form action="#" name="preproc" method="post" enctype="multipart/form-data">
-	    <ul class="nav nav-tabs btn btn-md" id="setting_nav">
-                {% for k,v in forms.items %}
-                    {% if v %}
-                        <li role="presentation" class="active">
-                            <a href="#" onClick="manageScreen('{{ k }}')">{{ k }}</a>
-                	    <!-- moved the for-->
-                            <!--{% for kv,vv in v.items %}
-                                <div id="div_id_{{ k }}" class="tabcontents" style="display:block">
-                                    <br>
-                                    {% bootstrap_form vv %}
-                                    <br>
-                                    <br>
-                                </div>
+        {# Display menu	up #}
+        <ul class="nav nav-tabs btn btn-md">
+            {% for k,v in forms.items %}
+                {% if v %}
+                    <li role="presentation" class="active">
+                        <a href="#" onClick="manageScreen('{{ k }}')">{{ k }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        {% for k,v in forms.items %}
+            {% if v %}
+                    <div id="man-{{ k }}" class="mac" style="display:none">
+                    {# Display menu	down #}
+                        <ul class="nav nav-tabs">
+                            {% for kv,vv in v.items %}
+                                <li role="presentation" class="active">
+                                    <a href="#" onClick="manageScreenIn('{{ kv }}-{{ k }}')">{{ kv }}</a>
+                                </li>
                             {% endfor %}
-			</li>-->
-                            <div id="man-{{ k }}" class="mac" style="display:none">
-                            <ul class="nav nav-tabs" id="setting_nav">
-                                {% for kv,vv in v.items %}
-                                    <li><a href="#" onClick="manageScreenIn('{{ kv }}-{{ k }}')">{{ kv }}</a>
-                                        <div id="man-in-{{ kv }}-{{ k }}" class="mac-in tabcontents" style="display:none">
-                                        <br>
-                                        {% bootstrap_form vv %}
-                                        <br>
-                                        <br>
-                                        </div>
-                                    </li>
-                                {% endfor %}
-                            </ul>
+                        </ul>
+                        {% for kv,vv in v.items %}
+                            {# Display form	#}
+                            <div id="man-in-{{ kv }}-{{ k }}" class="mac-in tabcontents" style="display:none">
+                                {% bootstrap_form vv %}
                             </div>
-			            </li>
-                    {% endif %}
-                {% endfor %}
-	    </ul>
+                        {% endfor %}
+                    </div>
 
+            {% endif %}
+        {% endfor %}
 
-
-          
                     {% csrf_token %}
-                   
 
                     <div>
-                            {% buttons %}
-                                <br>
-                                <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
-                                <button type="reset" class="btn btn-danger">Reset</button>
-                                <button type="button" class="btn btn-active" onClick="show()">Show All</button>
-                                <button class="btn btn-primary">New Button</button>
-                            {% endbuttons %}
-
+                        {% buttons %}
+                            <br>
+                            <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
+                            <button type="reset" class="btn btn-danger">Reset</button>
+                            <button type="button" class="btn btn-active" onClick="show()">Show All</button>
+                            <button class="btn btn-primary">New Button</button>
+                        {% endbuttons %}
                     </div>
 
             </div>
 
-            </form>
+         {% if messages %}
+             {% include "includes/error_messages.html" %}
+         {% endif %}
+        </form>
 
          
 
 
         </div>
     </div>
-
-    {% if messages %}
-        <br>
-        <ul class="messages" style="margin: auto;
-    width: 60%;
-    border:3px solid #d20800;
-    padding: 10px;">
-        {% for message in messages %}
-            <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
 
     </div>
 

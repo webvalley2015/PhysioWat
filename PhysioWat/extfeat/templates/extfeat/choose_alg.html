@@ -19,6 +19,9 @@
      <button type="submit" id="select_submit" class="btn btn-success" href="ciao.html">Submit</button>
         <button type="reset" class="btn btn-danger">Reset</button>
     </form>
+    {% if messages %}
+        {% include "includes/error_messages.html" %}
+    {% endif %}
 </div>
 
 {% endblock %}
