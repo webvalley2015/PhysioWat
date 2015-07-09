@@ -175,6 +175,7 @@ def show_chart(request, id_num, alg_type=""):
             except Exception as e:
                 print "ERROR DOWNSAMPLING"
                 print e.message
+                messages.error(request, "Downsampling error in %s, proceeding without applying." % (mytype[count]))
 
             try:
                 if request.POST.get('{}-apply_smooth'.format(mytype[count]), '') == "on":
@@ -192,6 +193,7 @@ def show_chart(request, id_num, alg_type=""):
             except Exception as e:
                 print "ERROR SMOOTH GAUSSIAN"
                 print e.message
+                messages.error(request, "Gaussian smoothing error in %s, proceeding without applying." %(mytype[count]))
 
             try:
                 if request.POST.get('{}-apply_alg_filter'.format(mytype[count]), '') == "on":
@@ -209,6 +211,7 @@ def show_chart(request, id_num, alg_type=""):
             except Exception as e:
                 print "ERROR FILTER"
                 print e.message
+                messages.error(request, "Filtering error in %s, proceeding without applying." % (mytype[count]))
 
             print "START SPECIFIC PROCESSING"
 
@@ -227,6 +230,8 @@ def show_chart(request, id_num, alg_type=""):
                 except Exception as e:
                     print "ERROR SPIKES"
                     print e.message
+                    messages.error(request, "Removing spikes error in %s, proceeding without applying." % (mytype[count]))
+
             try:
                 if data_type == "4":
                     T1 = float(request.POST['{}-T1'.format(mytype[count])])
@@ -294,7 +299,7 @@ def show_chart(request, id_num, alg_type=""):
                 formGau = smoothGaussian(initial={'sigma': 2, 'apply_smooth': False}, prefix=mytype[count])
                 formFilt = filterAlg(
                     initial={'passFr': 2, 'stopFr': 6, 'LOSS': 0.1, 'ATTENUATION': 40, 'filterType': 'cheby2',
-                             'apply_filter': True}, prefix=mytype[count])
+                             'apply_alg_filter': True}, prefix=mytype[count])
                 formSpec = BVP_Form(initial={'delta': 1, 'minFr': 40, 'maxFr': 200}, prefix=mytype[count])
                 bvp_tmp = {'Downsampling': formDown, 'Gaussian': formGau, 'Filter': formFilt, 'Specfic': formSpec}
             if "2" in alg_type:

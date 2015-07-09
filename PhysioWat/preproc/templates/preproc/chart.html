@@ -2,31 +2,26 @@
 {% load static %}
 {% load highcharts_tags %}
 {% block app_specific_css %}
-    {% load bootstrap3 %}
+{% load bootstrap3 %}
 {% endblock %}
 
 {% block container %}
     <!--Creating the divs to dispay the name of the step-->
     <div class="form-cnt">
-
         <div width="100%" height="100%"
              style="border-radius:10px 10px 10px 10px; border: 2px solid #6699FF; padding:0%; postion:abolute; height:4em;"
              class="col-md-12">
-
             <!--step 1-->
-            <!--style="	border-top-left-radius:10px ; border-bottom-left-radius:10px ;background-color:#6699FF; color:white; border-right:2px solid #6699FF; height:100%;text-align: center; padding-top:3.8%"-->
             <div id="div_step_1" align="left" width="33%" class="col-md-4"
                  style="border-top-left-radius:10px ; border-bottom-left-radius:10px ;background-color:#F6F6F6; color:black; border-right:2px solid #6699FF; height:100%;text-align: center; padding-top:3.8%">
                 Step 1
             </div>
             <!--step 2-->
-            <!--style="border-right:2px solid #6699FF; height:100%; text-align: center; padding-top:3.8%" -->
             <div id="div_step_2" align="center" width="33%" class="col-md-4"
                  style="background-color:#F6F6F6; color:black; border-right:2px solid #6699FF; height:100%;text-align: center; padding-top:3.8%">
                 Step 2
             </div>
             <!--step 3-->
-            <!--style="	border-top-right-radius:10px ; border-bottom-right-radius:10px ;text-align: center;height:100%; padding-top:3.8%"-->
             <div id="div_step_3" align="right" width="33%" height="100%" class="col-md-4"
                  style="background-color:#6699FF; color:white;border-top-right-radius:10px ; border-bottom-right-radius:10px ;text-align: center;height:100%; padding-top:3.8%">
                 Step 3
@@ -34,75 +29,57 @@
         </div>
     </div>
     <!--end steps-->
-    <br>
+    <br />
     <div style="width:90%; margin:0 auto;">
         <div class="content row">
-            <br><br><br><br>
+            <br /><br /><br /><br />
 
+            {# Display graphs #}
             <div class="graphs col-md-7">
-                <div class="processed-signal row">
-                    <div id="processed-signal"></div>
-                    <!-- THIS IS ANOTHER DIV FOR ANOTHER GRAPH, IT DOES NOT CONTAIN ANITHING NOW -->
-                </div>
                 <hr>
                 <div class="temporary-processing row">
                     <div id="temporary-processing"></div>
-                    <!-- THIS IS THE DIV CONTAINIG THE GRAPH -->
+                    <!-- Raw data Graph -->
                 </div>
                 <div class="temporary-processing1 row">
                     <div id="temporary-processing1"></div>
-                    <!-- THIS IS THE DIV CONTAINIG THE GRAPH -->
+                    <!-- Elaborated data Graph -->
                 </div>
-               {% comment %} options list:
-		<div id="options" style="margin-left:2px">
-		    <form onsubmit="show_graph()" id="options_form">
-		        <fieldset>
-		                {% for i in opt_list %}
-		                    <input type="checkbox" name="{{ i }}" value="{{ i }}" id="{{ i }}"/> {{ i }}          
-		                {% endfor %}
-		           
-		            {% buttons %}
-		                <button type="submit" id="select_submit" class="btn btn-success">Update Graph</button>
-		            {% endbuttons %}
-		        </fieldset>
-		    </form>
-	         </div>{% endcomment %}
-             </div>
+            </div>
 
-
+            {# Display forms #}
             <div class="col-md-5" style="margin-top: 40px; padding-left:20px">
-	<form action="#" name="preproc" method="post" enctype="multipart/form-data">
-        {# Display menu	up #}
-        <ul class="nav nav-tabs btn btn-md">
-            {% for k,v in forms.items %}
-                {% if v %}
-                    <li role="presentation" class="active">
-                        <a href="#" onClick="manageScreen('{{ k }}')">{{ k }}</a>
-                    </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-        {% for k,v in forms.items %}
-            {% if v %}
-                    <div id="man-{{ k }}" class="mac" style="display:none">
-                    {# Display menu	down #}
-                        <ul class="nav nav-tabs">
-                            {% for kv,vv in v.items %}
+                <form action="#" name="preproc" method="post" enctype="multipart/form-data">
+                    {# Display menu	up #}
+                    <ul class="nav nav-tabs btn btn-md">
+                        {% for k,v in forms.items %}
+                            {% if v %}
                                 <li role="presentation" class="active">
-                                    <a href="#" onClick="manageScreenIn('{{ kv }}-{{ k }}')">{{ kv }}</a>
+                                    <a href="#" onClick="manageScreen('{{ k }}')">{{ k }}</a>
                                 </li>
-                            {% endfor %}
-                        </ul>
-                        {% for kv,vv in v.items %}
-                            {# Display form	#}
-                            <div id="man-in-{{ kv }}-{{ k }}" class="mac-in tabcontents" style="display:none">
-                                {% bootstrap_form vv %}
-                            </div>
+                            {% endif %}
                         {% endfor %}
-                    </div>
-
-            {% endif %}
-        {% endfor %}
+                    </ul>
+                    {% for k,v in forms.items %}
+                        {% if v %}
+                            <div id="man-{{ k }}" class="mac" style="display:none">
+                                {# Display menu	down #}
+                                <ul class="nav nav-tabs">
+                                    {% for kv,vv in v.items %}
+                                        <li role="presentation" class="active">
+                                            <a href="#" onClick="manageScreenIn('{{ kv }}-{{ k }}')">{{ kv }}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                                {% for kv,vv in v.items %}
+                                    {# Display form	#}
+                                    <div id="man-in-{{ kv }}-{{ k }}" class="mac-in tabcontents" style="display:none">
+                                        {% bootstrap_form vv %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
 
                     {% csrf_token %}
 
@@ -111,129 +88,59 @@
                             <br>
                             <button type="submit" id="select_submit" class="btn btn-success">Process Data</button>
                             <button type="reset" class="btn btn-danger">Reset</button>
-                            <button type="button" class="btn btn-active" onClick="show()">Show All</button>
-                            <button class="btn btn-primary">New Button</button>
                         {% endbuttons %}
                     </div>
-
+                </form>
             </div>
-        </form>
 
-         
-
-
+            {# Display next page button just if request is POST	#}
+            {% if elab == "proc" %}
+                <div class="col-md-5" style="margin-top: 40px; padding-left:20px">
+                    {% buttons %}
+                        <br>
+                        <button type="submit" id="next_step"
+                                onClick="window.location.href ='{% url 'extf_experiment_selector' %}';"
+                                class="btn btn-success">Extract Features
+                        </button>
+                    {% endbuttons %}
+                </div>
+            {% endif %}
         </div>
-    </div>
-
     </div>
 
 {% endblock %}
 
 {% block app_specific_js %}
 
-{% highcharts_js 1 1 0 0 %}
-{# highchart, ?, heatmap, 3d #}
-<script>
+    {% highcharts_js 1 1 0 0 %}
+    {# highchart, ?, heatmap, 3d #}
 
-    function manageScreen(tabName) {
-        $('.mac').not('#' + "man-" + tabName).hide();
-        document.getElementById("man-" + tabName).style.display = "block";
-    }
+    <script>
 
-    function manageScreenIn(tabName) {
-        $('.mac-in').not('#' + "man-in-" + tabName).hide();
-        document.getElementById("man-in-" + tabName).style.display = "block";
-    }
-
-     {% comment %}   "use strict";
-        var formlist = [];
-
-        $(document).ready(function () {
-            var i = 0;
-            {% for k,v in forms.items %}
-                formlist.push("{{ k }}");
-            {% endfor %}
-
-//DEFINE WHAT HAPPENS ON CLICK EVENT
-            for (var i = 0; i < formlist.length; i++) {
-                var nav_id = "#nav_id_" + formlist[i];  //THIS IS THE ID OF THE BUTTON OF THE NAV
-                var div_id = "#div_id_" + formlist[i]; //THIS IS THE ID OF THE HIDDEN DIV WHERE THE FORM IS RENDERED
-
-                var eventData = {'divid': div_id};
-
-                $(nav_id).attr("target", div_id);
-
-                $(nav_id).click(function (e) {
-                    e.preventDefault();
-
-                    hide();
-
-                    $(this.getAttribute("target")).show();
-                });
-            }
-        });
-
-        function hide() {
-            for (var i = 0; i < formlist.length; i++) {
-                var $target = $("#div_id_" + formlist[i]);
-                $target.hide();
-            }
+        {# Form JS display/hide up menu #}
+        function manageScreen(tabName) {
+            $('.mac').not('#' + "man-" + tabName).hide();
+            document.getElementById("man-" + tabName).style.display = "block";
         }
 
-        function show() {
-            for (var i = 0; i < formlist.length; i++) {
-                var $target = $("#div_id_" + formlist[i]);
-                $target.show();
-            }
+        {# Form JS display/hide down menu #}
+        function manageScreenIn(tabName) {
+            $('.mac-in').not('#' + "man-in-" + tabName).hide();
+            document.getElementById("man-in-" + tabName).style.display = "block";
         }
 
-        hide();{% endcomment %}
-
-        //var global_data = NaN;
-
+        {# Get Raw data JSON #}
         $.getJSON("{% url 'chart_getdata' id_num "raw" %}", function (data) {
-            //var global_data = data;
             $('#temporary-processing').highcharts('StockChart', data);
-            //show_graph();
         });
 
+        {# Get Elaborated data JSON just if request = POST #}
         {% if elab == "proc" %}
             $.getJSON("{% url 'chart_getdata' id_num elab %}", function (data) {
-            //var global_data = data;
-            $('#temporary-processing1').highcharts('StockChart', data);
-            //show_graph();
-        });
+                $('#temporary-processing1').highcharts('StockChart', data);
+            });
         {% endif %}
 
-
-        {% comment %}function show_graph() {
-            var allVals = [];
-            $('#options :input:checked').each(function (i, elem) {
-                allVals.push(elem.value);
-            });
-            var dataTmp = {};
-            var tmp, tmp2;
-            for (tmp in global_data) {
-                if (tmp != "series") {
-                    dataTmp = $.extend(dataTmp, {tmp: global_data[tmp]});
-                } else {
-                    dataTmp["series"] = [];
-                    for (tmp2 in global_data["series"]) {
-                        if ($.inArray(global_data["series"][tmp2].name, allVals) != -1) {
-                            dataTmp["series"].push(
-                                    {"name": global_data["series"][tmp2].name, "data": global_data["series"][tmp2].data}
-                            );
-                        }
-                    }
-                }
-            }
-            $('#temporary-processing').highcharts('StockChart', global_data);
-        }
-
-        //prevent page from reload on submit
-        $('#options_form').on('submit', function (e) {
-            e.preventDefault();
-        });{% endcomment %}
     </script>
 
 {% endblock app_specific_js %}
