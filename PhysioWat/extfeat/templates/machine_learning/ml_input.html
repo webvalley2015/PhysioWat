@@ -4,74 +4,71 @@
 {% block app_specific_css %}
 {% load bootstrap3 %}
 {% endblock %}
-
 {% block container %}
 
 
-<!--Creating the divs to dispay the name of the step-->
-<div style="border-radius:10px 10px 10px 10px; border: 2px solid #6699FF; padding:0%; height:4em;" class="col-md-12">
-
-<!--step 1-->
-	<div id="div_step_1" align="left" class="col-md-4">Step 1</div>
-<!--step 2-->
-	<div id="div_step_2" align="center" class="col-md-4">Step 2</div>
-<!--step 3-->
-	<div id="div_step_3" align="right" class="col-md-4">Step 3</div>
-</div>
-<br><br>
-<!--end steps-->
-
-
-<div id="total_container" style="position:absolute; top:80px; left:20px;">
-    <form action="#" method="post" enctype="multipart/form-data" name="selection" id="selection">
+<div id="container" style="margin-top: 3%;">
+    <form action="#" class="form-cnt" method="post" enctype="multipart/form-data" name="selection" id="selection">
+        <center>
+        <button type="submit" class="btn btn-success" id="button_submit" style="display:none">Submit</button>
+        <input type="button" class="btn btn-primary" id ="button_reset" value="reset"></input>
+        <input type="button" class="btn btn-primary" id="proceed" value="proceed"></input>
+        </center>
+        <br><br>
+        <!-- ul class="pager">
+            <li class="previous">
+                <a href="#">&larr; Previous</a>
+            </li>
+            <li class="next">
+                <a href="#">Next &rarr;</a>
+            </li>
+        </ul -->
         {% csrf_token %}
-<div id="view_stuff"><!--div view -->
-        {{  viewf }}
-</div>
-<br><br>
-        {{ formListId }}   <!-- finestra con gli id-->
 
+        {{  viewf }}
+<br><br>
+        {{ formListId }}
      <div id="mlParSet_1" style="display:none;" class="div_choose">
          <br><br>
          <h5> Select whether you want to choose how many features you want to consider, or if you want an automatic
              response</h5> <br> in the first case, write the number <br><br>
 
-         {{ FPar }}  <!-- FEATCHOOSE /DISPLEAYATO SOLO SE SELECT FEATURES DI VIEWF E' PRESO -->
+         {{ FPar }}
      </div>
 
 
         <br><br>
       <div id="mlParSet_2" class ="div_choose" style="display:none;">
+          <hr>
          <h5>Select the percentage of the data used as a test and the number of iterations</h5>
 
-          {{ TPar }} <!-- test percentage e number of iterations -->
+          {{ TPar }}
 
 
       </div>
         <br><br>
         <div id="mlParSet_3" class="div_choose" style="display:none;">
+            <hr>
             <h5>Choose your algorithm</h5>
-            {{ AlgChoose }} <!-- ALG CHOICHE -->
+            {{ AlgChoose }}
         </div>
         <br><br>
 
         <div id="mlParSet_4" class="div_choose" style="display:none;">        <!-- div with autofit, default or personalized -->
-             <h5>Choose whether you have to set the parameters or not</h5>
-            {{ AlgParamChoose }} <!-- DEFAULT PARAM, ATIUMATICALLY, DEFINE....
-DUOLAYATO SE IL FORM PRIMA NON E' TRUY EVERY ALGORITHM -->
+            <hr>
+            <h5>Choose whether you have to set the parameters or not</h5>
+            {{ AlgParamChoose }}
         </div>
         <br><br>
 
-           <div id="mlPersPar">   <!-- CONTIENE I PARAMETRI PERSONALIZZATI PER OGNI ALGORITMO. VIENE DIPSLAYATO SE E SOLO SE SOPRA C'È IL DEFINE  -->
-
+           <div id="mlPersPar">   <!-- div with the personalized options for every algorithm -->
+            <hr>
         </div>
         <br><br>
         <div id="autoFitParamChoose" style="display:none;">       <!-- div with the metrics -->
-            {{ autoParam }}  <!-- CONTIENE I PARAMETRI AUTOMATICI DELL' ALG. VIENE DISPALYATO SE SOPRA C'È L' AUTOMATICO --> 
+            <hr>
+            {{ autoParam }}
         </div>
-       <button type="submit" class="btn btn-success" id="button_submit" style="display:none">Submit</button>
-         <input type="button" id ="button_reset" value="reset"></input>
-        <input type="button" id="proceed" value="proceed"></input>
 
 
     </form>
@@ -205,13 +202,6 @@ DUOLAYATO SE IL FORM PRIMA NON E' TRUY EVERY ALGORITHM -->
             });
   $('{{ v }}').appendTo('#mlPersPar');
         */
-
-
-
-
-
-
-
 
     </script>
 {% endblock app_specific_js %}
