@@ -129,7 +129,7 @@ LOGIN_REDIRECT_URL = '/'
 
 #where to store uploaded csv before deleting them all
 
-# try:
-#     from local_settings import *
-# except ImportError:
-#     print "local not loaded"
+try:
+    from local_settings import *
+except ImportError:
+    print "local not loaded"
