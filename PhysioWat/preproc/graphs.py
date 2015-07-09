@@ -86,7 +86,7 @@ class heatmap(HighChartsHeatMapView):
             for j in range(len(matrix[i])):
                 seriesTemp.append([i, j, matrix[i][j]])
 
-        print seriesTemp
+        #print seriesTemp
         self.title = "Results - (i have to find a title)"
         self.xaxis = {'categories':range(n_labels)}
         self.yaxis = {'categories':range(n_labels)}
