@@ -38,8 +38,11 @@
     <br>
     <div style="width:90%; margin:0 auto;">
         <div class="content row">
-            <br><br><br><br>
 
+            <br><br><br><br>
+            {% if messages %}
+                {% include "includes/error_messages.html" %}
+            {% endif %}
             <div class="graphs col-md-7">
                 <div class="processed-signal row">
                     <div id="processed-signal"></div>
@@ -119,9 +122,6 @@
 
             </div>
 
-         {% if messages %}
-             {% include "includes/error_messages.html" %}
-         {% endif %}
         </form>
 
          

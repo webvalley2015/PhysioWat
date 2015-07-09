@@ -166,9 +166,9 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
                 WritePathtoDB(fname, id_num, params)
             except Exception as e:
                 print "COULD NOT PROCESS "+id_num+": "+e.message
-                messages.error(request, "Error processing "+id_num+" ("+type_sig+"). Review your parameters!")
+                messages.error(request, "Error processing "+id_num+" ("+type_sig+"). Review your parameters! It will not be saved.")
 
-        return HttpResponseRedirect(reverse('index'))
+        return HttpResponseRedirect(reverse('ml_param_setting'))
 
     else:
         form = windowing()
