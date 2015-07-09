@@ -4,7 +4,7 @@ import numpy as np
 import tools
 import windowing as win
 
-filename="./data/claire_9labels.csv"
+filename="./data/claire_10labels.csv"
 
 columns_in=["TIME", "ACCX","ACCY","ACCZ", "GYRX","GYRY","GYRZ", "MAGX","MAGY","MAGZ", "LAB"]
 col_acc=["ACCX", "ACCY", "ACCZ"]
@@ -21,6 +21,9 @@ sensMagCoeff=0.007629
 sensfsamp=100
 
 data = tools.load_file(filename, sep=',', header=1)
+
+data=tools.downsampling(data, 50)
+
 t=tools.selectCol(data, columns_in, "TIME")
 acc=tools.selectCol(data, columns_in, col_acc)
 gyr=tools.selectCol(data, columns_in, col_gyr)
@@ -31,7 +34,7 @@ acc= inertial.convert_units(acc, coeff=sensAccCoeff)
 gyr= inertial.convert_units(gyr, coeff=sensGyrCoeff)
 mag= inertial.convert_units(mag, coeff=sensMagCoeff)
 
-tools.array_labels_to_csv(np.column_stack([t, acc]), np.array(columns_in), "./output/preproc_"+filename[7:-4]+".csv")
+# tools.array_labels_to_csv(np.column_stack([t, acc]), np.array(columns_in), "./output/preproc_"+filename[7:-4]+".csv")
 
 #-----EXTRACT FEATURES-----
 
@@ -43,6 +46,6 @@ feats=np.column_stack([feats_acc, feats_gyr, feats_mag, winlab])
 columns_out=np.r_[fcol_acc, fcol_gyr, fcol_mag, np.array(["LAB"])]
 # print feats.shape
 # print columns.shape, columns
-tools.array_labels_to_csv(feats, columns_out, "./output/feat_"+filename[7:-4]+".csv")
+tools.array_labels_to_csv(feats, columns_out, "./output2/feat_"+filename[7:-4]+".csv")
 # # feats.to_csv("./output/feat_6.csv")
 
