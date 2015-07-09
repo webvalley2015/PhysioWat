@@ -45,6 +45,7 @@ class linegraph2(HighChartsMultiAxesView):
                 data.append(Preprocessed_Data.objects.filter(pp_recording_id=i[0]).order_by('id'))
             self.title = 'Preprocessed Data'
 
+        print "DEBUG data", data
         print "DEBUG data", data, len(data), type(data)
 
         self.yaxis = {'title': {'text': ''}}
