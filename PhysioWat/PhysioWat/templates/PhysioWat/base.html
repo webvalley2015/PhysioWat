@@ -95,6 +95,15 @@
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-offset-2 col-md-10 main"> -->
 <div id="egg"></div>
+
+{% if messages %}
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        {% include "includes/error_messages.html" %}
+    </div>
+</div>
+{% endif %}
+
 {% block container %} {% endblock %}
 
 {% comment %}

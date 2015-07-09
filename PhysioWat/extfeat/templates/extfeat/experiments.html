@@ -1,8 +1,7 @@
 {% extends 'PhysioWat/base.html' %}
 {% block container %}
-
-<br><br><br><br><br>
-  <h1>Feature Extraction - Select Experiment to Perform Feature Extraction</h1>
+<br><br><br><br>
+  <h1>Perform Feature Extraction</h1>
 
 <!--Creating the divs to dispay the name of the step-->
 <div class="form-cnt">
@@ -44,10 +43,7 @@
             <br>
             <input type="submit" value="Select">
         </div>
-    {% if messages %}
-        {% include "includes/error_messages.html" %}
-    {% endif %}
-
+    
     </form>
 
     

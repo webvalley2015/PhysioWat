@@ -166,9 +166,9 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
                 WritePathtoDB(fname, id_num, params)
             except Exception as e:
                 print "COULD NOT PROCESS "+id_num+": "+e.message
-                messages.error(request, "Error processing "+id_num+" ("+type_sig+"). Review your parameters!")
+                messages.error(request, "Error processing "+id_num+" ("+type_sig+"). Review your parameters! It will not be saved.")
 
-        return HttpResponseRedirect(reverse('index'))
+        return HttpResponseRedirect(reverse('ml_param_setting'))
 
     else:
         form = windowing()
@@ -208,11 +208,11 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         #print mydict
 
         #print '-' * 60
-        localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
-        input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
+        #localdir = 'PhysioWat/preproc/scripts/processing_scripts/output/'
+        #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
         exprecid = mydict['choose_id']
         #exprecid = [18]
-        #input_data = pddbload.load_file_pd_db(exprecid[0])
+        input_data = pddbload.load_file_pd_db(exprecid[0])
         num_feat = -1  # set to -1 because of
 
         percentage = mydict['test_percentage'][0]

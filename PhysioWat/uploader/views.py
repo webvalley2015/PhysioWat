@@ -6,7 +6,8 @@ import csvtodb
 from PhysioWat.models import Experiment
 from django.contrib import messages
 from django.views.decorators.csrf import requires_csrf_token, csrf_exempt
-
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 
 #View to Upload a CSV File
 def upload(request):
@@ -43,7 +44,13 @@ def getExperiments():
 @csrf_exempt
 def get_data_from_mobile(request):
     if request.method == 'POST':
-        data = request.POST
+        data = request.POST['file']
     else:
         data = []
     return HttpResponse(data)
+
+
+def list_experiment_id(request):
+    myexp = Experiment.objects.all().values_list('id', 'name')
+    myret_json = json.dumps({"tot":len(myexp), "experiments": [{i[0]:i[1]} for i in myexp]})
+    return HttpResponse(myret_json, content_type="application/json")
