@@ -778,7 +778,7 @@ if __name__ == '__main__':
     
     clf, metric = bestAlg(train_data, 'ACC')
     dic_metric, conf_mat = test_learning(clf, test_data)
-
+    
     train_data, test_data, my_met, listoflistsofbest = bestfeatn(train_data, test_data)
     feat_boxplot(norm_data[listoflistsofbest[5]])
     #train_data, test_data, listofbest = getfeatnumber( train_data, test_data, 10)
@@ -792,5 +792,5 @@ if __name__ == '__main__':
     #search the best alg with the best classifier
 
     
-    #print dic_metric
-    #print conf_mat
+    print dic_metric
+    print conf_mat
