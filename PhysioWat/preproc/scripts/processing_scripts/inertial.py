@@ -23,7 +23,12 @@ def power_fmax(spec,freq,fmin,fmax):
     psd_band=spec[np.where((freq > fmin) & (freq<=fmax))]
     freq_band=freq[np.where((freq > fmin) & (freq<=fmax))]
     powerinband = np.sum(psd_band)/len(psd_band)
-    fmax=freq_band[np.argmax(psd_band)]
+    try:
+        fmax=freq_band[np.argmax(psd_band)]
+    except ValueError as e:
+        print "FFT fmax: ", e.message
+        fmax=0
+        pass
     return powerinband, fmax
 
 def extract_features_acc(data_acc, t, col_acc, windows):

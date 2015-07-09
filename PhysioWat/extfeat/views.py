@@ -70,8 +70,11 @@ def QueryDb(recordingID):   #JUST COPY, PASTE AND CHANGED RECORDS
 
     return retarray, mykeys
 
-def WritePathtoDB(fname, pp_rec_id):
-    FeatExtractedData(pp_recording_id=pp_rec_id, path_to_file=fname).save()
+def WritePathtoDB(fname, pp_rec_id, parameters=None):
+    print "ID ", pp_rec_id
+    print "FNAME ", fname
+    print "PAR ", parameters
+    FeatExtractedData(pp_recording_id=pp_rec_id, path_to_file=fname, parameters=parameters).save()
 
 def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
 
@@ -96,7 +99,7 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
 
             if (mydict['type'][0] == 'full_label'):
                 windows, winlab = wd.get_windows_full_label(time, labs)
-            params.update({"windowing":{"type":mydict["type"][0], "length":mydict["length"][0], "step":mydict["step"][0]}})
+            params.update({"windowing.type":str(mydict["type"][0]), "windowing.length":str(mydict["length"][0]), "windowing.step":str(mydict["step"][0])})
             # extract features from result
             # store feats. in the db
             type_sig=get_signal_type(cols)
@@ -156,10 +159,10 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
                 data_out=np.column_stack((data_out, winlab))
                 columns_out=np.r_[columns_out, ["LAB"]]
 
-            st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y-%m-%d_%H:%M:%S')
-            fname=MEDIA_ROOT+id_num+"_"+st+".csv"
+            st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y%m%d_%H%M%S')
+            fname=MEDIA_ROOT+type_sig+"_"+id_num+"_"+st+".csv"
             toCsv(data_out, columns_out, fname)
-            WritePathtoDB(fname, id_num)
+            WritePathtoDB(fname, id_num, params)
 
         return HttpResponseRedirect(reverse('index'))
 
