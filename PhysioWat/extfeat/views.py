@@ -189,12 +189,6 @@ def ml_input(request):  # obviously, it has to be added id record and everything
  [0.7656376483351357, 0.011118993319648052],
  [0.3030715521728802, 0.3478716425630006]]
 
-        h = heatmap()
-        data = h.get_data(mat)
-        #print json.dumps(data)
-        context = {'datac': json.dumps(data)}
-        return render(request, template, context)
-
 
         #print "culoculoculoculo"  # GET THE POST, ELABORATE AND GO TO THE DB OR THE PLOT
         #print request.POST
@@ -207,25 +201,25 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         #print mydict
 
         #print '-' * 60
-        #localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
-        #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
+        localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
+        input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
         exprecid = mydict['choose_id']
-        input_data = pddbload.load_file_pd_db(exprecid[0])
+        #exprecid = [18]
+        #input_data = pddbload.load_file_pd_db(exprecid[0])
         num_feat = -1  # set to -1 because of
 
         percentage = mydict['test_percentage'][0]
         percentage = float(percentage) / 100.0
         list_of_feat = list(input_data.columns)
-        num_iteration = mydict['number_of_iterations']
-
+        num_iteration = mydict['number_of_iterations'][0]
+        ft.iterations = int(num_iteration)
         algorithm = mydict['alg_choice'][0]
-        print algorithm
         flag = True
         if 'viewf' in mydict:
             if 'norm' in mydict['viewf']:
                 input_data = ft.normalize(input_data)
                 #print input_data
-            train_data, test_data = ft.split(input_data)#, percentage)
+            train_data, test_data = ft.split(input_data, percentage)
             flag = False
             if 'sel' in mydict['viewf']:
                 # print "i have selected the first stuff!"
@@ -238,7 +232,7 @@ def ml_input(request):  # obviously, it has to be added id record and everything
                 if ('k_auto' in mydict['FeatChoose']):
                     train_data, test_data, best_feat_n_mat, list_of_feat = ft.bestfeatn(train_data, test_data)
         if(flag == True):
-            train_data, test_data = ft.split(input_data)#, percentage)
+            train_data, test_data = ft.split(input_data, percentage)
         print "dopo il case del viewf"
 
         if (algorithm == 'ALL') and ('auto' not in mydict['parameter_choiche']):
@@ -278,12 +272,16 @@ def ml_input(request):  # obviously, it has to be added id record and everything
             #print  metrics
             clf, result_mat = ft.bestAlg(train_data, metrics)
 
-        y_true = test_data.LAB
-        te_data = test_data[test_data.columns[:-1]]
-        y_pred = ft.my_predict(clf, te_data, y_true )
-        dic_metric, conf_mat = ft.get_report(y_true, y_pred)
+        dic_metric, conf_mat = ft.test_learning(clf, test_data)
 
         print dic_metric, conf_mat
+
+        h = heatmap()
+        data = h.get_data(conf_mat)
+        context = {'datac': json.dumps(data)}
+        # TODO check the 'matrix for'
+        return render(request, template, context)
+
 
         #CALL OTHER FUNCTIONS / GET OTHER DATAS/
         #final_ml_page(request, result_dict=dic_metric, conf_mat=conf_mat)
