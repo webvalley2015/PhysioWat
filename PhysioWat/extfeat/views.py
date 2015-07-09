@@ -245,28 +245,23 @@ def ml_input(request):  # obviously, it has to be added id record and everything
                     train_data, test_data, best_feat_n_mat, list_of_feat = ft.bestfeatn(train_data, test_data)
                     flag_has_selected_auto_feat = True
 
-        print "dopo il case del viewf"
-
         if(flag == True):
             train_data, test_data = ft.split(input_data, percentage)
             flag = False
 
-        if (algorithm == 'ALL') and ('auto' not in mydict['parameter_choiche']):
+        if (algorithm == 'ALL') and ('auto' not in mydict['parameter_choice']):
             return render(request, "machine_learning/form_error.html")
 
-        if 'def' in mydict['parameter_choiche']:
+        if 'def' in mydict['parameter_choice']:
             clf, score, error = ft.quick_crossvalidate(train_data, alg=algorithm)
 
-
-
-        if 'pers' in mydict['parameter_choiche']:
+        if 'pers' in mydict['parameter_choice']:
             if (algorithm == 'KNN'):
                 k_neighbour = mydict['k_neighbour'][0]
                 print(k_neighbour)
                 clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, k_neighbour)
             if (algorithm == 'DCT'):
                 max_features = mydict['max_features'][0]
-                #print(type(max_features)) #IT'S A STRING!!!!
                 clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, max_features)
             if (algorithm == 'SVM'):
                 kernel = mydict['kernel']
@@ -284,7 +279,7 @@ def ml_input(request):  # obviously, it has to be added id record and everything
                 solver = mydict['solver']
                 clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, solver)
 
-        if 'auto' in mydict['parameter_choiche']:
+        if 'auto' in mydict['parameter_choice']:
             metrics = mydict['maximize'][0]
             #print  metrics
             if(algorithm=='ALL'):

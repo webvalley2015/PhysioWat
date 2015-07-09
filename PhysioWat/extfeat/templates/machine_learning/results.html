@@ -17,7 +17,7 @@
  </div>
 
 {% for k,v in dic_result.items %}
-   The {{ k }} is {{ v| }}
+<i>   The {{ k }} is {{ v|floatformat:3 }}  <br>  </i>
 {% endfor %}
 
 <div class="processed-signal row">
@@ -46,7 +46,7 @@
 
 {% block app_specific_js %}
 
-{% highcharts_js 1 1 1 1 %}
+{% highcharts_js 1 1 0 1 %}
 <script>
     var data_conf = {{ conf_mat|safe }} ;
    // var feat_list = "{{ auto_list_of_feats|safe }}";

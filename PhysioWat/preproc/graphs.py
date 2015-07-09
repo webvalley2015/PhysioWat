@@ -95,6 +95,13 @@ class linegraph3(HighChartsMultiAxesView):
         data = super(linegraph3, self).get_data()
         return data
 
+def somma(matrix):
+    total = 0
+    for i in range(len(matrix)):
+            for j in range(len(matrix[i])):
+                total += matrix[i][j]
+
+    return total
 
 class heatmap(HighChartsHeatMapView):
     legend = {'enabled': True, 'layout': 'vertical', 'align': 'right',
@@ -104,14 +111,18 @@ class heatmap(HighChartsHeatMapView):
         seriesTemp=[]
         # the confusion matrix is returned as a list of list of dimension n*n, where n is the number of labels
         # reformatting confusion matrix
+
+
         n_labels = len(matrix[0])
         for i in range(len(matrix)):
             for j in range(len(matrix[i])):
-                seriesTemp.append([j, len(matrix)-i-1, matrix[i][j]])
+                value =  float(matrix[i][j]) / somma(matrix) * 100.0
+                value = float("%.2f" % value)
+                seriesTemp.append([j, len(matrix)-i-1, value] )
 
         #print seriesTemp
         self.title = "Results - confusion matrix"
-        #self.subtitle = ""
+        self.subtitle = "the value in the cells is the percentage of combinations predicted label - real label"
         self.xaxis = {'categories':range(n_labels)}
         self.yaxis = {'categories':range(n_labels)}
         seriesTemp = {'name' : 'conf-mat', 'data': seriesTemp,  'dataLabels': {'enabled': True, 'color': '#000000'} }
