@@ -167,7 +167,7 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
             except Exception as e:
                 print "COULD NOT PROCESS "+id_num+": "+e.message
                 messages.error(request, "Error processing "+id_num+" ("+type_sig+"). Review your parameters!")
-                pass
+
         return HttpResponseRedirect(reverse('index'))
 
     else:
