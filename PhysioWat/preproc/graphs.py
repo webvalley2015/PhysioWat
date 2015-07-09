@@ -1,7 +1,7 @@
 from highcharts.views import *  # SEE WHICH GRAPHS TO IMPORT
 from jsongen import getavaliabledatavals, makejson
 import json
-from PhysioWat.models import SensorRawData, Preprocessed_Data
+from PhysioWat.models import SensorRawData, Preprocessed_Data, Preprocessed_Recording
 from operator import itemgetter
 
 
@@ -38,6 +38,7 @@ class linegraph2(HighChartsMultiAxesView):
             data = SensorRawData.objects.filter(recording_id=urlTmp['id_num']).order_by('id')
             self.title = 'Raw Data'
         elif urlTmp['elab'] == "proc":
+            print urlTmp['id_num']
             data = Preprocessed_Data.objects.filter(pp_recording_id=urlTmp['id_num']).order_by('id')
             self.title = 'Preprocessed Data'
 

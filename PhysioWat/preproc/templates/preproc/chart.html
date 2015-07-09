@@ -41,6 +41,7 @@
                     <div id="temporary-processing"></div>
                     <!-- Raw data Graph -->
                 </div>
+                <hr>
                 <div class="temporary-processing1 row">
                     <div id="temporary-processing1"></div>
                     <!-- Elaborated data Graph -->
@@ -136,7 +137,7 @@
 
         {# Get Elaborated data JSON just if request = POST #}
         {% if elab == "proc" %}
-            $.getJSON("{% url 'chart_getdata' id_num elab %}", function (data) {
+            $.getJSON("{% url 'chart_getdata' pr_id elab %}", function (data) {
                 $('#temporary-processing1').highcharts('StockChart', data);
             });
         {% endif %}

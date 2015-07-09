@@ -65,7 +65,7 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_fu
     for row in csvreader:
         Preprocessed_Data(pp_recording_id=pr.id, store=dict(zip(dictky, row))).save()
 
-    return new_batch_id
+    return new_batch_id, pr.id
 
 
 def show_chart(request, id_num, alg_type=""):
@@ -273,7 +273,7 @@ def show_chart(request, id_num, alg_type=""):
 
                 print "FINISHED SPECIFIC PROCESSING"
                 print "id_num", id_num
-                ret_bid = putPreprocArrayintodb(id_num, pre_data, columns_out, funcs_par.keys(), funcs_par.values(),
+                ret_bid, pr_id = putPreprocArrayintodb(id_num, pre_data, columns_out, funcs_par.keys(), funcs_par.values(),
                                                 mytype[int(data_type) - 1], ret_bid)
                 print "FINISHED PUTTING IN DB"
 
@@ -281,7 +281,8 @@ def show_chart(request, id_num, alg_type=""):
                 print "CANNOT PREPROCESS!!!", e.message
                 messages.error(request, 'Cannot process ' + mytype[count] + '! Review your parameters.')
 
-            context = {'id_num': id_num, 'elab': 'proc'}
+            print "pr_id", pr_id
+            context = {'id_num': id_num, 'elab': 'proc', 'pr_id': pr_id}
         return render(request, template, context)
 
     else:
