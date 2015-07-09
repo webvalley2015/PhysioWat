@@ -105,15 +105,16 @@ class heatmap(HighChartsHeatMapView):
         n_labels = len(matrix[0])
         for i in range(len(matrix)):
             for j in range(len(matrix[i])):
-                seriesTemp.append([i, j, matrix[i][j]])
+                seriesTemp.append([j, len(matrix)-i-1, matrix[i][j]])
 
         #print seriesTemp
-        self.title = "Results - (i have to find a title)"
+        self.title = "Results "
         self.xaxis = {'categories':range(n_labels)}
         self.yaxis = {'categories':range(n_labels)}
-        seriesTemp = {'name' : 'RESULT- CONFUSION MATRISCH', 'data': seriesTemp}
+        seriesTemp = {'name' : 'conf-mat', 'data': seriesTemp,  'dataLabels': {'enabled': True, 'color': '#000000'} }
         self.series = [seriesTemp]
-        self.coloraxis = {'minColor': '#3425E2',
-                          'maxColor': '#53CA00',}
+        self.coloraxis = {'minColor': '#FFFFFF',
+                          'maxColor': '#00A0FF',}
+
         data = super(heatmap, self).get_data()
         return data

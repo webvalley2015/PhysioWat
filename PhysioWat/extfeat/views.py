@@ -196,11 +196,11 @@ def ml_input(request):  # obviously, it has to be added id record and everything
 
 
 
-        #localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
-        #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
+        localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
+        input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
 
-        exprecid = mydict['choose_id']
-        input_data = pddbload.load_file_pd_db(exprecid[0])
+        #exprecid = mydict['choose_id']
+        #input_data = pddbload.load_file_pd_db(exprecid[0])
 
         percentage = mydict['test_percentage'][0]
         percentage = float(percentage) / 100.0
@@ -278,28 +278,36 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         if 'auto' in mydict['parameter_choiche']:
             metrics = mydict['maximize'][0]
             #print  metrics
-            clf, auto_alg_result_mat = ft.bestAlg(train_data, metrics)
+            if(algorithm=='ALL'):
+                clf, auto_alg_result_mat  =ft.bestAlg(train_data, metrics)
+            else:
+                clf, loc_metric, loc_error, loc_mat  = ft.bestfit(train_data,algorithm, metrics)
 
         dic_metric, conf_mat = ft.test_learning(clf, test_data)
 
         #print dic_metric, conf_mat
-        best_feat_n_mat[:,1] *= 100.0
-        best_feat_n_mat = best_feat_n_mat.tolist()
-        print type(best_feat_n_mat), best_feat_n_mat
+        #print  best_feat_n_mat
+        #best_feat_n_mat[:, 1] *= 100.0
+        #best_feat_n_mat = best_feat_n_mat.tolist() #LIST: CONTAINS THE PRECISION IN FUNCTIONM OF THE NUMBER OF FEATURES
+
+        #print "BEST FEAT NUMBER: PRECISION IN FUNFCION OF THE UMBER", type(best_feat_n_mat), best_feat_n_mat
+        #print "CONFUSION MATRIX" ,conf_mat
+        #print "DICTIONARY OF THE METRICS", dic_metric
+
         h = heatmap()
+        print(conf_mat)
+        conf_mat = conf_mat.tolist() #!!!important
         conf_data = h.get_data(conf_mat)
         conf_data= json.dumps(conf_data)
         # TODO check the 'matrix for'
-
-
         template = "machine_learning/results.html"
         context = {'conf_mat': conf_data, 'dic_result':dic_metric,  # essential part, the last one (conf.matrix)
 
-                   'auto_list_of_feats': list_of_feat,     #second part, with the list of features and the function score vs nfeat
+                   #'auto_list_of_feats': list_of_feat,     #second part, with the list of features and the function score vs nfeat
 
-                   'best_feats': best_feat_n_mat,
+                   #'best_feat_n': best_feat_n_mat,
 
-                    'auto_alg_result_mat':auto_alg_result_mat, #boxplot with the algorithms cosres
+                    #'auto_alg_result_mat':auto_alg_result_mat, #boxplot with the algorithms cosres
                    }
         return render(request, template, context)
 

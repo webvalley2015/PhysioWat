@@ -21,11 +21,11 @@
         HI, YOU HAVE CHOOSEN THAT YOU MAY HAVE THE AUTO FEAT. NUMBER
         GRAPH AND TABLE
     </div>   -->
-    <div id="best-feat-list" style="display:none;">
-        HI, YOU HAVE CHOOSEN THAT YOU MAY HAVE THE AUTO FEAt number TABLE
+    <div id="best-feat-list" style="display:none; left:30px;">
+       <h4>You have choosen the automatic search of the optimal number of features. THere are the results</h4>
         <br>
-        {% for i in best_feats %}
-          With {{ i.0|floatformat:0 }} features I can obtain {{ i.1|floatformat:2 }} % of precision <br>
+        {% for i in best_feat_n %}
+          With {{ i.0|floatformat:0 }} features I can obtain {{ i.1|floatformat:2 }} % of accuracy <br>
         {% endfor %}
     </div>
 
@@ -36,7 +36,7 @@
 
 </div>
 
-{{ datac }}
+{{ conf_mat }}
 
 
 {{ auto_alg_results }}
@@ -44,32 +44,32 @@
 
 {% block app_specific_js %}
 
-{% highcharts_js 1 1 0 0 %}
+{% highcharts_js 1 1 1 1 %}
 <script>
-//    var data_conf = {{ datac|safe }} ;
-  //  var feat_list = "{{ auto_list_of_feats|safe }}";
-    //var best_feats = {{ best_feats }};
-    var auto_alg_results = {{ auto_alg_results|safe }}
+    var data_conf = {{ conf_mat|safe }} ;
+   // var feat_list = "{{ auto_list_of_feats|safe }}";
+   // var best_feat_n = {{ best_feat_n }};
+   // var auto_alg_results = {{ auto_alg_results|safe }}
 
     $('document').ready(function() {
-    console.log("ciao, sono nel document ready");
-//    console.log(feat_list);
-  //  console.log(best_feats);
+  //  console.log("ciao, sono nel document ready");
+  //  console.log(feat_list);
+  //  console.log(best_feat_n);
 
-   {# {% if best_feats %} #}
-        $('#best-feat-list').show();
-        $('#graph-featscores').show();
-  {#  {% endif %} #}
-
-
-        //$('#graph-auto-alg-result').show();
-        console.log(auto_alg_results);
-        $('#graph-auto_alg_result').highcharts(auto_alg_results)
+ {#   {% if best_feat_n %} #}
+  {#      $('#best-feat-list').show(); #}
+   {#     $('#graph-featscores').show(); #}
+   {# {% endif %} #}
 
 
+  //      $('#graph-auto-alg-result').show();
+    //    console.log(auto_alg_results);
+      //  $('#graph-auto_alg_result').highcharts(auto_alg_results)
 
-    //$('#graph-heatmap').highcharts(data_conf);
-    //console.log("i didnt blocked");
+
+    console.log(data_conf);
+    $('#graph-heatmap').highcharts(data_conf);
+    console.log("i didnt blocked");
     });
 
 
