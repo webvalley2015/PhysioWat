@@ -33,7 +33,7 @@
     <form action="{% url 'alg_choose' id_record %}" method="post" enctype="multipart/form-data" name="selection">
      {% csrf_token %}
 
-        {% bootstrap_form form_signal %}
+{#        {% bootstrap_form form_signal %}#}
 
         {% bootstrap_form form %}
 
@@ -42,7 +42,7 @@
         <button type="reset" class="btn btn-danger">Reset</button>
     </form>
 {% if success %}
-    <a href="{% url 'ml_param_setting' %}"><div style="margin-top:25px" class="alert alert-success" role="alert">Features successfully extracted! Click here to go to machine leargning page.</div></a>
+    <a href="{% url 'ml_param_setting' id_record %}"><div style="margin-top:25px" class="alert alert-success" role="alert">Features successfully extracted! Click here to go to machine leargning page.</div></a>
 {% endif %}
 </div>
 
