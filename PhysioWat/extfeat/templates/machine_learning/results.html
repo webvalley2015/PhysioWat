@@ -29,8 +29,7 @@
 
 </div>
 <div class="processed-signal row">
-    <div id="graph-auto-alg-result" style="display:none;">
-       2, you have choosen the auto algorithm. here should have a boxtplot
+    <div id="graph-auto_alg_result" > <!-- style="display:none;" -->
     </div>
 
 </div>
@@ -38,35 +37,37 @@
 {{ datac }}
 
 
-{{ best_feats }}
+{{ auto_alg_results }}
 {% endblock %}
 
 {% block app_specific_js %}
 
-{% highcharts_js 1 1 1 1 %}
+{% highcharts_js 1 1 0 0 %}
 <script>
-    var data = "{{ datac|safe }}" ;
-    var feat_list = "{{ auto_list_of_feats|safe }}";
-    var best_feats = {{ best_feats }};
-    var auto_alg_result_mat = {{ auto_alg_result_mat }}
+//    var data_conf = {{ datac|safe }} ;
+  //  var feat_list = "{{ auto_list_of_feats|safe }}";
+    //var best_feats = {{ best_feats }};
+    var auto_alg_results = {{ auto_alg_results|safe }}
 
     $('document').ready(function() {
     console.log("ciao, sono nel document ready");
-    console.log(feat_list);
-    console.log(best_feats);
+//    console.log(feat_list);
+  //  console.log(best_feats);
 
-    {% if best_feats %}
+   {# {% if best_feats %} #}
         $('#best-feat-list').show();
         $('#graph-featscores').show();
-    {% endif %}
-
-    if(auto_alg_result_mat != -1){
-        $('#graph-auto-alg-result').show();
-    }
+  {#  {% endif %} #}
 
 
-    $('#graph-heatmap').highcharts(data);
-    console.log("i didnt blocked");
+        //$('#graph-auto-alg-result').show();
+        console.log(auto_alg_results);
+        $('#graph-auto_alg_result').highcharts(auto_alg_results)
+
+
+
+    //$('#graph-heatmap').highcharts(data_conf);
+    //console.log("i didnt blocked");
     });
 
 

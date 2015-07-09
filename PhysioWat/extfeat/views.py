@@ -184,19 +184,6 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
 def ml_input(request):  # obviously, it has to be added id record and everything concerning db
     if (request.method == 'POST'):
 
-        template = "machine_learning/results.html"
-        mat =[[0.12347442045527879, 0.8094406486883253],
-              [0.13438271020294834, 0.9195616568032954],
-              [0.7340808740690876, 0.501292876257899],
-              [0.15205183424532076, 0.7723196374025724],
-              [0.15305657903122016, 0.02967990232224793],
-              [0.751312493253797, 0.15057926746395178],
-              [0.3325655818985571, 0.8545431696554671],
-              [0.388049400727121, 0.6359039900354648],
-              [0.7656376483351357, 0.011118993319648052],
-              [0.3030715521728802, 0.3478716425630006]]
-
-
         #print "culoculoculoculo"  # GET THE POST, ELABORATE AND GO TO THE DB OR THE PLOT
         #print request.POST
         mydict = dict(request.POST.iterlists())
@@ -207,11 +194,12 @@ def ml_input(request):  # obviously, it has to be added id record and everything
 
         print mydict
 
+
         #print '-' * 60
-        #localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
-        #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
-        exprecid = mydict['choose_id']
-        input_data = pddbload.load_file_pd_db(exprecid[0])
+        localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
+        input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
+        #exprecid = mydict['choose_id']
+        #input_data = pddbload.load_file_pd_db(exprecid[0])
 
 
         percentage = mydict['test_percentage'][0]
