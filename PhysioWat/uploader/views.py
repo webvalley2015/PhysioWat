@@ -53,4 +53,4 @@ def get_data_from_mobile(request):
 def list_experiment_id(request):
     myexp = Experiment.objects.all().values_list('id', 'name')
     myret_json = json.dumps([{i[0]:i[1]} for i in myexp])
-    return HttpResponse(myret_json)
+    return HttpResponse(myret_json, mimetype='application/json')
