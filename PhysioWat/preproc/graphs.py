@@ -72,6 +72,25 @@ class linegraph2(HighChartsMultiAxesView):
         data['chart'] = {"renderTo": "#temporary-processing"}
         return data
 
+class linegraph3(HighChartsMultiAxesView):
+    legend = {'enabled': True, 'layout': 'vertical', 'align': 'right',
+              'verticalAlign': 'top', 'x': 10, 'y': 100, 'borderWidth': 0, }
+
+    def get_data(self, data, xcategories=None, title=None):
+        data_tmp = []
+        for i in data:
+            data_tmp.append(i[1])
+
+        self.series = [{'name':'Precision', 'data':data_tmp}]
+        self.series.append()
+
+        # print data
+        self.title={'text':title}
+        self.xaxis = {'categories':xcategories}
+
+        data = super(linegraph3, self).get_data()
+        return data
+
 
 class heatmap(HighChartsHeatMapView):
     legend = {'enabled': True, 'layout': 'vertical', 'align': 'right',

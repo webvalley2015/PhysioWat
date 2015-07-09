@@ -9,30 +9,69 @@
 <br><br><br><br>
 <br><br><br><br>
 
-culo riccarso
-<br><br><br><br>
-<br><br><br><br>
-
  <div class="processed-signal row">
-                    <div id="processed-signal"></div>
+                    <div id="graph-heatmap"></div>
                     <!-- THIS IS ANOTHER DIV FOR ANOTHER GRAPH, IT DOES NOT CONTAIN ANITHING NOW -->
  </div>
 
+<div class="processed-signal row">
+  <!--  <div id="graph-featscores" style="display:none;">
+        HI, YOU HAVE CHOOSEN THAT YOU MAY HAVE THE AUTO FEAT. NUMBER
+        GRAPH AND TABLE
+    </div>   -->
+    <div id="best-feat-list" style="display:none;">
+        HI, YOU HAVE CHOOSEN THAT YOU MAY HAVE THE AUTO FEAt number TABLE
+        <br>
+        {% for i in best_feats %}
+          With {{ i.0|floatformat:0 }} features I can obtain {{ i.1|floatformat:2 }} % of precision <br>
+        {% endfor %}
+    </div>
+
+</div>
+<div class="processed-signal row">
+    <div id="graph-auto-alg-result" style="display:none;">
+       2, you have choosen the auto algorithm. here should have a boxtplot
+    </div>
+
+</div>
+
 {{ datac }}
 
+
+{{ best_feats }}
 {% endblock %}
 
 {% block app_specific_js %}
 
 {% highcharts_js 1 1 1 1 %}
 <script>
-    var data = {{ datac|safe }}
+    var data = "{{ datac|safe }}" ;
+    var feat_list = "{{ auto_list_of_feats|safe }}";
+    var best_feats = {{ best_feats }};
+    var auto_alg_result_mat = {{ auto_alg_result_mat }}
+
     $('document').ready(function() {
     console.log("ciao, sono nel document ready");
-    console.log(data);
-    $('#processed-signal').highcharts(data);
+    console.log(feat_list);
+    console.log(best_feats);
+
+    {% if best_feats %}
+        $('#best-feat-list').show();
+        $('#graph-featscores').show();
+    {% endif %}
+
+    if(auto_alg_result_mat != -1){
+        $('#graph-auto-alg-result').show();
+    }
+
+
+    $('#graph-heatmap').highcharts(data);
     console.log("i didnt blocked");
     });
+
+
+
+
 </script>
 
 {% endblock app_specific_js %}

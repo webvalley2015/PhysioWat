@@ -32,7 +32,7 @@ from sklearn.metrics import *
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
 from PhysioWat.models import Experiment, Preprocessed_Recording, Preprocessed_Data, FeatExtractedData
-from preproc.graphs import linegraph2, heatmap
+from preproc.graphs import linegraph2, heatmap, linegraph3
 
 def get_signal_type(cols):
     if 'PHA' in cols:   #GSR
@@ -182,15 +182,15 @@ def ml_input(request):  # obviously, it has to be added id record and everything
 
         template = "machine_learning/results.html"
         mat =[[0.12347442045527879, 0.8094406486883253],
- [0.13438271020294834, 0.9195616568032954],
- [0.7340808740690876, 0.501292876257899],
- [0.15205183424532076, 0.7723196374025724],
- [0.15305657903122016, 0.02967990232224793],
- [0.751312493253797, 0.15057926746395178],
- [0.3325655818985571, 0.8545431696554671],
- [0.388049400727121, 0.6359039900354648],
- [0.7656376483351357, 0.011118993319648052],
- [0.3030715521728802, 0.3478716425630006]]
+              [0.13438271020294834, 0.9195616568032954],
+              [0.7340808740690876, 0.501292876257899],
+              [0.15205183424532076, 0.7723196374025724],
+              [0.15305657903122016, 0.02967990232224793],
+              [0.751312493253797, 0.15057926746395178],
+              [0.3325655818985571, 0.8545431696554671],
+              [0.388049400727121, 0.6359039900354648],
+              [0.7656376483351357, 0.011118993319648052],
+              [0.3030715521728802, 0.3478716425630006]]
 
 
         #print "culoculoculoculo"  # GET THE POST, ELABORATE AND GO TO THE DB OR THE PLOT
@@ -201,29 +201,36 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         #
         #     print key, request.POST.getlist(key)
 
-        #print mydict
+        print mydict
 
         #print '-' * 60
-        localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
-        input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
+        #localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
+        #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
         exprecid = mydict['choose_id']
-        #exprecid = [18]
-        #input_data = pddbload.load_file_pd_db(exprecid[0])
-        num_feat = -1  # set to -1 because of
+        input_data = pddbload.load_file_pd_db(exprecid[0])
+
 
         percentage = mydict['test_percentage'][0]
         percentage = float(percentage) / 100.0
-        list_of_feat = list(input_data.columns)
+
         num_iteration = mydict['number_of_iterations'][0]
         ft.iterations = int(num_iteration)
         algorithm = mydict['alg_choice'][0]
         flag = True
+
+        flag_has_selected_auto_feat = False
+        list_of_feat = list(input_data.columns)
+        best_feat_n_mat = []
+        num_feat = -1
+        auto_alg_result_mat = None
         if 'viewf' in mydict:
+            print "hellp"
             if 'norm' in mydict['viewf']:
                 input_data = ft.normalize(input_data)
                 #print input_data
             train_data, test_data = ft.split(input_data, percentage)
             flag = False
+
             if 'sel' in mydict['viewf']:
                 # print "i have selected the first stuff!"
                 if 'k_selected' in mydict['FeatChoose']:
@@ -233,10 +240,15 @@ def ml_input(request):  # obviously, it has to be added id record and everything
                     train_data, test_data, list_of_feat = ft.getfeatnumber(train_data, test_data, k) #RETURNS 2 SUBSET DF GIVEN IN INPUT THE TRAIN DATA, THE TEST DATA, AND THE NUMBER OF FEATS
 
                 if ('k_auto' in mydict['FeatChoose']):
+                    print "hi"
                     train_data, test_data, best_feat_n_mat, list_of_feat = ft.bestfeatn(train_data, test_data)
+                    flag_has_selected_auto_feat = True
+
+        print "dopo il case del viewf"
+
         if(flag == True):
             train_data, test_data = ft.split(input_data, percentage)
-        print "dopo il case del viewf"
+            flag = False
 
         if (algorithm == 'ALL') and ('auto' not in mydict['parameter_choiche']):
             return render(request, "machine_learning/form_error.html")
@@ -270,19 +282,33 @@ def ml_input(request):  # obviously, it has to be added id record and everything
             if (algorithm == 'LDA'):
                 solver = mydict['solver']
                 clf, score, error = ft.pers_crossvalidation1(train_data, algorithm, solver)
+
         if 'auto' in mydict['parameter_choiche']:
             metrics = mydict['maximize'][0]
             #print  metrics
-            clf, result_mat = ft.bestAlg(train_data, metrics)
+            clf, auto_alg_result_mat = ft.bestAlg(train_data, metrics)
 
         dic_metric, conf_mat = ft.test_learning(clf, test_data)
 
-        print dic_metric, conf_mat
-
+        #print dic_metric, conf_mat
+        best_feat_n_mat[:,1] *= 100.0
+        best_feat_n_mat = best_feat_n_mat.tolist()
+        print type(best_feat_n_mat), best_feat_n_mat
         h = heatmap()
-        data = h.get_data(conf_mat)
-        context = {'datac': json.dumps(data)}
+        conf_data = h.get_data(conf_mat)
+        conf_data= json.dumps(conf_data)
         # TODO check the 'matrix for'
+
+
+        template = "machine_learning/results.html"
+        context = {'conf_mat': conf_data, 'dic_result':dic_metric,  # essential part, the last one (conf.matrix)
+
+                   'auto_list_of_feats': list_of_feat,     #second part, with the list of features and the function score vs nfeat
+
+                   'best_feats': best_feat_n_mat,
+
+                    'auto_alg_result_mat':auto_alg_result_mat, #boxplot with the algorithms cosres
+                   }
         return render(request, template, context)
 
 
