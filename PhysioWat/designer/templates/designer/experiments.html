@@ -6,9 +6,6 @@
     <h1>Create a New Experiment</h1><br><br>
     {% csrf_token %}
     {% include "includes/bootstrap_fordbgroup.html" %}
-    {% if messages %}
-        {% include "includes/error_messages.html" %}
-    {% endif %}
     </form>
 
 {% endblock %}

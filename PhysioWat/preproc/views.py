@@ -54,11 +54,14 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_fu
         new_batch_id = bid
 
     # Submit data to model and thus the database table
+    print "creating preprocessed recording", rec_id
     pr = Preprocessed_Recording(recording_id=rec_id, applied_preproc_funcs_names=applied_preproc_funcs_names,
                                 preproc_funcs_parameters=preproc_funcs_parameters,
                                 dict_keys=dictky, batch_id=new_batch_id, signal_type_name=signal_type_name)
+
     pr.save()
 
+    print "pr.id", pr.id
     for row in csvreader:
         Preprocessed_Data(pp_recording_id=pr.id, store=dict(zip(dictky, row))).save()
 
@@ -264,6 +267,7 @@ def show_chart(request, id_num, alg_type=""):
                                                            "coeffMag": str(coeffMag)}})
 
                 print "FINISHED SPECIFIC PROCESSING"
+                print "id_num", id_num
                 ret_bid = putPreprocArrayintodb(id_num, pre_data, columns_out, funcs_par.keys(), funcs_par.values(),
                                                 mytype[int(data_type) - 1], ret_bid)
                 print "FINISHED PUTTING IN DB"
