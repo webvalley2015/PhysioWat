@@ -27,6 +27,7 @@ from scipy import stats
 import time
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
+# import matplotlib.pyplot as plt
 # from matplotlib.backends.backend_pdf import PdfPages
 
 
@@ -60,10 +61,10 @@ classifiersDefaultParameters = {
         #'QDA': QDA()
         }
     
-iterations = 2 #20 TRY
+iterations = 5 #20 TRY
 cv_val = 5
 
-def feat_boxplot(x, nam):
+def feat_boxplot(x):
     '''
     This function makes a big BOX-WHISKER plot with all the 
     features passed in input, one bar for each class
@@ -82,25 +83,25 @@ def feat_boxplot(x, nam):
         ready to be plotted with js libraries
     
     '''        
-#    plt.style.use('ggplot')
-#    step = 30
-#    end =  x.shape[1]
-#    data = pd.DataFrame()
-#    #ttest = np.zeros(end)
-#    for k in range(0, end, step):
-#        for i in range(k, k+step):   #for each feature in your dataframe X
-#            if i >= end :
-#                break
-#            data0 = x.query('LAB == '+str(0)).iloc[:,i]   #calc the boxplot for 
-#                                                            #this class
-#            data1 = x.query('LAB == '+str(1)).iloc[:,i] 
-#            data = [data0, data1]
-#            #ttest[i] = stats.ttest_ind(data0,data1)
-#            plt.subplot(5,6, (i%step)+1)                          #it will be deleted
-#            plt.boxplot(data)
-#            plt.axis('off')
-#            plt.title(x.columns[i], fontsize=5)
-#        plt.savefig('./figs/fig'+str(nam)+'XXX'+str(k)+'.png')
+    #    plt.style.use('ggplot')
+    #    step = 30
+    #    end =  x.shape[1]
+    #    data = pd.DataFrame()
+    #    #ttest = np.zeros(end)
+    #    for k in range(0, end, step):
+    #        for i in range(k, k+step):   #for each feature in your dataframe X
+    #            if i >= end :
+    #                break
+    #            data0 = x.query('LAB == '+str(0)).iloc[:,i]   #calc the boxplot for 
+    #                                                            #this class
+    #            data1 = x.query('LAB == '+str(1)).iloc[:,i] 
+    #            data = [data0, data1]
+    #            #ttest[i] = stats.ttest_ind(data0,data1)
+    #            plt.subplot(5,6, (i%step)+1)                          #it will be deleted
+    #            plt.boxplot(data)
+    #            plt.axis('off')
+    #            plt.title(x.columns[i], fontsize=5)
+    #        plt.savefig('./figs/fig'+str(nam)+'XXX'+str(k)+'.png')
     
     end =  x.shape[1]
     datas = []
@@ -112,13 +113,15 @@ def feat_boxplot(x, nam):
             temp_serie = x.query('LAB == '+str(lab)).iloc[:,i]
             data.append(get_box_vals(temp_serie))
         datas.append(data)
-    
-#    plt.subplot(23, 12)                          #it will be deleted
-#    plt.boxplot(datas)
-#    plt.axis('off')
-#    plt.title(x.columns[i], fontsize=5)
-#    plt.savefig('./figs/fig'+str(nam)+'XXX'+str(k)+'.png')    
-    return data
+        plt.subplot(3,4, i+1)
+        plt.boxplot(data)
+        plt.title(x.columns[i])#, fontsize=5)
+    #    plt.subplot(23, 12)                          #it will be deleted
+    #    plt.boxplot(datas)
+    #    plt.axis('off')
+    #    plt.title(x.columns[i], fontsize=5)
+    #    plt.savefig('./figs/fig'+str(nam)+'XXX'+str(k)+'.png')    
+    return datas
 
 def get_box_vals(serie):
     '''
@@ -423,7 +426,7 @@ def bestfit(fe_data, alg, metric, fromalg=False):
 
 
 def bestfit_KNN(fe_data, alg, metric):  # ok
-    NNlist = [1, 3, 5]#, 7, 9, 11]  #TRY
+    NNlist = [1, 3, 5, 7, 9, 11]  #TRY
     my_met = np.zeros((len(NNlist), 3))
     
     for nn in NNlist:
@@ -445,9 +448,9 @@ def bestfit_KNN(fe_data, alg, metric):  # ok
     
     
 def bestfit_SVM(fe_data, alg, metric):
-    Klist = ['linear', 'rbf']#, 'sigmoid'] TRY
+    Klist = ['linear', 'rbf', 'sigmoid'] #TRY
     bestC = 0.
-    Clist = [ 10**i for i in range(1,3)]#range(-5,8) ] TRY
+    Clist = [ 10**i for i in range(-3,6) ]# TRY
     my_met = np.matrix([0,0,0,0])
     for k, kernel in enumerate(Klist):
         for C in Clist:
@@ -472,7 +475,7 @@ def bestfit_SVM(fe_data, alg, metric):
     
 
 def bestfit_DCT(fe_data, alg, metric):
-    MFlist = [1, None]#, 'log2', 'sqrt'] TRY
+    MFlist = [1, None, 'log2', 'sqrt'] #TRY
     my_met = np.zeros((len(MFlist), 3))
     for k, max_f in enumerate(MFlist):
         clf = classifiers[alg](max_f)
@@ -532,8 +535,8 @@ def bestfit_LDA(fe_data, alg, metric):
     
 #watch out... this is a particular matrix... 65s for 75cvs
 def bestfit_ADA(fe_data, alg, metric):
-    NElist = [i*50 for i in range(5,8)]#(1, 201)] TRY
-    LRlist = [i*0.25 for i in range(2,5)]#9) ] TRY
+    NElist = [i*50 for i in range(1, 201)]# TRY
+    LRlist = [i*0.25 for i in range(2,8)] # TRY
     my_met = np.zeros((len(NElist), len(LRlist)))
     err_met = np.zeros((len(NElist), len(LRlist)))
     #j, tstop = 0, 0
@@ -557,8 +560,8 @@ def bestfit_ADA(fe_data, alg, metric):
     
 #watch out... this is a particular matrix    6m for 300cvs
 def bestfit_RFC(fe_data, alg, metric):
-    NElist = [i*25 for i in range(40,45,10)]#20)] TRY
-    MFlist = [1,  None]#, 'log2','sqrt' ] TRY
+    NElist = [i*25 for i in range(1,20,10)]# TRY
+    MFlist = [1,  None, 'log2','sqrt' ] #TRY
     my_met = np.zeros((len(NElist), len(MFlist)))
     err_met = np.zeros((len(NElist), len(MFlist)))
     for n_est in NElist:
@@ -716,7 +719,9 @@ def bestfeatn(input_data, intest_data):
     best_feat_num = best_feat_num[0]
     sel_cut = cut_feature(input_data, best_feat_num)
     train_data = input_data.ix[:,sel_cut]
-    test_data = intest_data.ix[:,sel_cut]
+    test_data = intest_data.ix[:,sel_cut] 
+    
+    my_met = my_met[:k,:]
 
     return  train_data, test_data, my_met, listoflists
         
@@ -765,18 +770,19 @@ if __name__ == '__main__':
     #to import the dataset (extracted feature)
     localdir = '/home/andrea/Work/data/Physio/physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
     #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv', index_col=None, sep=',')
-    input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_9labels.csv', index_col=None, sep=',')
+    input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_10labels.csv', index_col=None, sep=',')
     
     #to normalize the data (optional)
     norm_data = normalize(input_data)
             
     #feature selection
-    train_data, test_data = split(norm_data, 0.25)
+    train_data, test_data = split(norm_data, 0.)
     
     clf, metric = bestAlg(train_data, 'ACC')
     dic_metric, conf_mat = test_learning(clf, test_data)
-
+    
     train_data, test_data, my_met, listoflistsofbest = bestfeatn(train_data, test_data)
+    feat_boxplot(norm_data[listoflistsofbest[5]])
     #train_data, test_data, listofbest = getfeatnumber( train_data, test_data, 10)
     clf, metric = bestAlg(train_data, 'ACC')
     dic_metric, conf_mat = test_learning(clf, test_data)
@@ -788,5 +794,5 @@ if __name__ == '__main__':
     #search the best alg with the best classifier
 
     
-    #print dic_metric
-    #print conf_mat
+    print dic_metric
+    print conf_mat
