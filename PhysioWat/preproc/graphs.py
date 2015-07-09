@@ -91,13 +91,13 @@ class linegraph3(HighChartsMultiAxesView):
     legend = {'enabled': True, 'layout': 'vertical', 'align': 'right',
               'verticalAlign': 'top', 'x': 10, 'y': 100, 'borderWidth': 0, }
 
-    def get_data(self, data, xcategories=None, title=None):
+    def get_data(self, data, xcategories=None, title=None, type = "scatter"):
         data_tmp = []
         print xcategories
         for i in data:
             data_tmp.append(i[1])
         self.yaxis = {'title': {'text': ''}}
-        self.series = [{'name':'Precision', 'data':data_tmp, 'type':'scatter'}]
+        self.series = [{'name':'Precision', 'data':data_tmp, 'type':type]
         #self.series.append({})
         self.categories = xcategories
         # print data

@@ -224,6 +224,8 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         best_feat_n_mat = []
         num_feat = -1
         auto_alg_result_mat = None
+        best_feat_json = None
+
         if 'viewf' in mydict:
             print "hellp"
             if 'norm' in mydict['viewf']:
@@ -302,14 +304,36 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         print(conf_mat)
         conf_mat = conf_mat.tolist() #!!!important
         conf_data = h.get_data(conf_mat)
-        conf_data= json.dumps(conf_data)
+        conf_data = json.dumps(conf_data)
+
+        best_feat_json = best_feat_n_mat.tolist() #see if it's needed
+        #categories = #PICK ALGORITHM CATEGORIES
+        if best_feat_n_mat != []
+            s = linegraph3()
+            best_feat_json = s.get_data(data = best_feat_n_mat)#xcategories = categories)
+            best_feat_json = json.dumps(best_feat_json)
+
+        dict_sigla_parola = {'ACC': 'accuracy %',
+        'F1M': 'F-Test macro' ,
+        'F1m': 'F-Test micro',
+        'F1W ': 'F-Test weighted',
+        'WHM': 'Weighted Harmonic Mean of precision and recall',
+        'PRM': 'Precision Score Macro',
+        'PRm': 'Precision Score Micro',
+        'PRW': 'Precision Score Weighted',
+        'REM': 'Recall Score Macro',
+        'REm': 'Recall Score Micro',
+        'REW' : 'Recall Score Weighted'}
+
+
         # TODO check the 'matrix for'
         template = "machine_learning/results.html"
         context = {'conf_mat': conf_data, 'dic_result':dic_metric,  # essential part, the last one (conf.matrix)
 
-                   #'auto_list_of_feats': list_of_feat,     #second part, with the list of features and the function score vs nfeat
-
-                   #'best_feat_n': best_feat_n_mat,
+                   'auto_list_of_feats': list_of_feat,     #second part, with the list of features and the function score vs nfeat
+                   'best_feat_scores': best_feat_n_mat,
+                   'dict_sigla_parola':dict_sigla_parola,
+                   'best_feat_scores_json':best_feat_json,
 
                     #'auto_alg_result_mat':auto_alg_result_mat, #boxplot with the algorithms cosres
                    }

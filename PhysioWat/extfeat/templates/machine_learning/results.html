@@ -17,7 +17,11 @@
  </div>
 
 {% for k,v in dic_result.items %}
-<i>   The {{ k }} is {{ v|floatformat:3 }}  <br>  </i>
+    {% for k2, v2 in %}
+        {% if k2 == k %}
+<i>   The {{ v2 }} is {{ v|floatformat:3 }}  <br>  </i>
+        {% endif %}
+{% endfor %}
 {% endfor %}
 
 <div class="processed-signal row">
@@ -28,7 +32,7 @@
     <div id="best-feat-list" style="display:none; left:30px;">
        <h4>You have choosen the automatic search of the optimal number of features. THere are the results</h4>
         <br>
-        {% for i in best_feat_n %}
+        {% for i in best_feat_scores %}
           With {{ i.0|floatformat:0 }} features I can obtain {{ i.1|floatformat:2 }} % of accuracy <br>
         {% endfor %}
     </div>
@@ -50,15 +54,15 @@
 <script>
     var data_conf = {{ conf_mat|safe }} ;
    // var feat_list = "{{ auto_list_of_feats|safe }}";
-   // var best_feat_n = {{ best_feat_n }};
+   // var best_feat_scores = {{ best_feat_scores }};
    // var auto_alg_results = {{ auto_alg_results|safe }}
 
     $('document').ready(function() {
   //  console.log("ciao, sono nel document ready");
   //  console.log(feat_list);
-  //  console.log(best_feat_n);
+  //  console.log(best_feat_scores);
 
- {#   {% if best_feat_n %} #}
+ {#   {% if best_feat_scores %} #}
   {#      $('#best-feat-list').show(); #}
    {#     $('#graph-featscores').show(); #}
    {# {% endif %} #}
