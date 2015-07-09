@@ -49,7 +49,7 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_fu
         try:
             new_batch_id = Preprocessed_Recording.objects.all().aggregate(Max('batch_id'))['batch_id__max'] + 1
         except TypeError:  # None + 1 ?
-            new_batch_id = 0
+            new_batch_id = 1
     else:
         new_batch_id = bid
 

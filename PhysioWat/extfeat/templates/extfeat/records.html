@@ -52,11 +52,13 @@
             <br><br>
             <h4>Select Record</h4>
             {% csrf_token %}
-            <select name="rec_name">
+            <select name="rec_name" class="form-control">
                 {% for c in name_list %}
-                        <option value="{{ c.0 }}">{{ forloop.counter }}: {{ c.1 }} ({{ c.4 }})</option>
+                        <option value="{{ c.8 }}">{{ forloop.counter }}: {{ c.1 }} ({{ c.4 }} - {{ c.6 }} - {{ c.7 }}</option>
                 {% endfor %}
             </select><br>
+
+
 
             <div class="btn-fix">
                 <input type="submit" value="Select">

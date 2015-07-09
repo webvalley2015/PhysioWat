@@ -3,7 +3,6 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from .forms import windowing, viewFeatures, FeatPar, TestParam, AlgChoose, AlgParam, SvmParam, KNearParam, DecTreeParam, signal_choose, RndForParam, AdaBoostParam, LatDirAssParam, autoFitParam, id_choose
-from preproc import jsongen
 from preproc.scripts.processing_scripts import windowing as wd, feat_script as ft
 from preproc.scripts.processing_scripts.GSR import extract_features as extfeat_GSR
 from preproc.scripts.processing_scripts.IBI import extract_IBI_features as extfeat_IBI
@@ -12,25 +11,12 @@ from preproc.scripts.processing_scripts.inertial import extract_features_acc as 
 from preproc.scripts.processing_scripts.tools import selectCol as selcol, dict_to_arrays,array_labels_to_csv as toCsv
 from django.contrib import messages
 from PhysioWat.models import Experiment, Recording, Preprocessed_Recording, Preprocessed_Data
-import pandas as pd
 import numpy as np
 from PhysioWat.settings import MEDIA_ROOT
-from django.conf import settings
 from time import time as get_timestamp
 from preproc.scripts.processing_scripts import pddbload
 import datetime
-from sklearn.tree import DecisionTreeClassifier
-from sklearn import cross_validation
-from sklearn.cross_validation import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
 
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-from sklearn.lda import LDA
-from sklearn.qda import QDA
-from sklearn.metrics import *
-from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import f_classif
 from PhysioWat.models import Experiment, Preprocessed_Recording, Preprocessed_Data, FeatExtractedData
 from preproc.graphs import linegraph2, heatmap
 
@@ -69,11 +55,13 @@ def QueryDb(recordingID):   #JUST COPY, PASTE AND CHANGED RECORDS
 
     return retarray, mykeys
 
+
 def WritePathtoDB(fname, pp_rec_id, parameters=None):
     print "ID ", pp_rec_id
     print "FNAME ", fname
     print "PAR ", parameters
     FeatExtractedData(pp_recording_id=pp_rec_id, path_to_file=fname, parameters=parameters).save()
+
 
 def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
 
@@ -82,109 +70,114 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
 
     if (request.method == 'POST'):
         mydict = dict(request.POST.iterlists())
-        if 'choose_signal' in mydict:
-            for id_num in mydict['choose_signal']:
-                try:
-                    print "RUNNING FOR ", id_num
-                    data, cols = QueryDb(id_num)
-                    time = selcol(data, cols, "TIME")
-                    labs = selcol(data, cols, "LAB")
-                    type_sig=get_signal_type(cols)
+        #if 'choose_signal' in mydict:
+        print request.POST
+        print "merda"
+        print id_record
+        type_sig = ''
+        for id_num in id_record:
+            try:
+                print "RUNNING FOR ", id_num
+                data, cols = QueryDb(id_num)
+                print cols
+                time = selcol(data, cols, "TIME")
+                labs = selcol(data, cols, "LAB")
+                type_sig=get_signal_type(cols)
+                print type_sig
+                params=dict()
 
-                    params=dict()
+                if (mydict['type'][0] == 'contigous'):
+                    windows, winlab = wd.get_windows_contiguos(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
 
-                    if (mydict['type'][0] == 'contigous'):
-                        windows, winlab = wd.get_windows_contiguos(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
+                if (mydict['type'][0] == 'no_mix'):  # for the values, make reference to .forms --> windowing.!!!!
+                    windows, winlab = wd.get_windows_no_mix(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
 
-                    if (mydict['type'][0] == 'no_mix'):  # for the values, make reference to .forms --> windowing.!!!!
-                        windows, winlab = wd.get_windows_no_mix(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
+                if (mydict['type'][0] == 'full_label'):
+                    windows, winlab = wd.get_windows_full_label(time, labs)
+                params.update({"windowing.type":str(mydict["type"][0]), "windowing.length":str(mydict["length"][0]), "windowing.step":str(mydict["step"][0])})
+                # extract features from result
+                # store feats. in the db
+                params.update({"signal_type":type_sig})
+                if type_sig=="GSR":   #GSR
+                    data_in=selcol(data, cols, "PHA")
+                    funcs, pars=list(Preprocessed_Recording.objects.filter(pk = id_num).values_list('applied_preproc_funcs_names', 'preproc_funcs_parameters'))[0]
+                    DELTA=float(pars[funcs.index(u"GSR.preproc")][u"DELTA_PEAK"])
+                    feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
+                    data_out, cols_out=dict_to_arrays(feat_dict)
+                    data_out=np.column_stack((data_out, winlab))
+                    columns_out=np.r_[cols_out, ["LAB"]]
 
-                    if (mydict['type'][0] == 'full_label'):
-                        windows, winlab = wd.get_windows_full_label(time, labs)
-                    params.update({"windowing.type":str(mydict["type"][0]), "windowing.length":str(mydict["length"][0]), "windowing.step":str(mydict["step"][0])})
-                    # extract features from result
-                    # store feats. in the db
-                    params.update({"signal_type":type_sig})
-                    if type_sig=="GSR":   #GSR
-                        data_in=selcol(data, cols, "PHA")
-                        funcs, pars=list(Preprocessed_Recording.objects.filter(pk = id_num).values_list('applied_preproc_funcs_names', 'preproc_funcs_parameters'))[0]
-                        DELTA=float(pars[funcs.index(u"GSR.preproc")][u"DELTA_PEAK"])
-                        feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
-                        data_out, cols_out=dict_to_arrays(feat_dict)
-                        data_out=np.column_stack((data_out, winlab))
-                        columns_out=np.r_[cols_out, ["LAB"]]
+                elif type_sig=="inertial":
+                    col_acc=["ACCX", "ACCY", "ACCZ"]
+                    col_gyr=["GYRX", "GYRY", "GYRZ"]
+                    col_mag=["MAGX", "MAGY", "MAGZ"]
+                    try:
+                        acc=selcol(data, cols, col_acc)
+                        thereIsAcc=True
+                    except IndexError as e:
+                        print e
+                        thereIsAcc=False
+                    try:
+                        gyr=selcol(data, cols, col_gyr)
+                        thereIsGyr=True
+                    except IndexError as e:
+                        print e
+                        thereIsGyr=False
+                    try:
+                        mag=selcol(data, cols, col_mag)
+                        thereIsMag=True
+                    except IndexError as e:
+                        print e
+                        thereIsMag=False
+                    columns_out=np.array(["LAB"])
+                    data_out=winlab[:]
+                    if thereIsAcc:
+                        feats_acc, fcol_acc= extfeat_ACC(acc, time, col_acc, windows)
+                        data_out=np.column_stack([feats_acc, data_out])
+                        columns_out=np.r_[fcol_acc, columns_out]
+                    if thereIsGyr:
+                        feats_gyr, fcol_gyr= extfeat_GYR(gyr, time, col_gyr, windows)
+                        data_out=np.column_stack([feats_gyr, data_out])
+                        columns_out=np.r_[fcol_gyr, columns_out]
+                    if thereIsMag:
+                        feats_mag, fcol_mag= extfeat_MAG(mag, time, col_mag, windows)
+                        data_out=np.column_stack([feats_mag, data_out])
+                        columns_out=np.r_[fcol_mag, columns_out]
 
-                    elif type_sig=="inertial":
-                        col_acc=["ACCX", "ACCY", "ACCZ"]
-                        col_gyr=["GYRX", "GYRY", "GYRZ"]
-                        col_mag=["MAGX", "MAGY", "MAGZ"]
-                        try:
-                            acc=selcol(data, cols, col_acc)
-                            thereIsAcc=True
-                        except IndexError as e:
-                            print e
-                            thereIsAcc=False
-                        try:
-                            gyr=selcol(data, cols, col_gyr)
-                            thereIsGyr=True
-                        except IndexError as e:
-                            print e
-                            thereIsGyr=False
-                        try:
-                            mag=selcol(data, cols, col_mag)
-                            thereIsMag=True
-                        except IndexError as e:
-                            print e
-                            thereIsMag=False
-                        columns_out=np.array(["LAB"])
-                        data_out=winlab[:]
-                        if thereIsAcc:
-                            feats_acc, fcol_acc= extfeat_ACC(acc, time, col_acc, windows)
-                            data_out=np.column_stack([feats_acc, data_out])
-                            columns_out=np.r_[fcol_acc, columns_out]
-                        if thereIsGyr:
-                            feats_gyr, fcol_gyr= extfeat_GYR(gyr, time, col_gyr, windows)
-                            data_out=np.column_stack([feats_gyr, data_out])
-                            columns_out=np.r_[fcol_gyr, columns_out]
-                        if thereIsMag:
-                            feats_mag, fcol_mag= extfeat_MAG(mag, time, col_mag, windows)
-                            data_out=np.column_stack([feats_mag, data_out])
-                            columns_out=np.r_[fcol_mag, columns_out]
+                elif type_sig=="IBI":
+                    data_in=selcol(data, cols, ["TIME","IBI"])
+                    cols_in=["TIME", "IBI"]
+                    data_out, winlab = extfeat_IBI(data_in, cols_in, windows, winlab)
+                    columns_out=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
+                    print data_out.shape, winlab.shape
+                    data_out=np.column_stack((data_out, winlab))
+                    columns_out=np.r_[columns_out, ["LAB"]]
 
-                    elif type_sig=="IBI":
-                        data_in=selcol(data, cols, ["TIME","IBI"])
-                        cols_in=["TIME", "IBI"]
-                        data_out, winlab = extfeat_IBI(data_in, cols_in, windows, winlab)
-                        columns_out=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
-                        print data_out.shape, winlab.shape
-                        data_out=np.column_stack((data_out, winlab))
-                        columns_out=np.r_[columns_out, ["LAB"]]
-
-                    st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y%m%d_%H%M%S')
-                    fname=MEDIA_ROOT+type_sig+"_"+id_num+"_"+st+".csv"
-                    toCsv(data_out, columns_out, fname)
-                    WritePathtoDB(fname, id_num, params)
-                except Exception as e:
-                    print "COULD NOT PROCESS "+id_num+": "+e.message
-                    if type_sig!=None:
-                        messages.error(request, "Error processing "+id_num+" ("+type_sig+"). Review your parameters! It will not be saved.")
-                    else:
-                        messages.error(request, "Error processing. Review your parameters! It will not be saved.")
-                    success=False
+                st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y%m%d_%H%M%S')
+                fname=MEDIA_ROOT+type_sig+"_"+id_num+"_"+st+".csv"
+                toCsv(data_out, columns_out, fname)
+                WritePathtoDB(fname, id_num, params)
+            except Exception as e:
+                print "COULD NOT PROCESS "+id_num+": "+e.message
+                if type_sig is not None:
+                    messages.error(request, "Error processing "+id_num+" ("+type_sig+"). Review your parameters! It will not be saved.")
                 else:
-                    success=True
-        else:
-            success=False
-            messages.error(request, "Choose at least one preprocessed signal")
+                    messages.error(request, "Error processing. Review your parameters! It will not be saved.")
+                success=False
+            finally:
+                success=True
+        #else:
+        #    success=False
+        #    messages.error(request, "Choose at least one preprocessed signal")
 
 
     else:
         success=False
     form = windowing()
-    form_signal = form_select_signal(id_record)
+    #form_signal = form_select_signal(id_record)
     template = "extfeat/choose_alg.html"
     # print urlTmp['id_num']
-    context = {'form': form,'form_signal':form_signal, 'id_record': id_record, 'success':success}
+    context = {'form': form, 'id_record': id_record, 'success':success}
     return render(request, template, context)
 
 
@@ -194,16 +187,16 @@ def ml_input(request):  # obviously, it has to be added id record and everything
     if (request.method == 'POST'):
 
         template = "machine_learning/results.html"
-        mat =[[0.12347442045527879, 0.8094406486883253],
- [0.13438271020294834, 0.9195616568032954],
- [0.7340808740690876, 0.501292876257899],
- [0.15205183424532076, 0.7723196374025724],
- [0.15305657903122016, 0.02967990232224793],
- [0.751312493253797, 0.15057926746395178],
- [0.3325655818985571, 0.8545431696554671],
- [0.388049400727121, 0.6359039900354648],
- [0.7656376483351357, 0.011118993319648052],
- [0.3030715521728802, 0.3478716425630006]]
+        # mat =[[0.12347442045527879, 0.8094406486883253],
+        #      [0.13438271020294834, 0.9195616568032954],
+        #      [0.7340808740690876, 0.501292876257899],
+        #      [0.15205183424532076, 0.7723196374025724],
+        #      [0.15305657903122016, 0.02967990232224793],
+        #      [0.751312493253797, 0.15057926746395178],
+        #      [0.3325655818985571, 0.8545431696554671],
+        #      [0.388049400727121, 0.6359039900354648],
+        #      [0.7656376483351357, 0.011118993319648052],
+        #      [0.3030715521728802, 0.3478716425630006]]
 
 
         #print "culoculoculoculo"  # GET THE POST, ELABORATE AND GO TO THE DB OR THE PLOT
@@ -214,16 +207,19 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         #
         #     print key, request.POST.getlist(key)
 
-        #print mydict
+        print mydict
 
         #print '-' * 60
         #localdir = 'PhysioWat/preproc/scripts/processing_scripts/output/'
         #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
         exprecid = mydict['choose_id']
+        print exprecid
         #exprecid = [18]
-        input_data = pddbload.load_file_pd_db(exprecid[0])
+        input_data = pddbload.load_file_pd_db(int(exprecid[0]))
         num_feat = -1  # set to -1 because of
-
+        print 'Ciao'
+        print input_data.shape
+        print 'hola'
         percentage = mydict['test_percentage'][0]
         percentage = float(percentage) / 100.0
         list_of_feat = list(input_data.columns)
@@ -234,8 +230,9 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         if 'viewf' in mydict:
             if 'norm' in mydict['viewf']:
                 input_data = ft.normalize(input_data)
-                #print input_data
+                print input_data.shape
             train_data, test_data = ft.split(input_data, percentage)
+            print train_data.shape, test_data.shape
             flag = False
             if 'sel' in mydict['viewf']:
                 # print "i have selected the first stuff!"
@@ -256,7 +253,6 @@ def ml_input(request):  # obviously, it has to be added id record and everything
 
         if 'def' in mydict['parameter_choiche']:
             clf, score, error = ft.quick_crossvalidate(train_data, alg=algorithm)
-
 
 
         if 'pers' in mydict['parameter_choiche']:
@@ -325,9 +321,9 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         form_list = [form_svm, form_knear, form_dectree, form_rndfor, form_adaboost, form_lda]
 
         id_list=getprocessedrecordid()
-        print  id_list
-        id_list=[(i, str(i)) for i in id_list ]
-        print id_list
+        # print  id_list
+        # id_list=[(i, str(i)) for i in id_list ]
+        # print id_list
         form_list_id = id_choose(choices=id_list)
         print  form_list_id
         #print(form_viewf)
@@ -382,16 +378,26 @@ def select_experiment(request):
     else:
         return render(request, 'extfeat/experiments.html', context)
 
+
 def getprocessedrecordid():
-    return FeatExtractedData.objects.values_list('pp_recording', flat=True).distinct()
+    return FeatExtractedData.objects.values_list('id', 'path_to_file')
+
 
 def getRecordsList(experimentId):
-    return Recording.objects.filter(experiment=experimentId).values_list('id', 'device_name', 'description', 'dict_keys', 'ts').order_by('id')
+    exp = Preprocessed_Recording.objects.filter(recording__experiment=experimentId).\
+        values_list('recording__id', 'recording__device_name', 'recording__description',
+                    'recording__dict_keys', 'recording__ts', 'batch_id', 'signal_type_name',
+                    'applied_preproc_funcs_names', 'id').order_by('recording__id')
+    #rec = Recording.objects.filter(experiment=experimentId).values_list('id', 'device_name', 'description', 'dict_keys', 'ts').order_by('id')
+
+    return exp
+
 
 def select_record(request, id_num):
     if request.method == 'POST':
         record_id = request.POST.get('rec_name')
-        name=Recording.objects.filter(pk=record_id).values_list('device_name')[0][0]
+        name = Recording.objects.filter(pk=record_id).values_list('device_name')
+        print name
         if Preprocessed_Data.objects.filter(pp_recording_id=record_id).count()==0:
             messages.error(request, "No preprocessed data found for "+name)
             name_list = getRecordsList(id_num)
