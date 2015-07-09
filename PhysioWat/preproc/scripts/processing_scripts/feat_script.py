@@ -719,7 +719,9 @@ def bestfeatn(input_data, intest_data):
     best_feat_num = best_feat_num[0]
     sel_cut = cut_feature(input_data, best_feat_num)
     train_data = input_data.ix[:,sel_cut]
-    test_data = intest_data.ix[:,sel_cut]
+    test_data = intest_data.ix[:,sel_cut] 
+    
+    my_met = my_met[:k,:]
 
     return  train_data, test_data, my_met, listoflists
         
