@@ -9,6 +9,8 @@ def makejson(modelname,recordingID, vals):
         data = SensorRawData.objects.filter(recording_id=recordingID).order_by('id')
     elif modelname == "proc":
         data = Preprocessed_Data.objects.filter(recording_id=recordingID).order_by('id')
+    elif modelname == "feat":
+        data = FeatExtractedData.objects.filter(recording_id=recordingID).order_by('id')
     jsonstring = "{\"series\":["
     if hasattr(vals, '__iter__'):
         for valu in vals:

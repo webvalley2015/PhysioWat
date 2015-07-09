@@ -38,8 +38,10 @@ class linegraph2(HighChartsMultiAxesView):
             data = SensorRawData.objects.filter(recording_id=urlTmp['id_num']).order_by('id')
             self.title = 'Raw Data'
         elif urlTmp['elab'] == "proc":
-            data = Preprocessed_Data.objects.filter(recording_id=urlTmp['id_num']).order_by('id')
+            data = Preprocessed_Data.objects.filter(pp_recording_id=urlTmp['id_num']).order_by('id')
             self.title = 'Preprocessed Data'
+
+        print "DEBUG data", data, len(data), type(data)
 
         self.yaxis = {'title': {'text': ''}}
         data_tmp = [i.store for i in data]
@@ -50,8 +52,8 @@ class linegraph2(HighChartsMultiAxesView):
         for i in range(0, 10):
             samling_freq = samling_freq + (tmp['TIME'][i + 1] - tmp['TIME'][i])
         samling_freq = samling_freq / 10
-        samling_freq = 1 / samling_freq
-        samling_freq = "%.3f" % samling_freq
+        samling_freq = int(round(1 / samling_freq))
+        samling_freq = "%d" % samling_freq
         samling_freq = str(' sampling frequency: ' + str(samling_freq) + 'Hz')
         self.subtitle = samling_freq
 
