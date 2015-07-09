@@ -43,7 +43,7 @@ def getExperiments():
 @csrf_exempt
 def get_data_from_mobile(request):
     if request.method == 'POST':
-        data = request.POST['fileupload']
+        data = request.POST['file']
     else:
         data = []
     return HttpResponse(data)
