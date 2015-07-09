@@ -15,6 +15,7 @@ def putintodbflex(fnames, dvname, desc, exp_id):
                 dictky[index] = dictky[index].replace('#','').replace(' ','')
 
             r = Recording(experiment_id=exp_id, device_name=dvname, dict_keys=dictky, description=desc)
+
             r.save()
             ll=[]
             for row in csvreader:
