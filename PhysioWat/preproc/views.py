@@ -215,50 +215,50 @@ def show_chart(request, id_num, alg_type=""):
                     print "ERROR SPIKES"
                     print e.message
                     pass
-            try:
-                if data_type == "4":
-                    T1 = float(request.POST['{}-T1'.format(mytype[count])])
-                    T2 = float(request.POST['{}-T2'.format(mytype[count])])
-                    MX = float(request.POST['{}-MX'.format(mytype[count])])
-                    DELTA_PEAK = float(request.POST['{}-DELTA_PEAK'.format(mytype[count])])
-                    k_near = float(request.POST['{}-k_near'.format(mytype[count])])
-                    grid_size = float(request.POST['{}-grid_size'.format(mytype[count])])
-                    s = float(request.POST['{}-s'.format(mytype[count])])
-                    data_labelled=np.column_stack((data, lab))
-                    cols_labelled=cols+["LAB"]
-                    pre_data, columns_out = GSR_preproc(data_labelled, cols_labelled, T1, T2, MX, DELTA_PEAK, k_near, grid_size, s)
-                    funcs_par.update({"GSR.preproc":{"T1":str(T1), "T2":str(T2), "MX":str(MX), "DELTA_PEAK":str(DELTA_PEAK), "k_near":str(k_near), "grid_size":str(grid_size), "s":str(s)}})
+            # try:
+            if data_type == "4":
+                T1 = float(request.POST['{}-T1'.format(mytype[count])])
+                T2 = float(request.POST['{}-T2'.format(mytype[count])])
+                MX = float(request.POST['{}-MX'.format(mytype[count])])
+                DELTA_PEAK = float(request.POST['{}-DELTA_PEAK'.format(mytype[count])])
+                k_near = float(request.POST['{}-k_near'.format(mytype[count])])
+                grid_size = float(request.POST['{}-grid_size'.format(mytype[count])])
+                s = float(request.POST['{}-s'.format(mytype[count])])
+                data_labelled=np.column_stack((data, lab))
+                cols_labelled=cols+["LAB"]
+                pre_data, columns_out = GSR_preproc(data_labelled, cols_labelled, T1, T2, MX, DELTA_PEAK, k_near, grid_size, s)
+                funcs_par.update({"GSR.preproc":{"T1":str(T1), "T2":str(T2), "MX":str(MX), "DELTA_PEAK":str(DELTA_PEAK), "k_near":str(k_near), "grid_size":str(grid_size), "s":str(s)}})
 
 
-                if data_type == "1" or data_type == "2":
-                    t=selcol(data, cols, "TIME")
-                    delta = float(request.POST['{}-delta'.format(mytype[count])])
-                    data_labelled=np.column_stack((data, lab))
-                    cols_labelled=cols+["LAB"]
-                    peaks, cols_temp = IBI.getPeaksIBI(data_labelled, cols_labelled, delta, mytype[count])
-                    minFr = float(request.POST['{}-minFr'.format(mytype[count])])
-                    maxFr = float(request.POST['{}-maxFr'.format(mytype[count])])
-                    pre_data, columns_out = IBI.max2interval(peaks, cols_temp, minFr, maxFr)
-                    funcs_par.update({"IBI.getPeaksIBI":{"delta":str(delta)}})
-                    funcs_par.update({"IBI.max2intervals":{"minFr":str(minFr), "maxFr":str(maxFr)}})
+            if data_type == "1" or data_type == "2":
+                t=selcol(data, cols, "TIME")
+                delta = float(request.POST['{}-delta'.format(mytype[count])])
+                data_labelled=np.column_stack((data, lab))
+                cols_labelled=cols+["LAB"]
+                peaks, cols_temp = IBI.getPeaksIBI(data_labelled, cols_labelled, delta, mytype[count])
+                minFr = float(request.POST['{}-minFr'.format(mytype[count])])
+                maxFr = float(request.POST['{}-maxFr'.format(mytype[count])])
+                pre_data, columns_out = IBI.max2interval(peaks, cols_temp, minFr, maxFr)
+                funcs_par.update({"IBI.getPeaksIBI":{"delta":str(delta)}})
+                funcs_par.update({"IBI.max2intervals":{"minFr":str(minFr), "maxFr":str(maxFr)}})
 
-                if data_type == "3":
-                    coeffAcc = float(request.POST['{}-coeffAcc'.format(mytype[count])])
-                    coeffGyr = float(request.POST['{}-coeffGyr'.format(mytype[count])])
-                    coeffMag = float(request.POST['{}-coeffMag'.format(mytype[count])])
-                    data_labelled=np.column_stack((data, lab))
-                    cols_labelled=cols+["LAB"]
-                    pre_data, columns_out=inertial_preproc(data_labelled, cols_labelled, coeffAcc, coeffGyr, coeffMag)
-                    funcs_par.update({"inertial.preproc": {"coeffAcc":str(coeffAcc), "coeffGyr":str(coeffGyr), "coeffMag":str(coeffMag)}})
+            if data_type == "3":
+                coeffAcc = float(request.POST['{}-coeffAcc'.format(mytype[count])])
+                coeffGyr = float(request.POST['{}-coeffGyr'.format(mytype[count])])
+                coeffMag = float(request.POST['{}-coeffMag'.format(mytype[count])])
+                data_labelled=np.column_stack((data, lab))
+                cols_labelled=cols+["LAB"]
+                pre_data, columns_out=inertial_preproc(data_labelled, cols_labelled, coeffAcc, coeffGyr, coeffMag)
+                funcs_par.update({"inertial.preproc": {"coeffAcc":str(coeffAcc), "coeffGyr":str(coeffGyr), "coeffMag":str(coeffMag)}})
 
-                print "FINISHED SPECIFIC PROCESSING"
-                putPreprocArrayintodb(id_num, pre_data, columns_out, funcs_par.keys(), funcs_par.values())
-                print "FINISHED PUTTING IN DB"
-                context = {'id_num': id_num, 'elab': 'proc'}
-            except Exception as e:
-                print "CANNOT PREPROCESS!!!", e.message
-                messages.error(request, 'Cannot process '+mytype[count]+'! Review your parameters.')
-                pass
+            print "FINISHED SPECIFIC PROCESSING"
+            putPreprocArrayintodb(id_num, pre_data, columns_out, funcs_par.keys(), funcs_par.values())
+            print "FINISHED PUTTING IN DB"
+            context = {'id_num': id_num, 'elab': 'proc'}
+            # except Exception as e:
+            #     print "CANNOT PREPROCESS!!!", e.message
+            #     messages.error(request, 'Cannot process '+mytype[count]+'! Review your parameters.')
+            #     pass
         return render(request, template, context)
 
     else:
