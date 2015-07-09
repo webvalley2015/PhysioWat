@@ -1,6 +1,10 @@
+<<<<<<< HEAD
+**Please find our log files in WebValley 2015 (shared with students) > July 7 Field Data.
+=======
 July 8, 2015, 14:58
 
 The raw data was pulled from github because someone told us to take it off. It's on Google Drive now, in the WebValley 2015 Shared with Students folder. I recommend using Sensor 175 of data on the Unknown Boy to run the models. 
+>>>>>>> 3f659a154f6dd63e6e172a9cdbbb6f2d02a29f3c
 
 Summary of findings
 Considerations for the PhysioWAT App - Bluetooth range, titles for txt files, & documentation of data labels.

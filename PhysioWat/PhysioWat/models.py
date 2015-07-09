@@ -27,6 +27,8 @@ class SensorRawData(models.Model):
 
 class Preprocessed_Recording(models.Model):
     recording = models.ForeignKey(Recording, on_delete=models.CASCADE)
+    batch_id = models.PositiveIntegerField()
+    signal_type_name = models.CharField(max_length=20)
     applied_preproc_funcs_names = ArrayField(
         models.CharField(max_length=50)
     )
@@ -37,6 +39,7 @@ class Preprocessed_Recording(models.Model):
         models.CharField(max_length=50, blank=True, null=True)
     )
 
+
 class Preprocessed_Data(models.Model):
     pp_recording = models.ForeignKey(Preprocessed_Recording, on_delete=models.CASCADE)
     store = HStoreField()
@@ -44,9 +47,9 @@ class Preprocessed_Data(models.Model):
 class FeatExtractedData(models.Model):
     pp_recording = models.ForeignKey(Preprocessed_Recording, on_delete=models.CASCADE)
     parameters = HStoreField(null=True, default=None)
-    path_to_file = models.TextField()  # To become FileField...
+    path_to_file = models.CharField(max_length=50)#FileField()  # To become FileField...
 
 class MLData(models.Model):
     fe = models.ForeignKey(FeatExtractedData, on_delete=models.CASCADE)
     parameters = HStoreField(null=True, default=None)
-    binary_result = models.BinaryField()
+    path_to_file = models.CharField(max_length=50)#FileField()

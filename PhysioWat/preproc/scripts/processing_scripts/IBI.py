@@ -61,7 +61,12 @@ def getPeaksIBI(signal, cols, peakDelta, s_type):
     t = selcol(signal, cols,  "TIME")
     signal_vals = selcol(signal ,cols, s_type)
     maxp, minp = peakdet(signal_vals, peakDelta, t)
-    new_lbls = get_row_for_col(timed_lbls, maxp[:,0])[:,1]
+    try:
+        new_lbls = get_row_for_col(timed_lbls, maxp[:,0])[:,1]
+    except IndexError as e:
+        print "IBI LABS: ", e.message
+        new_lbls = np.array([])
+        pass
     cols_out=["TIME", "PEAK", "LAB"]
     return np.column_stack((maxp, new_lbls)), cols_out
 

@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -14,6 +15,7 @@ from PhysioWat.models import Experiment, Recording, Preprocessed_Recording, Prep
 import pandas as pd
 import numpy as np
 from PhysioWat.settings import MEDIA_ROOT
+from django.conf import settings
 from time import time as get_timestamp
 from preproc.scripts.processing_scripts import pddbload
 import datetime
@@ -30,6 +32,7 @@ from sklearn.metrics import *
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
 from PhysioWat.models import Experiment, Preprocessed_Recording, Preprocessed_Data, FeatExtractedData
+from preproc.graphs import linegraph2, heatmap
 
 def get_signal_type(cols):
     if 'PHA' in cols:   #GSR
@@ -67,8 +70,11 @@ def QueryDb(recordingID):   #JUST COPY, PASTE AND CHANGED RECORDS
 
     return retarray, mykeys
 
-def WritePathtoDB(fname, pp_rec_id):
-    FeatExtractedData(pp_recording_id=pp_rec_id, path_to_file=fname).save()
+def WritePathtoDB(fname, pp_rec_id, parameters=None):
+    print "ID ", pp_rec_id
+    print "FNAME ", fname
+    print "PAR ", parameters
+    FeatExtractedData(pp_recording_id=pp_rec_id, path_to_file=fname, parameters=parameters).save()
 
 def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
 
@@ -78,87 +84,91 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
     if (request.method == 'POST'):
         mydict = dict(request.POST.iterlists())
         for id_num in mydict['choose_signal']:
-            print "RUNNING FOR ", id_num
-            data, cols = QueryDb(id_num)
-            time = selcol(data, cols, "TIME")
-            labs = selcol(data, cols, "LAB")
+            try:
+                print "RUNNING FOR ", id_num
+                data, cols = QueryDb(id_num)
+                time = selcol(data, cols, "TIME")
+                labs = selcol(data, cols, "LAB")
 
-            params=dict()
+                params=dict()
 
-            if (mydict['type'][0] == 'contigous'):
-                windows, winlab = wd.get_windows_contiguos(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
+                if (mydict['type'][0] == 'contigous'):
+                    windows, winlab = wd.get_windows_contiguos(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
 
-            if (mydict['type'][0] == 'no_mix'):  # for the values, make reference to .forms --> windowing.!!!!
-                windows, winlab = wd.get_windows_no_mix(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
+                if (mydict['type'][0] == 'no_mix'):  # for the values, make reference to .forms --> windowing.!!!!
+                    windows, winlab = wd.get_windows_no_mix(time, labs, float(mydict['length'][0]), float(mydict['step'][0]))
 
-            if (mydict['type'][0] == 'full_label'):
-                windows, winlab = wd.get_windows_full_label(time, labs)
-            params.update({"windowing":{"type":mydict["type"][0], "length":mydict["length"][0], "step":mydict["step"][0]}})
-            # extract features from result
-            # store feats. in the db
-            type_sig=get_signal_type(cols)
-            params.update({"signal_type":type_sig})
-            if type_sig=="GSR":   #GSR
-                data_in=selcol(data, cols, "PHA")
-                funcs, pars=list(Preprocessed_Recording.objects.filter(pk = id_num).values_list('applied_preproc_funcs_names', 'preproc_funcs_parameters'))[0]
-                DELTA=float(pars[funcs.index(u"GSR.preproc")][u"DELTA_PEAK"])
-                feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
-                data_out, cols_out=dict_to_arrays(feat_dict)
-                data_out=np.column_stack((data_out, winlab))
-                columns_out=np.r_[cols_out, ["LAB"]]
+                if (mydict['type'][0] == 'full_label'):
+                    windows, winlab = wd.get_windows_full_label(time, labs)
+                params.update({"windowing.type":str(mydict["type"][0]), "windowing.length":str(mydict["length"][0]), "windowing.step":str(mydict["step"][0])})
+                # extract features from result
+                # store feats. in the db
+                type_sig=get_signal_type(cols)
+                params.update({"signal_type":type_sig})
+                if type_sig=="GSR":   #GSR
+                    data_in=selcol(data, cols, "PHA")
+                    funcs, pars=list(Preprocessed_Recording.objects.filter(pk = id_num).values_list('applied_preproc_funcs_names', 'preproc_funcs_parameters'))[0]
+                    DELTA=float(pars[funcs.index(u"GSR.preproc")][u"DELTA_PEAK"])
+                    feat_dict = extfeat_GSR(data_in, time, DELTA, windows)
+                    data_out, cols_out=dict_to_arrays(feat_dict)
+                    data_out=np.column_stack((data_out, winlab))
+                    columns_out=np.r_[cols_out, ["LAB"]]
 
-            elif type_sig=="inertial":
-                col_acc=["ACCX", "ACCY", "ACCZ"]
-                col_gyr=["GYRX", "GYRY", "GYRZ"]
-                col_mag=["MAGX", "MAGY", "MAGZ"]
-                try:
-                    acc=selcol(data, cols, col_acc)
-                    thereIsAcc=True
-                except IndexError as e:
-                    print e
-                    thereIsAcc=False
-                try:
-                    gyr=selcol(data, cols, col_gyr)
-                    thereIsGyr=True
-                except IndexError as e:
-                    print e
-                    thereIsGyr=False
-                try:
-                    mag=selcol(data, cols, col_mag)
-                    thereIsMag=True
-                except IndexError as e:
-                    print e
-                    thereIsMag=False
-                columns_out=np.array(["LAB"])
-                data_out=winlab[:]
-                if thereIsAcc:
-                    feats_acc, fcol_acc= extfeat_ACC(acc, time, col_acc, windows)
-                    data_out=np.column_stack([feats_acc, data_out])
-                    columns_out=np.r_[fcol_acc, columns_out]
-                if thereIsGyr:
-                    feats_gyr, fcol_gyr= extfeat_GYR(gyr, time, col_gyr, windows)
-                    data_out=np.column_stack([feats_gyr, data_out])
-                    columns_out=np.r_[fcol_gyr, columns_out]
-                if thereIsMag:
-                    feats_mag, fcol_mag= extfeat_MAG(mag, time, col_mag, windows)
-                    data_out=np.column_stack([feats_mag, data_out])
-                    columns_out=np.r_[fcol_mag, columns_out]
+                elif type_sig=="inertial":
+                    col_acc=["ACCX", "ACCY", "ACCZ"]
+                    col_gyr=["GYRX", "GYRY", "GYRZ"]
+                    col_mag=["MAGX", "MAGY", "MAGZ"]
+                    try:
+                        acc=selcol(data, cols, col_acc)
+                        thereIsAcc=True
+                    except IndexError as e:
+                        print e
+                        thereIsAcc=False
+                    try:
+                        gyr=selcol(data, cols, col_gyr)
+                        thereIsGyr=True
+                    except IndexError as e:
+                        print e
+                        thereIsGyr=False
+                    try:
+                        mag=selcol(data, cols, col_mag)
+                        thereIsMag=True
+                    except IndexError as e:
+                        print e
+                        thereIsMag=False
+                    columns_out=np.array(["LAB"])
+                    data_out=winlab[:]
+                    if thereIsAcc:
+                        feats_acc, fcol_acc= extfeat_ACC(acc, time, col_acc, windows)
+                        data_out=np.column_stack([feats_acc, data_out])
+                        columns_out=np.r_[fcol_acc, columns_out]
+                    if thereIsGyr:
+                        feats_gyr, fcol_gyr= extfeat_GYR(gyr, time, col_gyr, windows)
+                        data_out=np.column_stack([feats_gyr, data_out])
+                        columns_out=np.r_[fcol_gyr, columns_out]
+                    if thereIsMag:
+                        feats_mag, fcol_mag= extfeat_MAG(mag, time, col_mag, windows)
+                        data_out=np.column_stack([feats_mag, data_out])
+                        columns_out=np.r_[fcol_mag, columns_out]
 
-            elif type_sig=="IBI":
-                data_in=selcol(data, cols, ["TIME","IBI"])
-                cols_in=["TIME", "IBI"]
-                data_out, winlab = extfeat_IBI(data_in, cols_in, windows, winlab)
-                columns_out=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
-                print data_out.shape, winlab.shape
-                data_out=np.column_stack((data_out, winlab))
-                columns_out=np.r_[columns_out, ["LAB"]]
+                elif type_sig=="IBI":
+                    data_in=selcol(data, cols, ["TIME","IBI"])
+                    cols_in=["TIME", "IBI"]
+                    data_out, winlab = extfeat_IBI(data_in, cols_in, windows, winlab)
+                    columns_out=np.array(['RRmean', 'RRSTD', 'pNN50', 'pNN25', 'pNN10', 'RMSSD', 'SDSD'])
+                    print data_out.shape, winlab.shape
+                    data_out=np.column_stack((data_out, winlab))
+                    columns_out=np.r_[columns_out, ["LAB"]]
 
-            st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y-%m-%d_%H:%M:%S')
-            fname=MEDIA_ROOT+id_num+"_"+st+".csv"
-            toCsv(data_out, columns_out, fname)
-            WritePathtoDB(fname, id_num)
+                st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y%m%d_%H%M%S')
+                fname=MEDIA_ROOT+type_sig+"_"+id_num+"_"+st+".csv"
+                toCsv(data_out, columns_out, fname)
+                WritePathtoDB(fname, id_num, params)
+            except Exception as e:
+                print "COULD NOT PROCESS "+id_num+": "+e.message
+                messages.error(request, "Error processing "+id_num+" ("+type_sig+"). Review your parameters! It will not be saved.")
 
-        return HttpResponseRedirect(reverse('index'))
+        return HttpResponseRedirect(reverse('ml_param_setting'))
 
     else:
         form = windowing()
@@ -174,6 +184,19 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
 def ml_input(request):  # obviously, it has to be added id record and everything concerning db
     if (request.method == 'POST'):
 
+        template = "machine_learning/results.html"
+        mat =[[0.12347442045527879, 0.8094406486883253],
+ [0.13438271020294834, 0.9195616568032954],
+ [0.7340808740690876, 0.501292876257899],
+ [0.15205183424532076, 0.7723196374025724],
+ [0.15305657903122016, 0.02967990232224793],
+ [0.751312493253797, 0.15057926746395178],
+ [0.3325655818985571, 0.8545431696554671],
+ [0.388049400727121, 0.6359039900354648],
+ [0.7656376483351357, 0.011118993319648052],
+ [0.3030715521728802, 0.3478716425630006]]
+
+
         #print "culoculoculoculo"  # GET THE POST, ELABORATE AND GO TO THE DB OR THE PLOT
         #print request.POST
         mydict = dict(request.POST.iterlists())
@@ -182,22 +205,22 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         #
         #     print key, request.POST.getlist(key)
 
-        print mydict
+        #print mydict
 
-        print '-' * 60
-        #localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
+        #print '-' * 60
+        #localdir = 'PhysioWat/preproc/scripts/processing_scripts/output/'
         #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
         exprecid = mydict['choose_id']
+        #exprecid = [18]
         input_data = pddbload.load_file_pd_db(exprecid[0])
         num_feat = -1  # set to -1 because of
 
         percentage = mydict['test_percentage'][0]
         percentage = float(percentage) / 100.0
-        list_of_feat = list(input_data.colums)
-        num_iteration = mydict['number_of_iterations']
-
+        list_of_feat = list(input_data.columns)
+        num_iteration = mydict['number_of_iterations'][0]
+        ft.iterations = int(num_iteration)
         algorithm = mydict['alg_choice'][0]
-        print algorithm
         flag = True
         if 'viewf' in mydict:
             if 'norm' in mydict['viewf']:
@@ -254,12 +277,18 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         if 'auto' in mydict['parameter_choiche']:
             metrics = mydict['maximize'][0]
             #print  metrics
-            clf, result_mat = ft.bestAlg(train_data, algorithm, metrics)[0]
+            clf, result_mat = ft.bestAlg(train_data, metrics)
 
-        y_true = test_data.LAB
-        te_data = test_data[test_data.columns[:-1]]
-        y_pred = my_predict(clf, te_data, y_true )
-        dic_metric, conf_mat = get_report(y_true, y_pred)
+        dic_metric, conf_mat = ft.test_learning(clf, test_data)
+
+        print dic_metric, conf_mat
+
+        h = heatmap()
+        data = h.get_data(conf_mat)
+        context = {'datac': json.dumps(data)}
+        # TODO check the 'matrix for'
+        return render(request, template, context)
+
 
         #CALL OTHER FUNCTIONS / GET OTHER DATAS/
         #final_ml_page(request, result_dict=dic_metric, conf_mat=conf_mat)
@@ -267,9 +296,6 @@ def ml_input(request):  # obviously, it has to be added id record and everything
 # TODO HERE STARTS THE FINAL PART OF THE MACHINE LEARNING, WHICH IS NO MORE PROCESSING BUT JUST RENDERING THE FORM (and getting the json)
 # -------------------------------------------------------------------------------
 
-        template = "machine_learning/results.html"
-        # context = {'results': dic_metric,'conf_mat':conf_mat}
-        return render(request, template)
 
     else:
         template = "machine_learning/ml_input.html"

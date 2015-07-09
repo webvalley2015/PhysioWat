@@ -1,7 +1,5 @@
 {% extends 'PhysioWat/base.html' %}
 {% block container %}
-
-<br><br><br><br><br>
   <h1>Select Experiment</h1>
 
 <!--Creating the divs to dispay the name of the step-->
@@ -45,9 +43,6 @@
             <input type="submit" value="Select">
         </div>
 
-    {% if messages %}
-        {% include "includes/error_messages.html" %}
-    {% endif %}
     </form>
 <br>
 
