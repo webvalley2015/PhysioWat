@@ -4,7 +4,7 @@ import numpy as np
 import tools
 import windowing as win
 
-filename="./data/claire_labeled.csv"
+filename="./data/claire_9labels.csv"
 
 columns_in=["TIME", "ACCX","ACCY","ACCZ", "GYRX","GYRY","GYRZ", "MAGX","MAGY","MAGZ", "LAB"]
 col_acc=["ACCX", "ACCY", "ACCZ"]
