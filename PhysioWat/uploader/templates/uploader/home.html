@@ -3,12 +3,11 @@
 {% block container %}
 
 <h1>Upload File</h1>
-<form action="#" method="post" enctype="multipart/form-data" class="">
+<div class="">
     {% include "includes/steps.html" %}
-
-    <div class="form-cnt">
+    <form action="#" method="post" enctype="multipart/form-data" class="form-cnt">
         {% csrf_token %}
-        <div id="Experiment_div" margin-top="15px">
+        <div id="Experiment_div">
             <label for="experiment">Experiment </label></div>
         <select name="experiment" class="form-control" id="sel">
             {% for c in experiments %}
@@ -17,12 +16,12 @@
         </select><br>
         <!-- buttons submit and reset -->
         {% include "includes/bootstrap_fordbgroup.html" %}
-        <div align="center">
-            <button id="button_prev" class="btn btn-default" onclick="decrease_passage()">Previous Step</button>
-            <button id="button_next" class="btn btn-default" onclick="increase_passage()">Next Step</button>
-        </div>
+    </form>
+    <div align="center">
+        <button id="button_prev" class="btn btn-default" onclick="decrease_passage()">Previous Step</button>
+        <button id="button_next" class="btn btn-default" onclick="increase_passage()">Next Step</button>
     </div>
-</form>
+</div>
 
 <!--<button id="button1" class="btn btn-success" onclick="increase_passage()">Next step</button>-->
 

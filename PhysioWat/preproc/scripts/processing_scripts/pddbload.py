@@ -3,24 +3,21 @@ __author__ = 'andrew'
 import pandas as pd
 import os
 from PhysioWat.models import FeatExtractedData
-
+from django.conf import  settings
 
 def load_file_pd_db(recordingID):
-#<<<<<<< HEAD
-    #fpath = FeatExtractedData.objects.filter(pp_recording=recordingID).latest('id').path_to_file
-#=======
-    fpath = FeatExtractedData.objects.filter(pp_recording=recordingID).values_list('path_to_file') #[0][0]
+    fpath = FeatExtractedData.objects.filter(id=recordingID).values_list('path_to_file') #[0][0]
     #fpath = FeatExtractedData.objects.get(pp_recording=recordingID).path_to_file.distinct()
-#>>>>>>> 07bf5f5b1497ab2bfac2badc70b025e3993943a3
-    uncleanedfile = open(fpath, 'r')
-    if os.path.isfile(fpath + 'p'):
-        uncleanedfile.close()
-    else:
-        file = open(fpath + 'p', 'w')
-        for line in uncleanedfile:
-            file.write(line.replace(' ', ''))
-        uncleanedfile.close()
-        file.close()
-    filecleaned = open(fpath + 'p', 'r')
+    file_name = '{0}/{1}'.format(settings.BASE_DIR, fpath[0][0])
+    uncleanedfile = open(file_name, 'r')
+
+    file = open(file_name + 'proc_ml', 'w')
+    for line in uncleanedfile:
+        file.write(line.replace(' ', ''))
+    uncleanedfile.close()
+    file.close()
+    filecleaned = open(file_name + 'proc_ml', 'r')
+>>>>>>> 0c58147522a1e1b74ff3e3132db1b99fe3badfc4
     datacsv = pd.read_csv(filecleaned, sep=',')
+    print datacsv
     return datacsv

@@ -56,7 +56,6 @@ var pass_form_input = document.getElementById("id_password");
 
 
 
-
 /*
 $(document).ready(function()  {
 
