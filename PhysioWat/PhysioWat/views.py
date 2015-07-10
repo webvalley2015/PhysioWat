@@ -32,3 +32,7 @@ def contact_view(request):
     return render(request, template, context)
 
 
+def design_view(request):
+    return render(request, template_name="PhysioWat/design.html")
+
+
