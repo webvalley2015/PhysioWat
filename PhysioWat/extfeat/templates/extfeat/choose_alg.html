@@ -42,7 +42,11 @@
         <button type="reset" class="btn btn-danger">Reset</button>
     </form>
 {% if success %}
-    <a href="{% url 'download' id_file %}"><div style="margin-top:25px" class="alert alert-success" role="alert">Features successfully extracted! Click here to download the csv file.</div></a>
+    <a href="{% url 'download' id_file %}">
+        <div style="margin-top:25px" class="alert alert-success" role="alert">
+        Features successfully extracted! Click here to download the csv file.
+        </div>
+    </a>
 {% endif %}
 </div>
 
