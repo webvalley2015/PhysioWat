@@ -1,0 +1,1 @@
+Simulated data collected in 30 seconds for each of the 10 classes, July 9th, 2015. Subject was Claire Goeckner-Wald, timer & experiment conducted by Elina Kapoor and Valerie Ding. Andrea Pedot achieved 90% accuracy within the dataset using multi-class ML algorithm.
