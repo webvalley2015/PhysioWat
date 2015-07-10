@@ -197,12 +197,12 @@ def ml_input(request, id_record):  # obviously, it has to be added id record and
 
         print mydict
         #print '-' * 60
-        #localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
-        #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
+        localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
+        input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
         exprecid = mydict['choose_id']
         #print exprecid
         #exprecid = [18]
-        input_data = pddbload.load_file_pd_db(int(exprecid[0]))
+        #input_data = pddbload.load_file_pd_db(int(exprecid[0]))
         num_feat = -1  # set to -1 because of
         print 'Ciao'
         print input_data.shape
@@ -310,7 +310,7 @@ def ml_input(request, id_record):  # obviously, it has to be added id record and
             print "LA MATRICE DELLE FEATURES, CHE SUL TEMPLATE FUNZIONA  ", best_feat_json
 
         # PART OF THE BEST ALGORITHM
-        if auto_alg_result_mat:
+        if auto_alg_result_mat != None:
             s = linegraph3()
             auto_alg_result_mat = list(np.array(auto_alg_result_mat[:,1:]))
             algorithm_categories = ['KNN','SVM','DCT','RND','ADA','QDA','LDA'] # TODO PEDOT FUNCTION!!!!

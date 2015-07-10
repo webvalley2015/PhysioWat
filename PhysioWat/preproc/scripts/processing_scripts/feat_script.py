@@ -459,7 +459,7 @@ def bestfit_SVM(fe_data, alg, metric):
     for k, kernel in enumerate(Klist):
         for i, C in enumerate(Clist):
             print kernel, C
-            clf = classifiers[alg](kernel, C)          
+            clf = classifiers[alg](kernel, C)
             mean_local, err_local = iterate_crossvalidation(clf, fe_data, metric)
             if mean_local > mean_max:
                 mean_max = mean_local
@@ -582,7 +582,7 @@ def bestfit_RFC(fe_data, alg, metric):
     err_met = np.zeros((len(NElist), len(MFlist)))
     for n_est in NElist:
         for max_f in MFlist:
-            clf = classifiers[alg](n_est, max_f)           
+            clf = classifiers[alg](n_est, max_f)
             mean_local, err_local = iterate_crossvalidation(clf, fe_data, metric)
             my_met[NElist.index(n_est), MFlist.index(max_f)] = mean_local
             err_met[NElist.index(n_est), MFlist.index(max_f)] = err_local
