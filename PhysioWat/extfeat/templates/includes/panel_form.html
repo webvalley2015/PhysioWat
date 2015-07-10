@@ -1,0 +1,14 @@
+{% load bootstrap3 %}
+<div class="" id={{ id }} {% if hidden %} style="display:none;" {% endif %}>
+    <div class="panel panel-default">
+        <!--<div class="panel-heading">Title: {{ title }}</div>-->
+        <div class="panel-body">
+            {% if caption %}
+            {{ caption }}
+            <br>
+            <br>
+            {% endif %}
+            {% bootstrap_form form %}
+        </div>
+    </div>
+</div>

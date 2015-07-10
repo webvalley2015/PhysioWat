@@ -8,7 +8,8 @@ from django.conf import  settings
 def load_file_pd_db(recordingID):
     fpath = FeatExtractedData.objects.filter(id=recordingID).values_list('path_to_file') #[0][0]
     #fpath = FeatExtractedData.objects.get(pp_recording=recordingID).path_to_file.distinct()
-    file_name = '{0}/{1}'.format(settings.MEDIA_ROOT, fpath[0][0])
+    file_name = fpath[0][0]
+    print file_name
     uncleanedfile = open(file_name, 'r')
 
     file = open(file_name + 'proc_ml', 'w')
