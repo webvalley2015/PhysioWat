@@ -25,7 +25,7 @@
 <div class="processed-signal row">
     <div id="feat-list" style=" left:30px;" class="col-md-5">
         <table class="table table-striped">
-            <tr><td><th>Features used</th></td></tr>
+            <tr><td><th>Best features</th></td></tr>
             {% for i in list_of_feat %}
             <tr>
 
@@ -48,6 +48,7 @@
 
             {% endfor %}
         </table>
+        (Note: if at the previous page you chose the number of features there nothing will be displayed )
     </div>
 
 </div>
@@ -57,12 +58,12 @@
     <div id="graph-auto_alg_result"> <!-- style="display:none;" -->
     </div>
 <div class="processed-signal row">
-    <div id="metrics-result"> <!-- style="display:none;" -->
+    <div id="metrics-result" style="height:600px;"> <!-- style="display:none;" -->
     </div>
 </div>
 
 <div class="processed-signal row">
-    <div id="graph-heatmap"></div>
+    <div id="graph-heatmap" style="position:relative; top:50px;"></div>
     <!-- THIS IS ANOTHER DIV FOR ANOTHER GRAPH, IT DOES NOT CONTAIN ANITHING NOW -->
 </div>
 
