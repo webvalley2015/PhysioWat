@@ -1,6 +1,6 @@
 import json
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from scipy.stats import itemfreq
 from .forms import windowing, viewFeatures, FeatPar, TestParam, AlgChoose, AlgParam, SvmParam, KNearParam, DecTreeParam, \
@@ -21,6 +21,9 @@ import datetime
 import pandas as pd
 from PhysioWat.models import Experiment, Preprocessed_Recording, Preprocessed_Data, FeatExtractedData
 from preproc.graphs import linegraph2, heatmap, linegraph3
+from django.core.servers.basehttp import FileWrapper
+import mimetypes
+import os
 
 
 def get_signal_type(cols):
@@ -65,7 +68,9 @@ def WritePathtoDB(fname, pp_rec_id, parameters=None):
     print "ID ", pp_rec_id
     print "FNAME ", fname
     print "PAR ", parameters
-    FeatExtractedData(pp_recording_id=pp_rec_id, path_to_file=fname, parameters=parameters).save()
+    record = FeatExtractedData(pp_recording_id=pp_rec_id, path_to_file=fname, parameters=parameters)
+    record.save()
+    return record.id
 
 
 def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
@@ -73,6 +78,8 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
     # read parameters from url
     # get data type list
     allow_ml = False
+    id_file = -1
+
     if request.method == 'POST':
         mydict = dict(request.POST.iterlists())
         # if 'choose_signal' in mydict:
@@ -166,12 +173,11 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
             fname = MEDIA_ROOT + type_sig + "_" + id_num + "_" + st + ".csv"
             # print(fname)
             toCsv(data_out, columns_out, fname)
-            WritePathtoDB(fname, id_num, params)
+            id_file = WritePathtoDB(fname, id_num, params)
             success = True
 
             # check distinct label
             print "COLUMNS", columns_out, type(columns_out), np.where(columns_out == "LAB")[0]
-
             allow_ml = False if len(np.unique(data_out[:, np.where(columns_out == "LAB")])) == 1 else True
 
         except Exception as e:
@@ -187,13 +193,13 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
             #    messages.error(request, "Choose at least one preprocessed signal")
     else:
         success = False
+
     form = windowing()
     # form_signal = form_select_signal(id_record)
     template = "extfeat/choose_alg.html"
     # print urlTmp['id_num']
 
-
-    context = {'form': form, 'id_record': id_record, 'success': success, 'allow_ml': allow_ml}
+    context = {'form': form, 'id_record': id_record, 'success': success, 'allow_ml': allow_ml, 'id_file': id_file}
     return render(request, template, context)
 
 
@@ -211,7 +217,7 @@ def ml_input(request, id_record):  # obviously, it has to be added id record and
         print mydict
         # print '-' * 60
         # localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
-        # input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
+        # input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=','
         exprecid = mydict['choose_id']
         print exprecid
         input_data = pddbload.load_file_pd_db(int(exprecid[0]))
@@ -509,3 +515,15 @@ def final_ml_page(request, result_dict, conf_mat):
     print type(result_dict)
 
     # PROCESS CONFUSION MAT AND WHATHEVER ELSE WITH ANDREW'S FUNCTION!!!!
+
+
+def send_file(request, id_file):
+    filename = FeatExtractedData.objects.filter(pk=id_file).values_list('path_to_file')[0][0]
+    print filename, type(filename)
+    name = filename.split("/")[-1]
+    wrapper = FileWrapper(open(filename))
+    content_type = mimetypes.guess_type(filename)[0]
+    response = HttpResponse(wrapper, content_type=content_type)
+    response['Content-Length'] = os.path.getsize(filename)
+    response['Content-Disposition'] = "attachment; filename=%s" % name
+    return response
