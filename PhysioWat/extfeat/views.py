@@ -1,6 +1,6 @@
 import json
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from .forms import windowing, viewFeatures, FeatPar, TestParam, AlgChoose, AlgParam, SvmParam, KNearParam, DecTreeParam, signal_choose, RndForParam, AdaBoostParam, LatDirAssParam, autoFitParam, id_choose
 from preproc.scripts.processing_scripts import windowing as wd, feat_script as ft
@@ -19,6 +19,9 @@ import datetime
 import pandas as pd
 from PhysioWat.models import Experiment, Preprocessed_Recording, Preprocessed_Data, FeatExtractedData
 from preproc.graphs import linegraph2, heatmap, linegraph3
+from django.core.servers.basehttp import FileWrapper
+import mimetypes
+import os
 
 def get_signal_type(cols):
     if 'PHA' in cols:   #GSR
@@ -55,19 +58,20 @@ def QueryDb(recordingID):   #JUST COPY, PASTE AND CHANGED RECORDS
 
     return retarray, mykeys
 
-
 def WritePathtoDB(fname, pp_rec_id, parameters=None):
     print "ID ", pp_rec_id
     print "FNAME ", fname
     print "PAR ", parameters
-    FeatExtractedData(pp_recording_id=pp_rec_id, path_to_file=fname, parameters=parameters).save()
+    record=FeatExtractedData(pp_recording_id=pp_rec_id, path_to_file=fname, parameters=parameters)
+    record.save()
+    return record.id
 
 
 def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URLS!!!
 
     # read parameters from url
     # get data type list
-
+    id_file=-1
     if (request.method == 'POST'):
         mydict = dict(request.POST.iterlists())
         #if 'choose_signal' in mydict:
@@ -154,10 +158,11 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
                     columns_out=np.r_[columns_out, ["LAB"]]
 
                 st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y%m%d_%H%M%S')
-                fname=MEDIA_ROOT+type_sig+"_"+id_num+"_"+st+".csv"
+                filename=type_sig+"_"+id_num+"_"+st+".csv"  #just name
+                fname=MEDIA_ROOT+filename                   #name+path
                 print(fname)
                 toCsv(data_out, columns_out, fname)
-                WritePathtoDB(fname, id_num, params)
+                id_file=WritePathtoDB(fname, id_num, params)
                 success=True
             except Exception as e:
                 print "COULD NOT PROCESS "+id_num+": "+e.message
@@ -173,11 +178,12 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
 
     else:
         success=False
+
     form = windowing()
     #form_signal = form_select_signal(id_record)
     template = "extfeat/choose_alg.html"
     # print urlTmp['id_num']
-    context = {'form': form, 'id_record': id_record, 'success':success}
+    context = {'form': form, 'id_record': id_record, 'success':success, 'id_file':id_file}
     return render(request, template, context)
 
 
@@ -500,3 +506,13 @@ def final_ml_page(request, result_dict, conf_mat):
 
     #PROCESS CONFUSION MAT AND WHATHEVER ELSE WITH ANDREW'S FUNCTION!!!!
 
+def send_file(request, id_file):
+    filename=FeatExtractedData.objects.filter(pk=id_file).values_list('path_to_file')[0][0]
+    print filename, type(filename)
+    name=filename.split("/")[-1]
+    wrapper      = FileWrapper(open(filename))
+    content_type = mimetypes.guess_type(filename)[0]
+    response     = HttpResponse(wrapper,content_type=content_type)
+    response['Content-Length']      = os.path.getsize(filename)
+    response['Content-Disposition'] = "attachment; filename=%s"%name
+    return response
