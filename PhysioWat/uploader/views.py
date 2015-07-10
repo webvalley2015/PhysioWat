@@ -1,3 +1,5 @@
+
+
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
@@ -44,11 +46,38 @@ def getExperiments():
 @csrf_exempt
 def get_data_from_mobile(request):
     if request.method == 'POST':
-        data = request.POST['file']
-    else:
-        data = []
-    return HttpResponse(data)
+        # POST:
+        # in 'data'   -> file to be read
+        # in 'exp_id' -> experiment id
 
+        print request.POST
+        print request.FILES
+        if 'data' not in request.FILES:
+            print "Error: no data received or bad POST key for data ",
+            print "(it must be 'data'). No data will be save to db."
+        elif 'exp_id' not in request.POST:
+            print "Error: no experiment selected. No data will be save to db."
+        else:
+            print 'saving data to db...'
+            exp_id = request.POST['exp_id']
+            descr = "mobile data for exp n. {0}".format(exp_id)
+            try:
+                for f in request.FILES['data'].chunks():
+                    print f
+
+                print "pippo", request.FILES['data']
+                csvtodb.putintodbflex([request.FILES['data']],
+                                      'mobile',
+                                      descr,
+                                      exp_id)
+                print "savED data to db."
+            except Exception as e:
+                print "Error while saving mobile data to db."
+                print "Details: {0}".format(e)
+    else:
+        print "Warning: No POST request received. Doing nothing."
+
+    return HttpResponse()
 
 def list_experiment_id(request):
     myexp = Experiment.objects.all().values_list('id', 'name')

@@ -1,32 +1,118 @@
 {% extends "PhysioWat/base.html" %}
 {# load static gives mistakes : /static/js/jquery.min.map HTTP/1.1" 404 {% load static %} #}
 {% load highcharts_tags %}
+{% load utils %}
 {% block app_specific_css %}
 {% load bootstrap3 %}
 {% endblock %}
 
 {% block container %}
 
- <div class="processed-signal row">
-                    <div id="processed-signal"></div>
-                    <!-- THIS IS ANOTHER DIV FOR ANOTHER GRAPH, IT DOES NOT CONTAIN ANITHING NOW -->
- </div>
+<br><br><br><br>
 
-{{ datac }}
+<!--<table>
+    <tr><td><th>Metrics result</th></td></tr>
+    {% for k,v in dic_result.items %}
+    <tr>
+        <td>{{ dict_sigla_parola|dict_key:k }} {{ v|fmt:100 }}</td>
+    </tr>
+    {% endfor %}
+</table>-->
+
+ <br>
+
+
+<div class="processed-signal row">
+    <div id="feat-list" style=" left:30px;" class="col-md-5">
+        <table class="table table-striped">
+            <tr><td><th>Features used</th></td></tr>
+            {% for i in list_of_feat %}
+            <tr>
+
+                <td>{{ i }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div id="features-scores" class="col-md-5 col-md-offset-2">
+        <table class="table table-striped">
+            <tr>
+                <th>Number of features</th>
+                <th>Accuracy (%)</th>
+            </tr>
+            {% for i in best_feat_scores %}
+            <tr>
+                <td>{{ i.0|floatformat:0 }}</td>
+                <td>{{ i.1|floatformat:2 }}</td>
+            </tr>
+
+            {% endfor %}
+        </table>
+    </div>
+
+</div>
+
+
+<div class="processed-signal row">
+    <div id="graph-auto_alg_result"> <!-- style="display:none;" -->
+    </div>
+<div class="processed-signal row">
+    <div id="metrics-result"> <!-- style="display:none;" -->
+    </div>
+</div>
+
+<div class="processed-signal row">
+    <div id="graph-heatmap"></div>
+    <!-- THIS IS ANOTHER DIV FOR ANOTHER GRAPH, IT DOES NOT CONTAIN ANITHING NOW -->
+</div>
 
 {% endblock %}
 
 {% block app_specific_js %}
 
-{% highcharts_js 1 1 1 1 %}
+{% highcharts_js 1 1 0 1 %}
 <script>
-    var data = {{ datac|safe }}
+    var data_conf = {{ conf_mat|safe }} ;
+
+   var metrics_res = {{ metrics|safe }}
+   // var feat_list = "{{ auto_list_of_feats|safe }}";
+    {# var best_feat_scores = {{ best_feat_scores }}; #}
+
+
     $('document').ready(function() {
-    console.log("ciao, sono nel document ready");
-    console.log(data);
-    $('#processed-signal').highcharts(data);
-    console.log("i didnt blocked");
+        console.log(data_conf);
+
+        //  console.log(auto_alg_result);
+
+        $('#graph-heatmap').highcharts(data_conf);
+        console.log("i didnt blocked");
+        {% if auto_alg_result%} //BLOCK AUTO ALGORITHMS!
+            var auto_alg_result = {{ auto_alg_result_mat|safe }}
+            $('#graph-auto_alg_result').highcharts(auto_alg_result);
+        {% endif %}
+
+        console.log(metrics_res);
+        $('#metrics-result').highcharts(metrics_res);
     });
+
+
+
+
+  //  console.log("ciao, sono nel document ready");
+  //  console.log(feat_list);
+  //  console.log(best_feat_scores);
+
+ {#   {% if best_feat_scores %} #}
+  {#      $('#best-feat-list').show(); #}
+   {#     $('#graph-featscores').show(); #}
+   {# {% endif %} #}
+
+
+  //      $('#graph-auto-alg-result').show();
+    //    console.log(auto_alg_results);
+      //  $('#graph-auto_alg_result').highcharts(auto_alg_results)
+
+
 </script>
 
 {% endblock app_specific_js %}

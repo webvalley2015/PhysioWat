@@ -16,12 +16,16 @@ def putintodbflex(fnames, dvname, desc, exp_id):
 
             r = Recording(experiment_id=exp_id, device_name=dvname, dict_keys=dictky, description=desc)
 
-            r.save()
-            ll=[]
-            for row in csvreader:
-                ll.append(SensorRawData(recording_id=r.id, store=dict(zip(dictky, row))))
+            # if is_mobile_upload:
+            #     csvreader.next()
 
-            SensorRawData.objects.bulk_create(ll, batch_size=1000)
+            r.save()
+            ll = []
+            for row in csvreader:
+                if len(row) == len(dictky):
+                    ll.append(SensorRawData(recording_id=r.id, store=dict(zip(dictky, row))))
+
+            SensorRawData.objects.bulk_create(ll, batch_size=32768)
     return 0
 
 '''

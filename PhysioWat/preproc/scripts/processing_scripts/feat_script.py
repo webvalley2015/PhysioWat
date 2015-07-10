@@ -27,9 +27,6 @@ from scipy import stats
 import time
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
-# import matplotlib.pyplot as plt
-# from matplotlib.backends.backend_pdf import PdfPages
-
 
 # names is the list containig the names of the possible 
 # algorithms, check the consistency with the classifiers dictionary 
@@ -121,6 +118,7 @@ def feat_boxplot(x):
     #    plt.axis('off')
     #    plt.title(x.columns[i], fontsize=5)
     #    plt.savefig('./figs/fig'+str(nam)+'XXX'+str(k)+'.png')    
+    plt.savefig('boxw_best10.png')
     return datas
 
 def get_box_vals(serie):
@@ -239,13 +237,13 @@ def deep_alg_fat(in_data, te_data): #stays for Deep Algorithms Fit & Test
     in_data = in_data[in_data.columns[:-1]]
         
         
-    print 'List of accuracies...'
+    #print 'List of accuracies...'
     for name, clf in zip(names, classifiers.items):
         #ax = plt.subplot(len(datasets), len(classifiers) + 1, i)
         clf.fit(in_data, in_tar)
         #labels_predict = clf.predict(te_data)
         score = clf.score(te_data, te_tar)
-        print "Accuracy for\t " + name +"\t  %.5f" %(score)
+        #print "Accuracy for\t " + name +"\t  %.5f" %(score)
         
         
         
@@ -428,10 +426,15 @@ def bestfit(fe_data, alg, metric, fromalg=False):
 def bestfit_KNN(fe_data, alg, metric):  # ok
     NNlist = [1, 3, 5, 7, 9, 11]  #TRY
     my_met = np.zeros((len(NNlist), 3))
+    mean_max = 0
     
-    for nn in NNlist:
+    for i, nn in enumerate(NNlist):
         clf = classifiers[alg](nn)
         mean_local, err_local = iterate_crossvalidation(clf, fe_data, metric)
+        if mean_local > mean_max:
+                mean_max = mean_local
+                max_pos = i
+            
         my_met[NNlist.index(nn), :] = np.array([nn, mean_local, err_local])
         
         
@@ -444,19 +447,23 @@ def bestfit_KNN(fe_data, alg, metric):  # ok
     bestnn = NNlist[my_met[:,1].argmax()]
     clf = classifiers[alg](bestnn)
     
-    return clf, my_met[:,1].max(), my_met[:,2].max(), my_met
+    return clf, my_met[max_pos,1], my_met[max_pos,2], my_met
     
     
 def bestfit_SVM(fe_data, alg, metric):
     Klist = ['linear', 'rbf', 'sigmoid'] #TRY
     bestC = 0.
+    mean_max = 0
     Clist = [ 10**i for i in range(-3,6) ]# TRY
     my_met = np.matrix([0,0,0,0])
     for k, kernel in enumerate(Klist):
-        for C in Clist:
+        for i, C in enumerate(Clist):
             print kernel, C
             clf = classifiers[alg](kernel, C)          
             mean_local, err_local = iterate_crossvalidation(clf, fe_data, metric)
+            if mean_local > mean_max:
+                mean_max = mean_local
+                max_pos = k*len(Clist)+i
             in_vec = np.array([C, mean_local, err_local, k])
             my_met = np.vstack((my_met, in_vec))
         #plot the my_met
@@ -469,17 +476,22 @@ def bestfit_SVM(fe_data, alg, metric):
     bestkernel = Klist[int(my_met[my_met[:,1].argmax(),3])]
     bestC = int(my_met[my_met[:,1].argmax(),0])
         
-    my_met = my_met[1:, :]
     clf = classifiers[alg](bestkernel, bestC)
-    return clf, my_met[:,1].max(), my_met[:,2].max(), my_met
+    print 'reached end'
+    #return clf, my_met[max_pos,1], my_met[max_pos,2], my_met
+    return clf, my_met[int(mean_max),1].max(), my_met[max_pos,2], my_met
     
 
 def bestfit_DCT(fe_data, alg, metric):
     MFlist = [1, None, 'log2', 'sqrt'] #TRY
     my_met = np.zeros((len(MFlist), 3))
+    mean_max = 0    
     for k, max_f in enumerate(MFlist):
         clf = classifiers[alg](max_f)
         mean_local, err_local = iterate_crossvalidation(clf, fe_data, metric)
+        if mean_local > mean_max:
+                mean_max = mean_local
+                max_pos = k            
         my_met[MFlist.index(max_f), :] = np.array([k, mean_local, err_local])
         
     #plot the my_met
@@ -490,7 +502,7 @@ def bestfit_DCT(fe_data, alg, metric):
 
     bestmax_f = MFlist[my_met[:,1].argmax()]
     clf = classifiers[alg](bestmax_f)
-    return clf, my_met[:,1].max(), my_met[:,2].max(), my_met
+    return clf, my_met[max_pos,1], my_met[max_pos,2], my_met
     
 def bestfit_QDA(fe_data, alg, metric):  #ok
     my_met = np.matrix([[0,0,0]])
@@ -511,10 +523,14 @@ def bestfit_QDA(fe_data, alg, metric):  #ok
 def bestfit_LDA(fe_data, alg, metric):
     SRlist = ['svd', 'lsqr']#, 'eigen']
     my_met = np.zeros((len(SRlist), 3))
+    mean_max = 0
     
     for k, solver in enumerate(SRlist):
         clf = classifiers[alg](solver)
         mean_local, err_local = iterate_crossvalidation(clf, fe_data, metric)
+        if mean_local > mean_max:
+                mean_max = mean_local
+                max_pos = k
         my_met[SRlist.index(solver), :] = np.array([k, mean_local, err_local])
 
     #plot the my_met
@@ -531,12 +547,12 @@ def bestfit_LDA(fe_data, alg, metric):
     bestsolver = SRlist[my_met[:,1].argmax()]
     clf = classifiers[alg](bestsolver)
     
-    return clf, my_met[:,1].max(), my_met[:,2].max(), my_met
+    return clf, my_met[max_pos,1], my_met[max_pos,2], my_met
     
 #watch out... this is a particular matrix... 65s for 75cvs
 def bestfit_ADA(fe_data, alg, metric):
-    NElist = [i*50 for i in range(1, 201)]# TRY
-    LRlist = [i*0.25 for i in range(2,8)] # TRY
+    NElist = [i*50 for i in range(1, 20, 5)]# TRY
+    LRlist = [i*0.25 for i in range(2,6)] # TRY
     my_met = np.zeros((len(NElist), len(LRlist)))
     err_met = np.zeros((len(NElist), len(LRlist)))
     #j, tstop = 0, 0
@@ -597,7 +613,7 @@ def iterate_crossvalidation(clf, fe_data, metric):
     mean_sum = 0.
     std_sum = 0.
     for i in range(iterations):
-        print 'it_cv ',i
+        print 'it_cv ',i, '   '
         fe_data = fe_data.iloc[np.random.permutation(len(fe_data))]
         in_tar = fe_data.LAB
         in_data = fe_data[fe_data.columns[:-1]]
@@ -708,7 +724,9 @@ def bestfeatn(input_data, intest_data):
         y_true, y_pred = quick_fat(train_data, test_data, 'RFC')
         #clf = bestfit(train_data, 'RFC', 1)
         #y_true = test_data.LAB
-        #y_pred = my_predict(clf, test_data, y_true )        
+        #y_pred = my_predict(clf, test_data, y_true )
+        print y_true
+        print y_pred
         dic_metric, conf_mat = get_report(y_true, y_pred)
         #print conf_mat
         my_met[k,:] = (i, dic_metric['ACC']) #to improve here better
@@ -759,13 +777,7 @@ def import_bojan():
     test = pd.concat((xtest,ytest), axis=1)
     train = pd.concat((xtrain,ytrain), axis=1)
     
-def test_learning(clf, test_data):
-    y_true = test_data.LAB
-    te_data = test_data[test_data.columns[:-1]]
-    y_pred = my_predict(clf, te_data, y_true )
-    return get_report(y_true, y_pred)
-   
-if __name__ == '__main__':
+def import_claire():
     print 'Starting main...'  
     #to import the dataset (extracted feature)
     localdir = '/home/andrea/Work/data/Physio/physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
@@ -791,8 +803,51 @@ if __name__ == '__main__':
     #plt.figure()
     #plt.plot(range(len(res_mat)),res_mat[:,1])
     
-    #search the best alg with the best classifier
-
+    #search the best alg with the best classifier    
+    #print dic_metric
+    #print conf_mat
     
-    print dic_metric
-    print conf_mat
+def test_learning(clf, test_data):
+    y_true = test_data.LAB
+    te_data = test_data[test_data.columns[:-1]]
+    y_pred = my_predict(clf, te_data, y_true )
+    return get_report(y_true, y_pred)
+   
+if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+    # from matplotlib.backends.backend_pdf import PdfPages
+
+    print 'Starting main...'  
+    #to import the dataset (extracted feature)
+    localdir = '/home/andrea/Work/data/Physio/physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
+    train_data = pd.DataFrame.from_csv(path=localdir + 'feat_train.csv', index_col=None, sep=',')
+    test_data = pd.DataFrame.from_csv(path=localdir + 'feat_test.csv', index_col=None, sep=',')
+    
+    #to normalize the data (optional)
+    print 'Starting norm...'      
+    train_data = normalize(train_data)
+    test_data = normalize(test_data)
+                
+    print 'Starting Asis...'  
+    clf, metric = bestAlg(train_data, 'ACC')
+    metric.tofile('alg_report_asis')
+    print 'Starting test asis...'  
+    dic_metric, conf_mat = test_learning(clf, test_data)
+    dic_metric.tofile('dic_report_asis')
+    conf_mat.tofile('conf_mat_asis')
+    
+    #feature selectionata = 
+    #train_data, test_dsplit(norm_data, 0.)   
+    print 'Starting feature selection...'  
+    train_data, test_data, my_met, listoflistsofbest = bestfeatn(train_data, test_data)
+    my_met.tofile('feat_sel_quickreport')
+    listoflistsofbest.tofile('list_of_best_feat')
+    feat_boxplot(norm_data[listoflistsofbest[5]])
+
+    print 'Starting train and test f_selected...'    
+    clf, metric = bestAlg(train_data, 'ACC')
+    metric.tofile('alg_report_fsel')
+    dic_metric, conf_mat = test_learning(clf, test_data)
+    dic_metric.tofile('dic_report_fsel')
+    conf_mat.tofile('conf_mat_fsel')
+    print '...ending main'

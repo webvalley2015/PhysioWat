@@ -21,6 +21,7 @@ def convert_units(data, coeff = 1):
 def power_fmax(spec,freq,fmin,fmax):
     #returns power in band
     psd_band=spec[np.where((freq > fmin) & (freq<=fmax))]
+    print len(psd_band)
     freq_band=freq[np.where((freq > fmin) & (freq<=fmax))]
     powerinband = np.sum(psd_band)/len(psd_band)
     try:

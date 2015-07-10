@@ -34,35 +34,46 @@ class linegraph2(HighChartsMultiAxesView):
         urlTmp = self.kwargs
         # get data type list
         # vals = getavaliabledatavals(urlTmp['id_num'])
+        data = []
         if urlTmp['elab'] == "raw":
-            data = SensorRawData.objects.filter(recording_id=urlTmp['id_num']).order_by('id')
+            idx = [(0, 'raw')]
+            data.append(SensorRawData.objects.filter(recording_id=urlTmp['id_num']).order_by('id'))
             self.title = 'Raw Data'
         elif urlTmp['elab'] == "proc":
-            print urlTmp['id_num']
-            data = Preprocessed_Data.objects.filter(pp_recording_id=urlTmp['id_num']).order_by('id')
+            idx = Preprocessed_Recording.objects.filter(batch_id=urlTmp['id_num']).values_list("pk", "signal_type_name")
+            for i in idx:
+                data.append(Preprocessed_Data.objects.filter(pp_recording_id=i[0]).order_by('id'))
             self.title = 'Preprocessed Data'
 
         print "DEBUG data", data
         print "DEBUG data", data, len(data), type(data)
 
         self.yaxis = {'title': {'text': ''}}
-        data_tmp = [i.store for i in data]
-        self.series = []
-        tmp = {k: (map(float, map(itemgetter(k), data_tmp))) for k in data_tmp[0]}
-        # CALCULATING SAMPLING FREQ.
-        samling_freq = 0.0
-        for i in range(0, 10):
-            samling_freq = samling_freq + (tmp['TIME'][i + 1] - tmp['TIME'][i])
-        samling_freq = samling_freq / 10
-        samling_freq = int(round(1 / samling_freq))
-        samling_freq = "%d" % samling_freq
-        samling_freq = str(' sampling frequency: ' + str(samling_freq) + 'Hz')
-        self.subtitle = samling_freq
 
-        # ADDING TIMESTAMP
-        for k in tmp.keys():
-            tmplist = [[tmp['TIME'][i] * 1000, tmp[k][i]] for i in xrange(len(tmp[k]))]
-            self.series.append({'data': tmplist, 'name': k})
+        data_tmp = []
+        for d in data:
+            data_tmp.append([i.store for i in d])
+
+        self.series = []
+
+        for j, d in enumerate(data_tmp):
+            tmp = {k: (map(float, map(itemgetter(k), d))) for k in d[0]}
+
+
+            # CALCULATING SAMPLING FREQ.
+            samling_freq = 0.0
+            for i in range(0, 10):
+                samling_freq = samling_freq + (tmp['TIME'][i + 1] - tmp['TIME'][i])
+            samling_freq = samling_freq / 10
+            samling_freq = int(round(1 / samling_freq))
+            samling_freq = "%d" % samling_freq
+            samling_freq = str(' sampling frequency: ' + str(samling_freq) + 'Hz')
+            self.subtitle = samling_freq
+
+            # ADDING TIMESTAMP
+            for k in tmp.keys():
+                tmplist = [[tmp['TIME'][i] * 1000, tmp[k][i]] for i in xrange(len(tmp[k]))]
+                self.series.append({'data': tmplist, 'name': '{}_{}'.format(k, str(idx[j][1]))})
         # print times
 
         # print "fsahdiasdjasdioadsjdoisj"
@@ -76,6 +87,31 @@ class linegraph2(HighChartsMultiAxesView):
         data['chart'] = {"renderTo": "#temporary-processing"}
         return data
 
+class linegraph3(HighChartsMultiAxesView):
+    legend = {'enabled': True, 'layout': 'vertical', 'align': 'right',
+              'verticalAlign': 'top', 'x': 10, 'y': 100, 'borderWidth': 0, }
+
+    def get_data(self, data_tmp, xcategories=None, title=None, tipo = "errorbar"):
+        print "SONO NELL" ,type, " PLOT"
+        print data_tmp
+        print xcategories
+        self.yaxis = {'title': {'text': title}}
+        if(title=="precision of the various algorithms"):
+            self.subtitle="those will be not displayed if you chose a specific algorithm"
+        self.series = [{'name':'Precision', 'data':data_tmp, 'type':tipo}]
+        self.categories = xcategories
+        self.title=title
+
+        data = super(linegraph3, self).get_data()
+        return data
+
+def somma(matrix):
+    total = 0
+    for i in range(len(matrix)):
+            for j in range(len(matrix[i])):
+                total += matrix[i][j]
+
+    return total
 
 class heatmap(HighChartsHeatMapView):
     legend = {'enabled': True, 'layout': 'vertical', 'align': 'right',
@@ -85,18 +121,24 @@ class heatmap(HighChartsHeatMapView):
         seriesTemp=[]
         # the confusion matrix is returned as a list of list of dimension n*n, where n is the number of labels
         # reformatting confusion matrix
+
+
         n_labels = len(matrix[0])
         for i in range(len(matrix)):
             for j in range(len(matrix[i])):
-                seriesTemp.append([i, j, matrix[i][j]])
+                value =  float(matrix[i][j]) / somma(matrix) * 100.0
+                value = float("%.2f" % value)
+                seriesTemp.append([j, len(matrix)-i-1, value] )
 
         #print seriesTemp
-        self.title = "Results - (i have to find a title)"
+        self.title = "Results - confusion matrix"
+        self.subtitle = "the value in the cells is the percentage of combinations predicted label - real label"
         self.xaxis = {'categories':range(n_labels)}
         self.yaxis = {'categories':range(n_labels)}
-        seriesTemp = {'name' : 'RESULT- CONFUSION MATRISCH', 'data': seriesTemp}
+        seriesTemp = {'name' : 'conf-mat', 'data': seriesTemp,  'dataLabels': {'enabled': True, 'color': '#000000'} }
         self.series = [seriesTemp]
-        self.coloraxis = {'minColor': '#3425E2',
-                          'maxColor': '#53CA00',}
+        self.coloraxis = {'minColor': '#FFFFFF',
+                          'maxColor': '#00A0FF',}
+
         data = super(heatmap, self).get_data()
         return data

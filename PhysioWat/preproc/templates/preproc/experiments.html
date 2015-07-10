@@ -1,50 +1,23 @@
 {% extends 'PhysioWat/base.html' %}
 {% block container %}
-  <h1>Select Experiment</h1>
+<h1>Select Experiment</h1>
 
-<!--Creating the divs to dispay the name of the step-->
-<div class="form-cnt">
+{% include "includes/steps.html" %}
 
-<div width="100%" height="100%" style="border-radius:10px 10px 10px 10px; border: 2px solid #6699FF; padding:0%; postion:abolute; height:4em;" class="col-md-12">
-
-<!--step 1-->
-<!--style="	border-top-left-radius:10px ; border-bottom-left-radius:10px ;background-color:#6699FF; color:white; border-right:2px solid #6699FF; height:100%;text-align: center; padding-top:3.8%"-->
-	<div id="div_step_1" align="left"  width="33%"  class="col-md-4">
-	Step 1
-	</div>
-<!--step 2-->
-<!--style="border-right:2px solid #6699FF; height:100%; text-align: center; padding-top:3.8%" -->
-	<div id="div_step_2" align="center"  width="33%"  class="col-md-4">
-	Step 2
-	</div>
-<!--step 3-->
-<!--style="	border-top-right-radius:10px ; border-bottom-right-radius:10px ;text-align: center;height:100%; padding-top:3.8%"-->
-	<div id="div_step_3" align="right"  width="33%" height="100%" class="col-md-4" >
-	Step 3
-	</div>
-</div>
-</div>
-<!--end steps-->
-    <form action="#" method="post" enctype="multipart/form-data" class="form-cnt">
-        {% csrf_token %}
-    <br><br>
-  
-    <br><br>
-        <select name="exp_name" class="form-control">
+<form action="#" method="post" enctype="multipart/form-data" class="form-cnt">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="sel">Experiment</label>
+        <select name="exp_name" class="form-control" id="sel">
             {% for c in name_list %}
-                <option value="{{ c }}">{{ c }}</option>
+            <option value="{{ c }}">{{ c }}</option>
             {% endfor %}
         </select>
-
-        <br>
-        <div>
-            <input placeholder="Passcode" type="password" name="token" required="true" class="form-control">
-            <br>
-            <input type="submit" value="Select">
-        </div>
-
-    </form>
-<br>
-
+    </div>
+    <div class="form-group">
+        <input placeholder="Passcode" type="password" name="token" required="true" class="form-control">
+    </div>
+    <input type="submit" class="btn btn-default" value="Select">
+</form>
 
 {% endblock %}
