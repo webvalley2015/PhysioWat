@@ -202,8 +202,8 @@ def ml_input(request, id_record):  # obviously, it has to be added id record and
 
         print mydict
         #print '-' * 60
-        # localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
-        # input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
+        #localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
+        #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
         exprecid = mydict['choose_id']
         print exprecid
         input_data = pddbload.load_file_pd_db(int(exprecid[0]))
