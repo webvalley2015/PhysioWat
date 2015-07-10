@@ -17,13 +17,11 @@ def get_windows_contiguos(time, labels, WINLEN, WINSTEP):
     windows=[]
     labs=np.array([])
     for i in range(len(starts)):
-        windows.append([starts[i], ends[i]])
         portion=labels[(time>=starts[i]) & (time<ends[i])]
         mean=portion.mean()
         if mean==int(mean):
             labs=np.r_[labs, mean]
-        else:
-            labs=np.r_[labs, np.nan]
+            windows.append([starts[i], ends[i]])
     return windows, labs
 
 def get_windows_no_mix(time, labels, WINLEN, WINSTEP):

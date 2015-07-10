@@ -158,6 +158,7 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
                 print(fname)
                 toCsv(data_out, columns_out, fname)
                 WritePathtoDB(fname, id_num, params)
+                success=True
             except Exception as e:
                 print "COULD NOT PROCESS "+id_num+": "+e.message
                 if type_sig is not None:
@@ -165,8 +166,6 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
                 else:
                     messages.error(request, "Error processing. Review your parameters! It will not be saved.")
                 success=False
-            finally:
-                success=True
         #else:
         #    success=False
         #    messages.error(request, "Choose at least one preprocessed signal")
