@@ -11,7 +11,6 @@
 <div id="container" style="margin-top: 3%;">
     <form action="#" class="form-cnt" method="post" enctype="multipart/form-data" name="selection" id="selection">
 
-        <br><br>
         <!-- ul class="pager">
             <li class="previous">
                 <a href="#">&larr; Previous</a>
@@ -21,59 +20,21 @@
             </li>
         </ul -->
         {% csrf_token %}
+        {% include "includes/panel_form.html" with form=viewf id="view_stuff" %}
+        {% include "includes/panel_form.html" with form=formListId id="form_list_id" %}
+        {% include "includes/panel_form.html" with form=FPar id="mlParSet_1" hidden=True caption="Select whether you want to choose how many features you want to consider, or if you want an automatic response in the first case, write the number" %}
+        {% include "includes/panel_form.html" with form=TPar id="mlParSet_2" hidden=True caption="Select the percentage of the data used as a test and the number of iterations" %}
+        {% include "includes/panel_form.html" with form=AlgChoose id="mlParSet_3" hidden=True caption="Choose your algorithm" %}
+        {% include "includes/panel_form.html" with form=AlgParamChoose id="mlParSet_4" hidden=True caption="Choose whether you have to set the parameters or not" %}
 
-<div id="view_stuff"><!--div view -->
-        {{  viewf }}
-</div>
-<br><br>
-        {{ formListId }}   <!-- finestra con gli id-->
-
-     <div id="mlParSet_1" style="display:none;" class="div_choose">
-         <br><br>
-         <h5> Select whether you want to choose how many features you want to consider, or if you want an automatic
-             response</h5> <br> in the first case, write the number <br><br>
-
-         {{ FPar }} <!-- FEATCHOOSE /DISPLEAYATO SOLO SE SELECT FEATURES DI VIEWF E' PRESO -->
-     </div>
-
-
-        <br><br>
-      <div id="mlParSet_2" class ="div_choose" style="display:none;">
-         <h5>Select the percentage of the data used as a test and the number of iterations</h5>
-
-          {{ TPar }} <!-- test percentage e number of iterations -->
-
-
-      </div>
-        <br><br>
-        <div id="mlParSet_3" class="div_choose" style="display:none;">
-            <h5>Choose your algorithm</h5>
-            {{ AlgChoose }} <!-- ALG CHOICHE -->
-        </div>
-        <br><br>
-
-        <div id="mlParSet_4" class="div_choose" style="display:none;">        <!-- div with autofit, default or personalized -->
-             <h5>Choose whether you have to set the parameters or not</h5>
-             {{ AlgParamChoose }} <!-- DEFAULT PARAM, ATIUMATICALLY, DEFINE....
-DUOLAYATO SE IL FORM PRIMA NON E' TRUY EVERY ALGORITHM -->
-        </div>
-        <br><br>
-
-           <div id="mlPersPar">   <!-- CONTIENE I PARAMETRI PERSONALIZZATI PER OGNI ALGORITMO. VIENE DIPSLAYATO SE E SOLO SE SOPRA C'È IL DEFINE  -->
+        <div id="mlPersPar" class="form-group">
+            <!-- CONTIENE I PARAMETRI PERSONALIZZATI PER OGNI ALGORITMO. VIENE DIPSLAYATO SE E SOLO SE SOPRA C'È IL DEFINE  -->
 
         </div>
-        <br><br>
-        <div id="autoFitParamChoose" style="display:none;">       <!-- div with the metrics -->
-            {{ autoParam }}  <!-- CONTIENE I PARAMETRI AUTOMATICI DELL' ALG. VIENE DISPALYATO SE SOPRA C'È L' AUTOMATICO --> 
-        </div>
-       <button type="submit" class="btn btn-success" id="button_submit" style="display:none">Submit</button>
-         <input type="button" class="btn btn-primary" id ="button_reset" value="reset"></input>
-        <input type="button" class="btn btn-primary" id="proceed" value="proceed"></input>
-
-
-{#        <button type="submit" class="btn btn-success" id="button_submit" style="display:none">Submit</button>#}
-{#        <input type="button" class="btn btn-danger" id ="button_reset" value="reset"></input>#}
-{#        <input type="button" class="btn btn-primary" id="proceed" value="proceed"></input>#}
+        {% include "includes/panel_form.html" with form=autoParam id="autoFitParamChoose" hidden=True %}
+        <input type="submit" class="btn btn-success" id="button_submit" style="display:none" value="Submit">
+        <input type="button" class="btn btn-primary" id="proceed" value="Proceed">
+        <input type="button" class="btn btn-danger" id="button_reset" value="Reset">
 
 
 
@@ -124,7 +85,7 @@ DUOLAYATO SE IL FORM PRIMA NON E' TRUY EVERY ALGORITHM -->
              }
              var allVals =[]
              $('#selection :input:checked').each(function (i, elem) {
-               allVals.push(elem.value);  
+               allVals.push(elem.value);
                if (elem.value == "sel")
                 { $('#mlParSet_1').show(); }
             }); //THIS BLOCK IS NEEDED BECAUSE OF THE FACT THAT (ONLY the first paraghraph coul be not displaysable)
@@ -173,16 +134,30 @@ DUOLAYATO SE IL FORM PRIMA NON E' TRUY EVERY ALGORITHM -->
             choosen_alg = "form_" + choosen_alg
             //console.log (choosen_alg);
             var temp;
+            var s = '<div class="" id={{ id }} {% if hidden %} style="display:none;" {% endif %}>\
+    <div class="panel panel-default">\
+        <div class="panel-body">\
+        <div class=form-group>\
+        <p>Select specific parameters</p>';
+
+
               {% for k,v in forms.items %}
                     temp ="{{ k }}";
 
                      if (temp == choosen_alg){
                     {% spaceless %}
-                     document.getElementById('mlPersPar').innerHTML = ' {{ v }}';
+                     s += '{{ v }}';
                      {% endspaceless %}
                      }
 
              {% endfor %}
+             s += '</div>\
+        </div>\
+    </div>\
+</div>'
+;
+                  console.log(s);
+                  document.getElementById('mlPersPar').innerHTML = s
         }
         if(choosen_opt == "auto"){  // IF YOU WANT THE AUTOTRAIN, then show the choices
             //console.log("choosen the autofit!");
@@ -212,8 +187,10 @@ DUOLAYATO SE IL FORM PRIMA NON E' TRUY EVERY ALGORITHM -->
 
 
 
-
-
+//
+//        $(function(){
+//            $("div:hidden").show();
+//        });
 
 
     </script>
