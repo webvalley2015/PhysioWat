@@ -16,7 +16,7 @@ from PhysioWat.settings import MEDIA_ROOT
 from time import time as get_timestamp
 from preproc.scripts.processing_scripts import pddbload
 import datetime
-
+import pandas as pd
 from PhysioWat.models import Experiment, Preprocessed_Recording, Preprocessed_Data, FeatExtractedData
 from preproc.graphs import linegraph2, heatmap, linegraph3
 
@@ -186,8 +186,6 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
 def ml_input(request):  # obviously, it has to be added id record and everything concerning db
     if (request.method == 'POST'):
 
-        template = "machine_learning/results.html"
-
         #print "culoculoculoculo"  # GET THE POST, ELABORATE AND GO TO THE DB OR THE PLOT
         #print request.POST
         mydict = dict(request.POST.iterlists())
@@ -198,10 +196,10 @@ def ml_input(request):  # obviously, it has to be added id record and everything
 
         print mydict
         #print '-' * 60
-        #localdir = 'PhysioWat/preproc/scripts/processing_scripts/output/'
+        #localdir = '/home/emanuele/wv_physio/PhysioWat/PhysioWat/preproc/scripts/processing_scripts/output/'
         #input_data = pd.DataFrame.from_csv(path=localdir + 'feat_claire_labeled.csv')  # , index_col=None, sep=',')
         exprecid = mydict['choose_id']
-        print exprecid
+        #print exprecid
         #exprecid = [18]
         input_data = pddbload.load_file_pd_db(int(exprecid[0]))
         num_feat = -1  # set to -1 because of
@@ -217,11 +215,12 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         flag = True
 
         flag_has_selected_auto_feat = False
-        list_of_feat = list(input_data.columns)
+        list_of_feat = None
         best_feat_n_mat = []
         num_feat = -1
         auto_alg_result_mat = None
         best_feat_json = None
+
 
         if 'viewf' in mydict:
             print "hellp"
@@ -235,15 +234,17 @@ def ml_input(request):  # obviously, it has to be added id record and everything
             if 'sel' in mydict['viewf']:
                 # print "i have selected the first stuff!"
                 if 'k_selected' in mydict['FeatChoose']:
-                    num_feat = mydict['feat_num']
+                    num_feat = int(mydict['feat_num'][0])
                     if (num_feat <= 0):
                         return render(request, "machine_learning/form_error.html")
-                    train_data, test_data, list_of_feat = ft.getfeatnumber(train_data, test_data, k) #RETURNS 2 SUBSET DF GIVEN IN INPUT THE TRAIN DATA, THE TEST DATA, AND THE NUMBER OF FEATS
+                    train_data, test_data, list_of_feat = ft.getfeatnumber(train_data, test_data, num_feat) #RETURNS 2 SUBSET DF GIVEN IN INPUT THE TRAIN DATA, THE TEST DATA, AND THE NUMBER OF FEATS
 
                 if ('k_auto' in mydict['FeatChoose']):
                     print "hi"
                     train_data, test_data, best_feat_n_mat, list_of_feat = ft.bestfeatn(train_data, test_data)
                     flag_has_selected_auto_feat = True
+                    list_of_feat = list_of_feat[4]
+
 
         if(flag == True):
             train_data, test_data = ft.split(input_data, percentage)
@@ -293,50 +294,85 @@ def ml_input(request):  # obviously, it has to be added id record and everything
 
         #print dic_metric, conf_mat
         #print  best_feat_n_mat
-        #best_feat_n_mat[:, 1] *= 100.0
-        #best_feat_n_mat = best_feat_n_mat.tolist() #LIST: CONTAINS THE PRECISION IN FUNCTIONM OF THE NUMBER OF FEATURES
 
         #print "BEST FEAT NUMBER: PRECISION IN FUNFCION OF THE UMBER", type(best_feat_n_mat), best_feat_n_mat
         #print "CONFUSION MATRIX" ,conf_mat
         #print "DICTIONARY OF THE METRICS", dic_metric
 
+
+        best_feat_json = best_feat_n_mat #see if it's needed
+        #categories = #PICK ALGORITHM CATEGORIES
+        if best_feat_n_mat != []:
+            s = linegraph3()
+            best_feat_json = s.get_data(data_tmp = best_feat_n_mat.tolist())#xcategories = categories)
+            best_feat_json = json.dumps(best_feat_json)
+            print "LA MATRICE DELLE FEATURES, CHE SUL TEMPLATE FUNZIONA  ", best_feat_json
+
+        # PART OF THE BEST ALGORITHM
+        if auto_alg_result_mat:
+            s = linegraph3()
+            auto_alg_result_mat = list(np.array(auto_alg_result_mat[:,1:]))
+            algorithm_categories = ['KNN','SVM','DCT','RND','ADA','QDA','LDA'] # TODO PEDOT FUNCTION!!!!
+            auto_alg_result_mat = s.get_data(data_tmp = auto_alg_result_mat, xcategories=algorithm_categories, tipo="errorbar", title="precision of the various algorithms")
+            auto_alg_result_mat = json.dumps(auto_alg_result_mat)
+
+        # PART OF THE METRICS VALUE!!!
+
+        dict_sigla_parola = {'ACC': 'accuracy %',
+                             'F1M': 'F-Test macro',
+                             'F1m': 'F-Test micro',
+                             'F1W': 'F-Test weighted',
+                             'WHM': 'Weighted Harmonic Mean of precision and recall',
+                             'PRM': 'Precision Score Macro',
+                             'PRm': 'Precision Score Micro',
+                             'PRW': 'Precision Score Weighted',
+                             'REM': 'Recall Score Macro',
+                             'REm': 'Recall Score Micro',
+                             'REW': 'Recall Score Weighted'}
+
+
+        print "dizionario -------", dic_metric
+        s = linegraph3()
+        xcate = []
+        for i in dic_metric.keys():
+            xcate.append(dict_sigla_parola[i])
+        metrics = s.get_data(data_tmp = dic_metric.values(),title="metrics accuracy", tipo = "scatter",xcategories=xcate)
+        metrics = json.dumps(metrics)
+        print "metriche --->", metrics# todo delete line
+        # PART OF THE CONFUSION MATRIX
         h = heatmap()
-        print(conf_mat)
-        conf_mat = conf_mat.tolist() #!!!important
+        #conf_mat = conf_mat.tolist() #!!!important
         conf_data = h.get_data(conf_mat)
         conf_data = json.dumps(conf_data)
 
-        best_feat_json = best_feat_n_mat.tolist() #see if it's needed
-        #categories = #PICK ALGORITHM CATEGORIES
-        if best_feat_n_mat != []
-            s = linegraph3()
-            best_feat_json = s.get_data(data = best_feat_n_mat)#xcategories = categories)
-            best_feat_json = json.dumps(best_feat_json)
 
-        dict_sigla_parola = {'ACC': 'accuracy %',
-        'F1M': 'F-Test macro' ,
-        'F1m': 'F-Test micro',
-        'F1W ': 'F-Test weighted',
-        'WHM': 'Weighted Harmonic Mean of precision and recall',
-        'PRM': 'Precision Score Macro',
-        'PRm': 'Precision Score Micro',
-        'PRW': 'Precision Score Weighted',
-        'REM': 'Recall Score Macro',
-        'REm': 'Recall Score Micro',
-        'REW' : 'Recall Score Weighted'}
+        context = {'auto_alg_result_mat':auto_alg_result_mat, #boxplot with the algorithms cosres
+                    'conf_mat': conf_data,
+                   'metrics':metrics,
+                   'list_of_feat': list_of_feat,     #second part, with the list of features and the function score vs nfeat
+                   'best_feat_scores': best_feat_n_mat,
+         }
+
+
+        if best_feat_n_mat != []:
+            best_feat_n_mat[:, 1] *= 100.0
+        #best_feat_n_mat = best_feat_n_mat.tolist() #LIST: CONTAINS THE PRECISION IN FUNCTIONM OF THE NUMBER OF FEATURES
 
 
         # TODO check the 'matrix for'
+        # todo best n feat NAMES?
+        if list_of_feat:
+            list_of_feat = [i.replace('_', ' ') for i in list_of_feat]
         template = "machine_learning/results.html"
-        context = {'conf_mat': conf_data, 'dic_result':dic_metric,  # essential part, the last one (conf.matrix)
-
-                   'auto_list_of_feats': list_of_feat,     #second part, with the list of features and the function score vs nfeat
-                   'best_feat_scores': best_feat_n_mat,
-                   'dict_sigla_parola':dict_sigla_parola,
-                   'best_feat_scores_json':best_feat_json,
-
-                    #'auto_alg_result_mat':auto_alg_result_mat, #boxplot with the algorithms cosres
-                   }
+        # context = {'conf_mat': conf_data,
+        #            'dic_result':dic_metric,  # essential part, the last one (conf.matrix)
+        #            'list_of_feat': list_of_feat,     #second part, with the list of features and the function score vs nfeat
+        #            'best_feat_scores': best_feat_n_mat,
+        #            'dict_sigla_parola': dict_sigla_parola,
+        #            'best_feat_scores_json': best_feat_json,
+        #
+        #            'auto_alg_result_mat':auto_alg_result_mat, #boxplot with the algorithms cosres
+        #            }
         return render(request, template, context)
 
 

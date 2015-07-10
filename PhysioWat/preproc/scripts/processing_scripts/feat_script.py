@@ -551,8 +551,8 @@ def bestfit_LDA(fe_data, alg, metric):
     
 #watch out... this is a particular matrix... 65s for 75cvs
 def bestfit_ADA(fe_data, alg, metric):
-    NElist = [i*50 for i in range(1, 201)]# TRY
-    LRlist = [i*0.25 for i in range(2,8)] # TRY
+    NElist = [i*50 for i in range(1, 20, 5)]# TRY
+    LRlist = [i*0.25 for i in range(2,6)] # TRY
     my_met = np.zeros((len(NElist), len(LRlist)))
     err_met = np.zeros((len(NElist), len(LRlist)))
     #j, tstop = 0, 0

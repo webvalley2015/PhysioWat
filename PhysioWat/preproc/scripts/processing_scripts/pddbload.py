@@ -17,7 +17,6 @@ def load_file_pd_db(recordingID):
     uncleanedfile.close()
     file.close()
     filecleaned = open(file_name + 'proc_ml', 'r')
->>>>>>> 0c58147522a1e1b74ff3e3132db1b99fe3badfc4
     datacsv = pd.read_csv(filecleaned, sep=',')
     print datacsv
     return datacsv

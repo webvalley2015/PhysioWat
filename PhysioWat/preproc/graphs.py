@@ -91,16 +91,15 @@ class linegraph3(HighChartsMultiAxesView):
     legend = {'enabled': True, 'layout': 'vertical', 'align': 'right',
               'verticalAlign': 'top', 'x': 10, 'y': 100, 'borderWidth': 0, }
 
-    def get_data(self, data, xcategories=None, title=None, type = "scatter"):
-        data_tmp = []
+    def get_data(self, data_tmp, xcategories=None, title=None, tipo = "errorbar"):
+        print "SONO NELL" ,type, " PLOT"
+        print data_tmp
         print xcategories
-        for i in data:
-            data_tmp.append(i[1])
-        self.yaxis = {'title': {'text': ''}}
-        self.series = [{'name':'Precision', 'data':data_tmp, 'type':type]
-        #self.series.append({})
+        self.yaxis = {'title': {'text': title}}
+        if(title=="precision of the various algorithms"):
+            self.subtitle="those will be not displayed if you chose a specific algorithm"
+        self.series = [{'name':'Precision', 'data':data_tmp, 'type':tipo}]
         self.categories = xcategories
-        # print data
         self.title=title
 
         data = super(linegraph3, self).get_data()
