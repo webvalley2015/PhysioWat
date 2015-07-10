@@ -171,6 +171,7 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
 
             st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y%m%d_%H%M%S')
             fname = MEDIA_ROOT + type_sig + "_" + id_num + "_" + st + ".csv"
+            print fname
             # print(fname)
             toCsv(data_out, columns_out, fname)
             id_file = WritePathtoDB(fname, id_num, params)
