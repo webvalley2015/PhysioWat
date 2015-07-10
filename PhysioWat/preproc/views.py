@@ -71,6 +71,7 @@ def putPreprocArrayintodb(rec_id, preProcArray, preProcLabel, applied_preproc_fu
     Preprocessed_Data.objects.bulk_create(record_list, batch_size=32768)
     return new_batch_id
 
+
 def show_chart(request, id_num, alg_type=""):
     template = "preproc/chart.html"
     alg_type = str(alg_type)

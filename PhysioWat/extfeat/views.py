@@ -12,7 +12,7 @@ from preproc.scripts.processing_scripts.tools import selectCol as selcol, dict_t
 from django.contrib import messages
 from PhysioWat.models import Experiment, Recording, Preprocessed_Recording, Preprocessed_Data
 import numpy as np
-from PhysioWat.settings import MEDIA_ROOT
+from PhysioWat.settings import MEDIA_ROOT, BASE_DIR
 from time import time as get_timestamp
 from preproc.scripts.processing_scripts import pddbload
 import datetime
@@ -155,6 +155,7 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
 
                 st = datetime.datetime.fromtimestamp(get_timestamp()).strftime('%Y%m%d_%H%M%S')
                 fname=MEDIA_ROOT+type_sig+"_"+id_num+"_"+st+".csv"
+                print(fname)
                 toCsv(data_out, columns_out, fname)
                 WritePathtoDB(fname, id_num, params)
             except Exception as e:
@@ -183,7 +184,7 @@ def getAlgorithm(request, id_record):  # ADD THE TYPE ODF THE SIGNAL ALSO IN URL
 
 # ----------------end get_algorithm
 
-def ml_input(request):  # obviously, it has to be added id record and everything concerning db
+def ml_input(request, id_record):  # obviously, it has to be added id record and everything concerning db
     if (request.method == 'POST'):
 
         #print "culoculoculoculo"  # GET THE POST, ELABORATE AND GO TO THE DB OR THE PLOT
@@ -401,12 +402,14 @@ def ml_input(request):  # obviously, it has to be added id record and everything
         form_autoParam = autoFitParam()
         form_list = [form_svm, form_knear, form_dectree, form_rndfor, form_adaboost, form_lda]
 
-        id_list=getprocessedrecordid()
+        id_list=getprocessedrecordid(id_record)
         # print  id_list
         # id_list=[(i, str(i)) for i in id_list ]
         # print id_list
         form_list_id = id_choose(choices=id_list)
-        print  form_list_id
+        print '###############'
+        print form_list_id
+        print '###############'
         #print(form_viewf)
         #print form_f_par
 
@@ -460,8 +463,8 @@ def select_experiment(request):
         return render(request, 'extfeat/experiments.html', context)
 
 
-def getprocessedrecordid():
-    return FeatExtractedData.objects.values_list('id', 'path_to_file')
+def getprocessedrecordid(idf):
+    return FeatExtractedData.objects.filter(pp_recording_id=idf).values_list('id', 'path_to_file')
 
 
 def getRecordsList(experimentId):

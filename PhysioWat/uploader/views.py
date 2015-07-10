@@ -50,27 +50,34 @@ def get_data_from_mobile(request):
         # in 'data'   -> file to be read
         # in 'exp_id' -> experiment id
 
-        if 'data' not in request.POST:
+        print request.POST
+        print request.FILES
+        if 'data' not in request.FILES:
             print "Error: no data received or bad POST key for data ",
             print "(it must be 'data'). No data will be save to db."
         elif 'exp_id' not in request.POST:
             print "Error: no experiment selected. No data will be save to db."
         else:
+            print 'saving data to db...'
             exp_id = request.POST['exp_id']
             descr = "mobile data for exp n. {0}".format(exp_id)
             try:
-                csvtodb.putintodbflex(request.FILES.getlist(),
+                for f in request.FILES['data'].chunks():
+                    print f
+
+                print "pippo", request.FILES['data']
+                csvtodb.putintodbflex([request.FILES['data']],
                                       'mobile',
-                                      desc,
+                                      descr,
                                       exp_id)
+                print "savED data to db."
             except Exception as e:
                 print "Error while saving mobile data to db."
                 print "Details: {0}".format(e)
     else:
         print "Warning: No POST request received. Doing nothing."
-        
-    return HttpResponse(data)
 
+    return HttpResponse()
 
 def list_experiment_id(request):
     myexp = Experiment.objects.all().values_list('id', 'name')
